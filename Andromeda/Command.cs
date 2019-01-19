@@ -68,7 +68,7 @@ namespace Andromeda
                 {
                     var message = args.Message;
 
-                    if(ArgParse.CommandName.Parse(ref message, out var parse) is string error)
+                    if(SmartParse.CommandName.Parse(ref message, out var parse) is string error)
                         args.Player.Tell(Msg.Error(error));
                     else
                     {
@@ -90,9 +90,9 @@ namespace Andromeda
 
             #region Commands
             // HELP
-            TryRegister(ArgParse.CreateCommand(
+            TryRegister(SmartParse.CreateCommand(
                 name: "help",
-                argTypes: new[] { ArgParse.OptionalString },
+                argTypes: new[] { SmartParse.OptionalString },
                 action: delegate (Entity sender, object[] args)
                 {
                     if(args[0] is string filter)
@@ -158,9 +158,9 @@ namespace Andromeda
                 description: "Filters commands or shows description if a single command was found"));
 
             // PM
-            TryRegister(ArgParse.CreateCommand(
+            TryRegister(SmartParse.CreateCommand(
                 name: "pm",
-                argTypes: new[] { ArgParse.Player, ArgParse.GreedyString },
+                argTypes: new[] { SmartParse.Player, SmartParse.GreedyString },
                 action: delegate (Entity sender, object[] args)
                 {
                     var target = args[0] as Entity;
@@ -172,9 +172,9 @@ namespace Andromeda
                 description: "Sends a private message to a player"));
 
             // USAGE
-            TryRegister(ArgParse.CreateCommand(
+            TryRegister(SmartParse.CreateCommand(
                 name: "usage",
-                argTypes: new[] { ArgParse.String },
+                argTypes: new[] { SmartParse.String },
                 action: delegate (Entity sender, object[] args)
                 {
                     var alias = args[0] as string;

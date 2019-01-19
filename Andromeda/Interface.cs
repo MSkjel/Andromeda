@@ -10,14 +10,15 @@ namespace Andromeda
     {
         public static void SayAll(IEnumerable<Msg> messages)
             => Utils.SayAll(messages);
+
         public static void SayAll(Msg message)
-            => SayAll(new[] { message });
+            => SayAll(message.Yield());
 
         public static void Tell(this Entity player, IEnumerable<Msg> messages)
             => Utils.SayTo(player, messages);
 
         public static void Tell(this Entity player, Msg message)
-            => player.Tell(new[] { message });
+            => player.Tell(message.Yield());
 
         public static bool HasPermission(this Entity player, string permission)
             => Perms.HasPermission(player, permission);
@@ -56,5 +57,9 @@ namespace Andromeda
             return false;
         }
 
+        public static IEnumerable<T> Yield<T>(this T item)
+        {
+            yield return item;
+        }
     }
 }

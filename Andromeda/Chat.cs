@@ -13,7 +13,7 @@ namespace Andromeda
 
         private static string chatFormat = "<player:GetPlayerChatName>: <message>";
 
-        [EntryPoint]
+        //[EntryPoint]
         static void Init()
         {
             Script.PlayerSay.Add((sender, args) =>

@@ -11,11 +11,23 @@ namespace Andromeda
     [Plugin]
     public static partial class Common
     {
-        public static string Version
-            => "Andromeda v1.0.0";
-        public static IPerms Perms { get; private set; }
-        public static IUtils Utils { get; private set; }
-        public static IAdmin Admin { get; private set; }
+        internal static string Version
+            => "Andromeda v0.0.1";
+
+        private static IPerms perms;
+        private static readonly IPerms mockPerms = new Mock.Perms();
+        public static IPerms Perms
+            => perms ?? mockPerms;
+
+        private static IUtils utils;
+        private static readonly IUtils mockUtils = new Mock.Utils();
+        public static IUtils Utils
+            => utils ?? mockUtils;
+
+        private static IAdmin admin;
+        private static readonly IAdmin mockAdmin = new Mock.Admin();
+        public static IAdmin Admin
+            => admin ?? mockAdmin;
 
         internal static readonly List<IFunctionality> functionalities = new List<IFunctionality>();
         
@@ -63,35 +75,37 @@ namespace Andromeda
 
         public static void Register(IFunctionality functionality)
         {
-            switch(functionality)
+            if(functionality is IPerms perms)
             {
-                case IPerms perms:
-                    if (Perms == null)
-                    {
-                        Perms = perms;
-                        Exports[nameof(Perms)] = Perms;
-                    }
-                    else
-                        Warning("Perms already assigned", "Ignoring new register");
-                    return;
-                case IUtils utils:
-                    if (Utils == null)
-                    {
-                        Utils = utils;
-                        Exports[nameof(Utils)] = Utils;
-                    }
-                    else
-                        Warning("Utils already assigned", "Ignoring new register");
-                    return;
-                case IAdmin admin:
-                    if (Admin == null)
-                    {
-                        Admin = admin;
-                        Exports[nameof(Admin)] = Admin;
-                    }
-                    else
-                        Warning("Admin already assigned", "Ignoring new register");
-                    return;
+                if (Common.perms == null)
+                {
+                    Common.perms = perms;
+                    Exports[nameof(Perms)] = Perms;
+                }
+                else
+                    Warning("Perms already assigned", $"Ignoring new register: {perms.Version}");
+            }
+
+            if(functionality is IUtils utils)
+            {
+                if (Common.utils == null)
+                {
+                    Common.utils = utils;
+                    Exports[nameof(Utils)] = Utils;
+                }
+                else
+                    Warning("Utils already assigned", $"Ignoring new register: {utils.Version}");
+            }
+
+            if(functionality is IAdmin admin)
+            {
+                if (Common.admin == null)
+                {
+                    Common.admin = admin;
+                    Exports[nameof(Admin)] = Admin;
+                }
+                else
+                    Warning("Admin already assigned", $"Ignoring new register: {admin.Version}");
             }
 
             functionalities.Add(functionality);
@@ -108,8 +122,6 @@ namespace Andromeda
                     "IPerms has not been registered",
                     "Mock IPerms will be used",
                 });
-
-                Register(new Mock.Perms());
             }
 
             if (Utils == null)
@@ -119,8 +131,6 @@ namespace Andromeda
                     "IUtils has not been registered",
                     "Mock IUtils will be used",
                 });
-
-                Register(new Mock.Utils());
             }
 
             if (Admin == null)
@@ -130,18 +140,16 @@ namespace Andromeda
                     "IAdmin has not been registered",
                     "Mock IAdmin will be used",
                 });
-
-                Register(new Mock.Admin());
             }
         }
 
         static Common()
         {
             // VERSION
-            Command.TryRegister(ArgParse.CreateCommand(
+            Command.TryRegister(SmartParse.CreateCommand(
                 name: "version",
                 aliases: new[] { "v" },
-                argTypes: new IArgParse[0],
+                argTypes: new ArgParse[0],
                 action: delegate (Entity sender, object[] args)
                 {
                     sender.Tell(new Msg[] {

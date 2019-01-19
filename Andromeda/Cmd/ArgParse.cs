@@ -7,17 +7,17 @@ using System.Text.RegularExpressions;
 
 namespace Andromeda.Cmd
 {
-    public static class ArgParse
+    public static class SmartParse
     {
-        public static readonly IArgParse OptionalString = new OptionalStringParse();
-        public static readonly IArgParse String = new StringParse();
-        public static readonly IArgParse OptionalGreedyString = new OptionalGreedyStringParse();
-        public static readonly IArgParse GreedyString = new GreedyStringParse();
-        public static readonly IArgParse Player = new PlayerParse();
+        public static readonly ArgParse OptionalString = new OptionalStringParse();
+        public static readonly ArgParse String = new StringParse();
+        public static readonly ArgParse OptionalGreedyString = new OptionalGreedyStringParse();
+        public static readonly ArgParse GreedyString = new GreedyStringParse();
+        public static readonly ArgParse Player = new PlayerParse();
 
-        internal static readonly IArgParse CommandName = new CommandNameParse();
+        internal static readonly ArgParse CommandName = new CommandNameParse();
 
-        public static Command CreateCommand(string name, IArgParse[] argTypes, Action<Entity, object[]> action, string usage, string[] aliases = null, string permission = null, string description = null)
+        public static Command CreateCommand(string name, ArgParse[] argTypes, Action<Entity, object[]> action, string usage, string[] aliases = null, string permission = null, string description = null)
             => new Command(name,
                 delegate (Entity sender, string message)
                 {
@@ -45,14 +45,17 @@ namespace Andromeda.Cmd
                 }, usage, aliases, permission, description);
     }
 
-    public interface IArgParse
+    public abstract class ArgParse
     {
-        string Parse(ref string str, out object parsed);
+        public abstract string Parse(ref string str, out object parsed);
+
+        public virtual string Parse(ref string str, Entity sender, out object parsed)
+            => Parse(ref str, out parsed);
     }
 
-    public class OptionalStringParse : IArgParse
+    public class OptionalStringParse : ArgParse
     {
-        public virtual string Parse(ref string str, out object parsed)
+        public override string Parse(ref string str, out object parsed)
         {
             var match = Regex.Match(str, @"(\S+)(?:\s+(.*))?");
 
@@ -86,9 +89,9 @@ namespace Andromeda.Cmd
         }
     }
 
-    public class OptionalGreedyStringParse : IArgParse
+    public class OptionalGreedyStringParse : ArgParse
     {
-        public virtual string Parse(ref string str, out object parsed)
+        public override string Parse(ref string str, out object parsed)
         {
             parsed = str.Trim();
             str = string.Empty;
@@ -110,11 +113,11 @@ namespace Andromeda.Cmd
         }
     }
 
-    public class PlayerParse : IArgParse
+    public class PlayerParse : ArgParse
     {
-        public string Parse(ref string str, out object parsed)
+        public override string Parse(ref string str, out object parsed)
         {
-            if (ArgParse.String.Parse(ref str, out parsed) is string error)
+            if (Cmd.SmartParse.String.Parse(ref str, out parsed) is string error)
                 return "Expected player selector";
 
             if(parsed is string selector)
