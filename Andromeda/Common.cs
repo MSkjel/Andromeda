@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PBase;
-using CommonFunctionality.Interfaces;
+using Andromeda.Interfaces;
 using InfinityScript;
-using CommonFunctionality.Cmd;
+using Andromeda.Cmd;
 
-namespace CommonFunctionality
+namespace Andromeda
 {
     [Plugin]
     public static partial class Common
@@ -101,7 +100,7 @@ namespace CommonFunctionality
         [EntryPoint]
         private static void Init()
         {
-            Log.Info("Initializing CommonFunctionality");
+            Log.Info("Initializing Andromeda");
             if(Perms == null)
             {
                 Warning(new[]

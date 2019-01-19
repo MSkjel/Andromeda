@@ -1,13 +1,12 @@
-﻿using CommonFunctionality.Interfaces;
+﻿using Andromeda.Interfaces;
 using InfinityScript;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PBase;
-using CommonFunctionality.Cmd;
+using Andromeda.Cmd;
 
-namespace CommonFunctionality
+namespace Andromeda
 {
     [Plugin]
     public class Command

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using InfinityScript;
 
-namespace CommonFunctionality
+namespace Andromeda
 {
     public static partial class Common
     {

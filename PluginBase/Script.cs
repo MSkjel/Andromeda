@@ -1,11 +1,11 @@
-﻿using InfinityScript;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using InfinityScript.PBase;
 
-namespace PBase
+namespace InfinityScript
 {
     public static partial class Script
     {

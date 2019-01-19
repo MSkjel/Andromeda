@@ -1,10 +1,9 @@
-﻿using InfinityScript;
-using PBase.Events;
+﻿using InfinityScript.Events;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace PBase
+namespace InfinityScript
 {
     public static partial class Script
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CommonFunctionality
+namespace Andromeda
 {
     public struct Msg
     {

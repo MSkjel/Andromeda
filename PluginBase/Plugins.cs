@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using InfinityScript;
 using System.IO;
 using System.Reflection;
 
-namespace PBase
+namespace InfinityScript
 {
     public static partial class Script
     {

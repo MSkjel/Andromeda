@@ -1,7 +1,6 @@
-﻿using InfinityScript;
-using System;
+﻿using System;
 
-namespace PBase.Events
+namespace InfinityScript.Events
 {
     public class PlayerDamageArgs : EventArgs
     {

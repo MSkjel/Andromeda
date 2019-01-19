@@ -1,8 +1,7 @@
-﻿using InfinityScript;
-using PBase.Events;
+﻿using InfinityScript.Events;
 using System;
 
-namespace PBase
+namespace InfinityScript.PBase
 {
     public class PluginBase : BaseScript
     {

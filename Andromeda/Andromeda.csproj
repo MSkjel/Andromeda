@@ -7,8 +7,8 @@
     <ProjectGuid>{3839CED4-C199-4417-93D3-576E91BDD2E0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PluginBase</RootNamespace>
-    <AssemblyName>Andromeda.plugin</AssemblyName>
+    <RootNamespace>Andromeda</RootNamespace>
+    <AssemblyName>Andromeda</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -63,4 +63,8 @@
     <Compile Include="Mock\Utils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>del Andromeda.plugin.dll
+ren Andromeda.dll Andromeda.plugin.dll</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -7,7 +7,7 @@
     <ProjectGuid>{8C46D1E6-CBD8-4297-A101-6106CC410832}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PluginBase</RootNamespace>
+    <RootNamespace>InfinityScript</RootNamespace>
     <AssemblyName>PluginBase</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -63,6 +63,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>ren PluginBase.dll PluginBase.auto.dll</PostBuildEvent>
+    <PostBuildEvent>del PluginBase.auto.dll
+ren PluginBase.dll PluginBase.auto.dll</PostBuildEvent>
   </PropertyGroup>
 </Project>

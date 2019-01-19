@@ -5,7 +5,7 @@ using System.Text;
 using InfinityScript;
 using System.Text.RegularExpressions;
 
-namespace CommonFunctionality.Cmd
+namespace Andromeda.Cmd
 {
     public static class ArgParse
     {
@@ -28,6 +28,7 @@ namespace CommonFunctionality.Cmd
                         {
                             var response = new Msg[]
                             {
+                                $"Usage: {usage}",
                                 Msg.Error($"Error parsing argument {i}:"),
                                 error
                             };

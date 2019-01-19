@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace PBase
+namespace InfinityScript
 {
     [AttributeUsage(AttributeTargets.Method,
                    AllowMultiple = false,

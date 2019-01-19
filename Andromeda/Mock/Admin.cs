@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using InfinityScript;
 
-namespace CommonFunctionality.Mock
+namespace Andromeda.Mock
 {
     class Admin : Interfaces.IAdmin
     {

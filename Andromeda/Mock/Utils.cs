@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using InfinityScript;
 
-namespace CommonFunctionality.Mock
+namespace Andromeda.Mock
 {
     public class Utils : Interfaces.IUtils
     {

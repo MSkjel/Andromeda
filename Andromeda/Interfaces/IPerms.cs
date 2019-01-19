@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using InfinityScript;
 
-namespace CommonFunctionality.Interfaces
+namespace Andromeda.Interfaces
 {
     public interface IPerms : IFunctionality
     {

@@ -1,8 +1,7 @@
-﻿using InfinityScript;
+﻿using System;
 using static InfinityScript.BaseScript;
-using System;
 
-namespace PBase.Events
+namespace InfinityScript.Events
 {
     public class PlayerSayArgs : EatableEventArgs
     {

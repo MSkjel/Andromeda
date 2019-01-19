@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PBase;
 using InfinityScript;
 using System.Text.RegularExpressions;
 
-namespace CommonFunctionality
+namespace Andromeda
 {
     [Plugin]
     public static class Chat
