@@ -35,8 +35,7 @@
     <Reference Include="InfinityScript">
       <HintPath>..\PluginBase\InfinityScript v1.5\InfinityScript.dll</HintPath>
     </Reference>
-    <Reference Include="PluginBase.auto, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="PluginBase.auto">
       <HintPath>..\PluginBase\bin\Release\PluginBase.auto.dll</HintPath>
     </Reference>
     <Reference Include="System" />

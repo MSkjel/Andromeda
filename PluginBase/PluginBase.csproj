@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PluginBase</RootNamespace>
-    <AssemblyName>PluginBase.auto</AssemblyName>
+    <AssemblyName>PluginBase</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -62,4 +62,7 @@
     <Compile Include="PluginBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>ren PluginBase.dll PluginBase.auto.dll</PostBuildEvent>
+  </PropertyGroup>
 </Project>
