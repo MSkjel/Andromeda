@@ -11,8 +11,11 @@ namespace Andromeda.Mock
         public string Version
             => "MockPerms";
 
-        public bool HasPermission(Entity ent, string perm)
-            => true;
+        public bool RequestPermission(Entity ent, string perm, out string message)
+        {
+            message = "Allowed";
+            return true;
+        }
 
         public string GetFormattedName(Entity ent)
             => ent.Name;

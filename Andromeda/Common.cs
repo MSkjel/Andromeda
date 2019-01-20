@@ -149,7 +149,7 @@ namespace Andromeda
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "version",
                 aliases: new[] { "v" },
-                argTypes: new ArgParse[0],
+                argTypes: new IArgParse[0],
                 action: delegate (Entity sender, object[] args)
                 {
                     sender.Tell(new Msg[] {

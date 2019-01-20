@@ -8,8 +8,10 @@ namespace Andromeda.Interfaces
 {
     public interface IPerms : IFunctionality
     {
-        bool HasPermission(Entity entity, string permission);
+        bool RequestPermission(Entity entity, string permission, out string message);
+
         string GetFormattedName(Entity entity);
+
         bool IsImmuneTo(Entity target, Entity issuer);
     }
 }

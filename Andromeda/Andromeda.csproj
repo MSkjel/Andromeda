@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Chat.cs" />
-    <Compile Include="Cmd\ArgParse.cs" />
+    <Compile Include="Cmd\SmartParse.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Interface.cs" />

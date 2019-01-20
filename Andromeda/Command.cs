@@ -23,12 +23,15 @@ namespace Andromeda
             return null;
         }
 
-        public static bool CanDo(Entity player, Command cmd)
+        public static bool CanDo(Entity player, Command cmd, out string response)
         {
             if (cmd.permission == null)
+            {
+                response = "Command has null permission";
                 return true;
+            }
 
-            return player.HasPermission(cmd.permission);
+            return player.RequestPermission(cmd.permission, out response);
         }
 
         public static bool TryRegister(Command cmd)
@@ -68,7 +71,7 @@ namespace Andromeda
                 {
                     var message = args.Message;
 
-                    if(SmartParse.CommandName.Parse(ref message, out var parse) is string error)
+                    if(SmartParse.CommandName.Parse(ref message, out var parse, args.Player) is string error)
                         args.Player.Tell(Msg.Error(error));
                     else
                     {
@@ -78,8 +81,8 @@ namespace Andromeda
 
                         if (cmd == null)
                             args.Player.Tell(Msg.Error($"No such command: {cmdName}"));
-                        else if (!CanDo(args.Player, cmd))
-                            args.Player.Tell(Msg.Error($"You may not use that command"));
+                        else if (!CanDo(args.Player, cmd, out var err))
+                            args.Player.Tell(Msg.Error(err));
                         else
                             cmd.TryRun(args.Player, message);
                     }
@@ -151,7 +154,7 @@ namespace Andromeda
                     sender.Tell(new Msg[]
                     {
                         "Available commands:",
-                        Msg.Extra(string.Join(", ", RegisteredCommands.Values.Where(cmd => CanDo(sender, cmd)).Select(cmd => $"!{cmd.Name}")))
+                        Msg.Extra(string.Join(", ", RegisteredCommands.Values.Where(cmd => CanDo(sender, cmd, out _)).Select(cmd => $"!{cmd.Name}")))
                     });
                 },
                 usage: "!help [filter]",

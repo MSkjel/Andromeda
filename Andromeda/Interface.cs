@@ -20,8 +20,8 @@ namespace Andromeda
         public static void Tell(this Entity player, Msg message)
             => player.Tell(message.Yield());
 
-        public static bool HasPermission(this Entity player, string permission)
-            => Perms.HasPermission(player, permission);
+        public static bool RequestPermission(this Entity player, string permission, out string message)
+            => Perms.RequestPermission(player, permission, out message);
 
         public static void Export(string name, object obj)
             => Exports[name] = obj;
