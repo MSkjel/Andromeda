@@ -7,15 +7,23 @@ namespace InfinityScript.Events
 {
     public class NotifyArgs : EventArgs
     {
-        public Entity Entity { get; private set; }
-        public int Id { get; private set; }
+        private readonly int id;
+        private Entity ent;
+        public Entity Entity
+        {
+            get
+            {
+                ent = ent ?? Entity.GetEntity(id);
+                return ent;
+            }
+        }
+
         public string Notify { get; private set; }
         public Parameter[] Parameters { get; private set; }
 
-        public NotifyArgs(Entity entity, int id, string notify, Parameter[] parameters)
+        public NotifyArgs(int id, string notify, Parameter[] parameters)
         {
-            Entity = entity;
-            Id = id;
+            this.id = id;
             Notify = notify;
             Parameters = parameters;
         }

@@ -24,7 +24,7 @@ namespace InfinityScript.PBase
 
             Notified += delegate (int id, string str, Parameter[] param)
             {
-                var data = new NotifyArgs(Entity.Level, id, str, param);
+                var data = new NotifyArgs(id, str, param);
                 Script.LevelNotified.Run(this, data);
             };
             
