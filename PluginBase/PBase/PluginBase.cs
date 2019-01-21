@@ -1,5 +1,6 @@
 ﻿using InfinityScript.Events;
 using System;
+using System.Linq;
 
 namespace InfinityScript.PBase
 {
@@ -16,7 +17,7 @@ namespace InfinityScript.PBase
             {
                 Script.PlayerDisconnected.Run(player, player);
             };
-            
+
             Tick += delegate ()
             {
                 Script.Tick.Run(this);
@@ -24,10 +25,19 @@ namespace InfinityScript.PBase
 
             Notified += delegate (int id, string str, Parameter[] param)
             {
+                if (str == "trigger")
+                    return;
+
                 var data = new NotifyArgs(id, str, param);
-                Script.LevelNotified.Run(this, data);
+
+                Log.Debug($"Notify: id: {id}, str: {str}, param: {string.Join<Parameter>(", ", param)}");
+
+                if (id >= Entity.Level.EntRef)
+                    Script.LevelNotified.Run(this, data);
+                else if (id >= 0 && id < 18)
+                    Script.PlayerNotified.Run(this, data);
             };
-            
+
             Script.Instance = this;
 
             Script.Init();
