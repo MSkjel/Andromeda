@@ -21,6 +21,7 @@ namespace InfinityScript.Events
         }
 
         protected List<Tuple<int, Action<object, T>>> handlers = new List<Tuple<int, Action<object, T>>>();
+
         public void Add(Action<object, T> handler, int priority = 0)
         {
             int index = 0;
@@ -33,13 +34,15 @@ namespace InfinityScript.Events
             handlers.Insert(index, new Tuple<int, Action<object, T>>(priority, handler));
 
         }
+
         public void Remove(Action<object, T> handler, int priority = 0)
         {
             handlers.RemoveAll(hand => hand.Item2 == handler);
         }
+
         protected internal void Run(object sender, T args)
         {
-            if ((object)args is EatableEventArgs eatable)
+            if (args is EatableEventArgs eatable)
             {
                 foreach (var handler in handlers)
                 {
@@ -112,6 +115,7 @@ namespace InfinityScript.Events
     public class EatableEventArgs : EventArgs
     {
         public bool Eaten { get; private set; }
+
         public void Eat()
         {
             Eaten = true;
