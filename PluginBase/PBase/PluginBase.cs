@@ -34,8 +34,8 @@ namespace InfinityScript.PBase
 
                 if (id >= 0 && id < 18)
                     Script.PlayerNotified.Run(this, data);
-                else
-                    Script.OtherNotified.Run(this, data);
+
+                Script.Notified.Run(this, data);
             };
 
             Script.Instance = this;

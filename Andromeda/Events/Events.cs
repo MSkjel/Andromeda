@@ -97,7 +97,7 @@ namespace Andromeda.Events
         [EntryPoint]
         public static void Init()
         {
-            Script.LevelNotified.Add((sender, args) =>
+            Script.Notified.Add((sender, args) =>
             {
                 if (args.Notify == "player_spawned")
                 {
