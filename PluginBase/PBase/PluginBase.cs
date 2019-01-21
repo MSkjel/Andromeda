@@ -32,10 +32,10 @@ namespace InfinityScript.PBase
 
                 //Log.Debug($"Notify: id: {id}, str: {str}, param: {string.Join<Parameter>(", ", param)}");
 
-                if (id >= Entity.Level.EntRef)
-                    Script.LevelNotified.Run(this, data);
-                else if (id >= 0 && id < 18)
+                if (id >= 0 && id < 18)
                     Script.PlayerNotified.Run(this, data);
+                else
+                    Script.OtherNotified.Run(this, data);
             };
 
             Script.Instance = this;
