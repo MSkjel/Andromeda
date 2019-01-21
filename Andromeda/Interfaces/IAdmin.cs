@@ -8,12 +8,16 @@ namespace Andromeda.Interfaces
 {
     public interface IAdmin : IFunctionality
     {
-        void Kick(Entity ent, string issuer, string message = "You have been kicked");
+        void Warn(Entity ent, string issuer, string reason = "You have been warned");
 
-        void Ban(Entity ent, string issuer, string message = "You have been banned");
+        void Unwarn(Entity emt, string issuer, string reason = "You have been unwarned");
 
         void TempBan(Entity ent, string issuer, string message = "You have been temporarily banned");
 
         void TempBan(Entity ent, string issuer, TimeSpan timeSpan, string message = "You have been temporarily banned");
+
+        void Kick(Entity ent, string issuer, string message = "You have been kicked");
+
+        void Ban(Entity ent, string issuer, string message = "You have been banned");
     }
 }
