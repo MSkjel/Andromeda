@@ -95,16 +95,17 @@ namespace Andromeda.Events
         };
 
         [EntryPoint]
-        public static void Init()
+        private static void Init()
         {
             Script.Notified.Add((sender, args) =>
             {
                 if (args.Notify == "player_spawned")
                 {
-                    Entity player = args.Entity;
+                    Entity player = args.EntityParam;
+
                     if (!player.HasField("Spawned") || player.GetField<int>("Spawned") == 0)
                     {
-                        player.SetField("Spawed", 1);
+                        player.SetField("Spawned", 1);
                         PlayerSpawned.Run(player, player);
                     }
                     else
@@ -118,6 +119,21 @@ namespace Andromeda.Events
                     val(args);
             });
 
+            PlayerSpawned.Add((sender, player) =>
+            {
+                Log.Info("Hai");
+                player.IPrintLnBold("Hai");
+            });
+
+            GrenadePullback.Add((sender, args) =>
+            {
+                args.Player.IPrintLnBold(args.Grenade);
+            });
+
+            WeaponReloaded.Add((sender, args) =>
+            {
+                args.Player.IPrintLnBold(args.Weapon);
+            });
             /*
             Script.PlayerConnected.Add((sender, player) =>
             {

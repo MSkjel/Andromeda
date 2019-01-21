@@ -116,7 +116,8 @@ namespace Andromeda
         private static void Init()
         {
             Log.Info("Initializing Andromeda");
-            if(Perms == null)
+
+            if(perms == null)
             {
                 Warning(new[]
                 {
@@ -125,7 +126,7 @@ namespace Andromeda
                 });
             }
 
-            if (Utils == null)
+            if (utils == null)
             {
                 Warning(new[]
                 {
@@ -134,7 +135,7 @@ namespace Andromeda
                 });
             }
 
-            if (Admin == null)
+            if (admin == null)
             {
                 Warning(new[]
 {
