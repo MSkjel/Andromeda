@@ -54,7 +54,7 @@ namespace InfinityScript
             if (plugin.IsLibrary)
                 Log.Info($"Found library {plugin.Name}");
             else
-                Log.Info($"Found plugin {plugin.Name}");
+                Log.Info($"Found plugin {plugin.Name} with {plugin.EntryPointCount} entry points.");
 
             LoadedPlugins.Add(plugin);
 
@@ -66,10 +66,12 @@ namespace InfinityScript
     {
         public readonly Assembly Assembly;
 
+        public int EntryPointCount { get; private set; } = 0;
+
         private readonly Action EntryPoint;
 
         public bool IsLibrary
-            => EntryPoint != null;
+            => EntryPointCount > 0;
 
         public readonly string Name;
 
@@ -89,6 +91,7 @@ namespace InfinityScript
                         if (method.GetCustomAttributes(typeof(EntryPointAttribute), false).FirstOrDefault() != null)
                         {
                             EntryPoint += Delegate.CreateDelegate(typeof(Action), method) as Action;
+                            EntryPointCount++;
                         }
                     }
                 }
