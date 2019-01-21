@@ -128,7 +128,7 @@ namespace Andromeda.Cmd
                     int.TryParse(index, out var slot);
 
                     if (slot > 18 || slot < 0)
-                        return "Slot nubmers are 0-17";
+                        return "Slot numbers are 0-17";
 
                     foreach(var player in BaseScript.Players)
                         if(player.EntRef == slot)
