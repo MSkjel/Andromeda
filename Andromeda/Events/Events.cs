@@ -8,6 +8,7 @@ using System.Text;
 
 namespace Andromeda.Events
 {
+    [Plugin]
     public static class Events
     {
         internal static Func<Exception, bool> ErrorHandler(string eventName)
@@ -43,22 +44,81 @@ namespace Andromeda.Events
         public static readonly Event<GrenadeFireArgs> GrenadeFire = new Event<GrenadeFireArgs>(ErrorHandler(nameof(GrenadeFire)));
 
 
+        private static readonly SortedList<string, Action<NotifyArgs>> specialNotifies = new SortedList<string, Action<NotifyArgs>>
+        {
+            ["menuresponse"] = (arg) =>
+            {
+                var (player, _, par) = arg;
+                string response = par[0].As<string>();
+
+
+                if (response == "changeclass")
+                    ChangedClass.Run(player, new ChangedClassArgs(player, par[1].As<string>()));
+                else if (response == "changeteam")
+                    ChangedTeam.Run(player, new ChangedTeamArgs(player, player.SessionTeam, par[1].As<string>()));
+            },
+
+            ["weapon_fired"] = (arg) =>
+            {
+                var (player, _, par) = arg;
+
+                WeaponFired.Run(player, new WeaponFiredArgs(player, par[0].As<string>()));
+            },
+
+            ["reload"] = (arg) =>
+            {
+                var (player, _, par) = arg;
+
+                WeaponReloaded.Run(player, new WeaponReloadedArgs(player, player.CurrentWeapon));
+            },
+
+            ["weapon_taken"] = (arg) =>
+            {
+                var (player, _, par) = arg;
+
+                WeaponTaken.Run(player, new WeaponTakenArgs(player, par[0].As<string>()));
+            },
+
+            ["weapon_switch_started"] = (arg) =>
+            {
+                var (player, _, par) = arg;
+
+                WeaponSwitch.Run(player, new WeaponSwitchArgs(player, par[0].As<string>()));
+            },
+
+            ["weapon_change"] = (arg) =>
+            {
+                var (player, _, par) = arg;
+
+                WeaponChanged.Run(player, new WeaponChangedArgs(player, par[0].As<string>()));
+            },
+        };
+
+        [EntryPoint]
         public static void Init()
         {
-            Script.OnNotify("player_spawned", (args) =>
+            Script.LevelNotified.Add((sender, args) =>
             {
-                Entity player = args.As<Entity>();
-
-                if (!player.HasField("Spawned") || player.GetField<int>("Spawned") == 0)
+                if (args.Notify == "player_spawned")
                 {
-                    player.SetField("Spawed", 1);
-                    PlayerSpawned.Run(player, player);
+                    Entity player = args.Entity;
+                    if (!player.HasField("Spawned") || player.GetField<int>("Spawned") == 0)
+                    {
+                        player.SetField("Spawed", 1);
+                        PlayerSpawned.Run(player, player);
+                    }
+                    else
+                        PlayerRespawned.Run(player, player);
                 }
-                else
-                    PlayerRespawned.Run(player, player);
             });
 
+            Script.PlayerNotified.Add((sender, args) =>
+            {
+                if(specialNotifies.TryGetValue(args.Notify, out var val))
+                    val(args);
+            });
 
+            /*
             Script.PlayerConnected.Add((sender, player) =>
             {
                 player.OnNotify("menuresponse", (ent, arg1, arg2) =>
@@ -99,6 +159,7 @@ namespace Andromeda.Events
 
 
             });
+            */
         }
     }
 }

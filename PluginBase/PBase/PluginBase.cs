@@ -30,7 +30,7 @@ namespace InfinityScript.PBase
 
                 var data = new NotifyArgs(id, str, param);
 
-                Log.Debug($"Notify: id: {id}, str: {str}, param: {string.Join<Parameter>(", ", param)}");
+                //Log.Debug($"Notify: id: {id}, str: {str}, param: {string.Join<Parameter>(", ", param)}");
 
                 if (id >= Entity.Level.EntRef)
                     Script.LevelNotified.Run(this, data);

@@ -27,5 +27,12 @@ namespace InfinityScript.Events
             Notify = notify;
             Parameters = parameters;
         }
+
+        public void Deconstruct(out Entity player, out string notify, out Parameter[] parameters)
+        {
+            player = Entity;
+            notify = Notify;
+            parameters = Parameters;
+        }
     }
 }
