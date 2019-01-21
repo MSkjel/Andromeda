@@ -10,6 +10,8 @@ namespace InfinityScript
         public static readonly InternalEvent Tick = new InternalEvent(ErrorHandler(nameof(Tick)));
         public static readonly InternalEvent OnExitLevel = new InternalEvent(ErrorHandler(nameof(OnExitLevel)));
         public static readonly InternalEvent OnStartGametype = new InternalEvent(ErrorHandler(nameof(OnStartGametype)));
+        public static readonly InternalEvent<NotifyArgs> LevelNotified = new InternalEvent<NotifyArgs>(ErrorHandler(nameof(LevelNotified)));
+        public static readonly InternalEvent<NotifyArgs> EntityNotified = new InternalEvent<NotifyArgs>(ErrorHandler(nameof(EntityNotified)));
         public static readonly InternalEvent<Entity> PlayerConnected = new InternalEvent<Entity>(ErrorHandler(nameof(PlayerConnected)));
         public static readonly InternalEvent<Entity> PlayerConnecting = new InternalEvent<Entity>(ErrorHandler(nameof(PlayerConnecting)));
         public static readonly InternalEvent<Entity> PlayerDisconnected = new InternalEvent<Entity>(ErrorHandler(nameof(PlayerDisconnected)));
