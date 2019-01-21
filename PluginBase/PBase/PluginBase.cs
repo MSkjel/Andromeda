@@ -21,6 +21,12 @@ namespace InfinityScript.PBase
             {
                 Script.Tick.Run(this);
             };
+
+            Notified += delegate (int id, string str, Parameter[] param)
+            {
+                var data = new NotifyArgs(Entity.Level, id, str, param);
+                Script.LevelNotified.Run(this, data);
+            };
             
             Script.Instance = this;
 
