@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="InfinityScript">
@@ -51,6 +52,17 @@
     <Compile Include="Cmd\SmartParse.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Command.cs" />
+    <Compile Include="Events\EventArguments\ChangedTeamArgs.cs" />
+    <Compile Include="Events\EventArguments\ChangedClassArgs.cs" />
+    <Compile Include="Events\EventArguments\EarnedKillstreakArgs.cs" />
+    <Compile Include="Events\EventArguments\GrenadeFireArgs.cs" />
+    <Compile Include="Events\EventArguments\GrenadePullbackArgs.cs" />
+    <Compile Include="Events\EventArguments\WeaponChangedArgs.cs" />
+    <Compile Include="Events\EventArguments\WeaponFiredArgs.cs" />
+    <Compile Include="Events\EventArguments\WeaponReloadedArgs.cs" />
+    <Compile Include="Events\EventArguments\WeaponSwitchArgs.cs" />
+    <Compile Include="Events\EventArguments\WeaponTakenArgs.cs" />
+    <Compile Include="Events\Events.cs" />
     <Compile Include="Interface.cs" />
     <Compile Include="Interfaces\IAdmin.cs" />
     <Compile Include="Interfaces\IFunctionality.cs" />
@@ -62,6 +74,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mock\Utils.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>del Andromeda.plugin.dll

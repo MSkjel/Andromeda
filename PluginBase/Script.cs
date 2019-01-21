@@ -45,6 +45,7 @@ namespace InfinityScript
             Log.Info("Loading plugins...");
             LoadPlugins();
             Log.Info("Done loading plugins.");
+                 
         }
     }
 }
