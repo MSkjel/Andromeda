@@ -102,6 +102,7 @@ namespace Andromeda.Events
                 if (args.Notify == "player_spawned")
                 {
                     Entity player = args.EntityParam;
+
                     if (!player.HasField("Spawned") || player.GetField<int>("Spawned") == 0)
                     {
                         player.SetField("Spawned", 1);

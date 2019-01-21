@@ -90,7 +90,13 @@ namespace Andromeda.Cmd
     {
         public virtual string Parse(ref string str, out object parsed, Entity sender)
         {
-            parsed = str.Trim();
+            if(str == string.Empty)
+            {
+                parsed = null;
+                return null;
+            }
+
+            parsed = str;
             str = string.Empty;
 
             return null;
