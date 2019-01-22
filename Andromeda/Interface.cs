@@ -21,7 +21,7 @@ namespace Andromeda
         public static void Tell(this Entity player, string message)
             => player.Tell(message.Yield());
 
-        private static Dictionary<string, string> colorScheme;
+        private static Dictionary<string, string> colorScheme = Utils.ColorScheme.Export();
         public static string ColorFormat(this string message)
         {
             var sb = new StringBuilder("%n" + message);
@@ -29,7 +29,7 @@ namespace Andromeda
             foreach(var kvp in colorScheme)
                 sb.Replace(kvp.Key, kvp.Value);
 
-            return Regex.Replace(sb.ToString(), @"(?:\^[\d;:])+(\^[\d;:])", "$1$2");
+            return Regex.Replace(sb.ToString(), @"(?:\^[\d;:]( *))+(\^[\d;:])", "$1$2");
         }
 
         public static bool RequestPermission(this Entity player, string permission, out string message)

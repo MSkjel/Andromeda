@@ -10,7 +10,7 @@ namespace Andromeda.Interfaces
     {
         void Warn(Entity ent, string issuer, string reason = "You have been warned");
 
-        void Unwarn(Entity emt, string issuer, string reason = "You have been unwarned");
+        void Unwarn(Entity ent, string issuer, string reason = "You have been unwarned");
 
         void TempBan(Entity ent, string issuer, string message = "You have been temporarily banned");
 
