@@ -12,7 +12,19 @@ namespace Andromeda.Mock
         public string Version
             => "MockUtils";
 
-        public void SayAll(IEnumerable<Msg> messages)
+        public ColorScheme ColorScheme { get; } = new ColorScheme(
+            normal: "^7",
+            info: "^6",
+            error: "^1",
+            admin: "^4",
+
+            highlight1: "^2",
+            highlight2: "^3",
+            highlight3: "^5",
+            highlight4: "^;",
+            highlight5: "^:");
+
+        public void SayAll(IEnumerable<string> messages)
         {
             if (!messages.Any())
                 return;
@@ -21,7 +33,7 @@ namespace Andromeda.Mock
             {
                 foreach(var message in messages)
                 {
-                    Utilities.RawSayAll($"[Server] {translate(message)}");
+                    Utilities.RawSayAll($"[Server] {message}");
 
                     yield return BaseScript.Wait(0.7f);
                 }
@@ -30,7 +42,7 @@ namespace Andromeda.Mock
             BaseScript.StartAsync(routine());
         }
 
-        public void SayTo(Entity player, IEnumerable<Msg> messages)
+        public void SayTo(Entity player, IEnumerable<string> messages)
         {
             if (!messages.Any())
                 return;
@@ -39,30 +51,13 @@ namespace Andromeda.Mock
             {
                 foreach (var message in messages)
                 {
-                    Utilities.RawSayTo(player, $"[PM] {translate(message)}");
+                    Utilities.RawSayTo(player, $"[PM] {message}");
 
                     yield return BaseScript.Wait(0.7f);
                 }
             }
 
             BaseScript.StartAsync(routine());
-        }
-
-        private static string translate(Msg message)
-        {
-            switch(message.Type)
-            {
-                case MsgType.Info:
-                    return $"^3{message}";
-                case MsgType.Extra:
-                    return $"^7{message}";
-                case MsgType.Error:
-                    return $"^1{message}";
-                case MsgType.Admin:
-                    return $"^5{message}";
-            }
-
-            return message.ToString();
         }
     }
 }
