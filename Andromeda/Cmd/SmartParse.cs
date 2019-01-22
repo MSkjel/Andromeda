@@ -25,13 +25,13 @@ namespace Andromeda.Cmd
                     {
                         object[] arguments = new object[argTypes.Length];
 
-                        for (int i = 0; i < argTypes.Length; i++)
-                            if (argTypes[i].Parse(ref message, out arguments[i], sender) is string error)
+                    for(int i = 0; i < argTypes.Length; i++)
+                        if(argTypes[i].Parse(ref message, out arguments[i], sender) is string error)
+                        {
+                            var response = new[]
                             {
-                                var response = new Msg[]
-                                {
-                                $"Usage: {usage}",
-                                Msg.Error($"Error parsing argument {i}:"),
+                                $"Usage: %i{usage}",
+                                $"%eError parsing argument {i}:",
                                 error
                                 };
 
@@ -42,7 +42,7 @@ namespace Andromeda.Cmd
                         if (string.IsNullOrEmpty(message))
                             action(sender, arguments);
                         else
-                            sender.Tell(Msg.Error("Too many arguments given"));
+                            sender.Tell(Msg.Error("%eToo many arguments given"));
                     }
                     else
                         action(sender, null);

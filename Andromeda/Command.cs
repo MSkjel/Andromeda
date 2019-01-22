@@ -72,7 +72,7 @@ namespace Andromeda
                     var message = args.Message;
 
                     if(SmartParse.CommandName.Parse(ref message, out var parse, args.Player) is string error)
-                        args.Player.Tell(Msg.Error(error));
+                        args.Player.Tell($"%e{error}");
                     else
                     {
                         var cmdName = ((string)parse).ToLowerInvariant();
@@ -80,9 +80,9 @@ namespace Andromeda
                         Command cmd = Lookup(cmdName);
 
                         if (cmd == null)
-                            args.Player.Tell(Msg.Error($"No such command: {cmdName}"));
+                            args.Player.Tell($"%eNo such command: {cmdName}");
                         else if (!CanDo(args.Player, cmd, out var err))
-                            args.Player.Tell(Msg.Error(err));
+                            args.Player.Tell($"%eerr");
                         else
                             cmd.TryRun(args.Player, message);
                     }
@@ -124,7 +124,7 @@ namespace Andromeda
 
                         if(!cmds.Any())
                         {
-                            sender.Tell(Msg.Error("No commands were found."));
+                            sender.Tell("%eNo commands were found.");
                             return;
                         }
 
@@ -132,29 +132,29 @@ namespace Andromeda
                         {
                             var cmd = cmds.First();
 
-                            sender.Tell(new Msg[]
+                            sender.Tell(new[]
                             {
-                                $"Command: !{cmd.Name}",
-                                $"Usage: {cmd.Usage}",
+                                $"Command: %i!{cmd.Name}",
+                                $"Usage: %i{cmd.Usage}",
                                 cmd.Description ?? "No description given",
                             });
 
                             return;
                         }
 
-                        sender.Tell(new Msg[]
+                        sender.Tell(new[]
                         {
-                            $"Commands matching {filter}:",
-                            Msg.Extra(string.Join(", ", cmds.Select(c => $"!{c.Name}"))),
+                            $"%iCommands matching {filter}:",
+                            string.Join(", ", cmds.Select(c => $"!{c.Name}")),
                         });
 
                         return;
                     }
 
-                    sender.Tell(new Msg[]
+                    sender.Tell(new[]
                     {
-                        "Available commands:",
-                        Msg.Extra(string.Join(", ", RegisteredCommands.Values.Where(cmd => CanDo(sender, cmd, out _)).Select(cmd => $"!{cmd.Name}")))
+                        "%iAvailable commands:",
+                        string.Join(", ", RegisteredCommands.Values.Where(cmd => CanDo(sender, cmd, out _)).Select(cmd => $"!{cmd.Name}"))
                     });
                 },
                 usage: "!help [filter]",
@@ -183,13 +183,9 @@ namespace Andromeda
                     var alias = args[0] as string;
 
                     if (aliasLookup.TryGetValue(alias, out var cmd))
-                        sender.Tell(new Msg[]
-                        {
-                            "Usage:",
-                            Msg.Extra(cmd.Usage),
-                        });
+                        sender.Tell($"Usage: %i{cmd.Usage}");
                     else
-                        sender.Tell(Msg.Error($"No such command: !{alias}"));
+                        sender.Tell($"%eNo such command: !{alias}");
                 },
                 usage: "!usage <cmd/alias>",
                 description: "Shows usage of a command or an alias"));
@@ -227,9 +223,9 @@ namespace Andromeda
             }
             catch(Exception ex)
             {
-                var response = new Msg[]
+                var response = new[]
                 {
-                    Msg.Error("Error running command"),
+                    "%eError running command",
                     "Check console for more details."
                 };
 

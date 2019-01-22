@@ -8,7 +8,10 @@ namespace Andromeda.Interfaces
 {
     public interface IUtils : IFunctionality
     {
-        void SayAll(IEnumerable<Msg> message);
-        void SayTo(Entity player, IEnumerable<Msg> messages);
+        ColorScheme ColorScheme { get; }
+
+        void SayAll(IEnumerable<string> message);
+
+        void SayTo(Entity player, IEnumerable<string> messages);
     }
 }

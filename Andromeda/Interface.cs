@@ -2,23 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using InfinityScript;
 
 namespace Andromeda
 {
     public static partial class Common
     {
-        public static void SayAll(IEnumerable<Msg> messages)
-            => Utils.SayAll(messages);
+        public static void SayAll(IEnumerable<string> messages)
+            => Utils.SayAll(messages.Select(msg => msg.ColorFormat()));
 
-        public static void SayAll(Msg message)
+        public static void SayAll(string message)
             => SayAll(message.Yield());
 
-        public static void Tell(this Entity player, IEnumerable<Msg> messages)
-            => Utils.SayTo(player, messages);
+        public static void Tell(this Entity player, IEnumerable<string> messages)
+            => Utils.SayTo(player, messages.Select(msg => msg.ColorFormat()));
 
-        public static void Tell(this Entity player, Msg message)
+        public static void Tell(this Entity player, string message)
             => player.Tell(message.Yield());
+
+        private static Dictionary<string, string> colorScheme = Utils.ColorScheme.Export();
+        public static string ColorFormat(this string message)
+        {
+            var sb = new StringBuilder("%n" + message);
+
+            foreach(var kvp in colorScheme)
+                sb.Replace(kvp.Key, kvp.Value);
+
+            return Regex.Replace(sb.ToString(), @"(?:\^[\d;:]( *))+(\^[\d;:])", "$1$2");
+        }
 
         public static bool RequestPermission(this Entity player, string permission, out string message)
             => Perms.RequestPermission(player, permission, out message);

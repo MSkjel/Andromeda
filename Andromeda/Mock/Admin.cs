@@ -16,6 +16,12 @@ namespace Andromeda.Mock
         public void Ban(Entity player, string issuer, string message)
             => throw new NotImplementedException();
 
+        public void Warn(Entity player, string issuer, string message)
+            => throw new NotImplementedException();
+
+        public void Unwarn(Entity player, string issuer, string message)
+            => throw new NotImplementedException();
+
         public void TempBan(Entity ent, string issuer, string message)
             => throw new NotImplementedException();
 

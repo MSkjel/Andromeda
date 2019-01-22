@@ -93,6 +93,8 @@ namespace Andromeda
                 {
                     Common.utils = utils;
                     Exports[nameof(Utils)] = Utils;
+
+                    colorScheme = utils.ColorScheme.Export();
                 }
                 else
                     Warning("Utils already assigned", $"Ignoring new register: {utils.Version}");
@@ -154,11 +156,12 @@ namespace Andromeda
                 argTypes: new IArgParse[0],
                 action: delegate (Entity sender, object[] args)
                 {
-                    sender.Tell(new Msg[] {
-                        "Versions:",
-                        Msg.Extra(Version),
+                    sender.Tell(new[]
+                    {
+                        "%iVersions:",
+                        Version,
                     }.Concat(
-                        functionalities.Select(func => Msg.Extra(func.Version))
+                        functionalities.Select(func => func.Version)
                     ));
                 },
                 usage: "!version",
