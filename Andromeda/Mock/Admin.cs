@@ -21,5 +21,11 @@ namespace Andromeda.Mock
 
         public void TempBan(Entity ent, string issuer, TimeSpan timeSpan, string message)
             => throw new NotImplementedException();
+
+        public void Warn(Entity ent, string issuer, string reason = "You have been warned")
+            => throw new NotImplementedException();
+
+        public void Unwarn(Entity ent, string issuer, string reason = "You have been unwarned")
+            => throw new NotImplementedException();
     }
 }
