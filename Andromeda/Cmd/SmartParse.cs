@@ -42,7 +42,7 @@ namespace Andromeda.Cmd
                         if (string.IsNullOrEmpty(message))
                             action(sender, arguments);
                         else
-                            sender.Tell(Msg.Error("%eToo many arguments given"));
+                            sender.Tell("%eToo many arguments given");
                     }
                     else
                         action(sender, null);
