@@ -1,8 +1,8 @@
-﻿using System;
+﻿using InfinityScript;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using InfinityScript;
 using System.Text.RegularExpressions;
 
 namespace Andromeda.Cmd
@@ -25,11 +25,11 @@ namespace Andromeda.Cmd
                     {
                         object[] arguments = new object[argTypes.Length];
 
-                    for(int i = 0; i < argTypes.Length; i++)
-                        if(argTypes[i].Parse(ref message, out arguments[i], sender) is string error)
-                        {
-                            var response = new[]
+                        for (int i = 0; i < argTypes.Length; i++)
+                            if (argTypes[i].Parse(ref message, out arguments[i], sender) is string error)
                             {
+                                var response = new[]
+                                {
                                 $"Usage: %i{usage}",
                                 $"%eError parsing argument {i}:",
                                 error
@@ -95,7 +95,7 @@ namespace Andromeda.Cmd
     {
         public virtual string Parse(ref string str, out object parsed, Entity sender)
         {
-            if(str == string.Empty)
+            if (str == string.Empty)
             {
                 parsed = null;
                 return null;
@@ -128,7 +128,7 @@ namespace Andromeda.Cmd
             if (SmartParse.String.Parse(ref str, out parsed, sender) is string error)
                 return "Expected player selector";
 
-            if(parsed is string selector)
+            if (parsed is string selector)
             {
                 var match = Regex.Match(selector, @"^#(\d+)$");
 
@@ -141,8 +141,8 @@ namespace Andromeda.Cmd
                     if (slot > 18 || slot < 0)
                         return "Slot numbers are 0-17";
 
-                    foreach(var player in BaseScript.Players)
-                        if(player.EntRef == slot)
+                    foreach (var player in BaseScript.Players)
+                        if (player.EntRef == slot)
                         {
                             parsed = player;
                             return null;
@@ -176,7 +176,7 @@ namespace Andromeda.Cmd
             if (base.Parse(ref str, out parsed, sender) is string error)
                 return error;
 
-            if(parsed is Entity player)
+            if (parsed is Entity player)
             {
                 if (Common.Perms.IsImmuneTo(player, sender))
                 {
@@ -199,7 +199,7 @@ namespace Andromeda.Cmd
             if (base.Parse(ref str, out parsed, sender) is string error)
                 return error;
 
-            if(parsed is string cmd)
+            if (parsed is string cmd)
             {
                 var match = Regex.Match(cmd, @"^!(\w+)$");
 

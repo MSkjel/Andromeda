@@ -29,10 +29,7 @@ namespace BaseCommands
 
                         if (Utils.MapFilesExist(map.RawName))
                         {
-                            Common.Utils.SayAll(new Msg[]
-                            {
-                                $"%nMap has been changed to %h2{map.NiceName} %nby %h1{Common.Perms.GetFormattedName(sender)}"
-                            });
+                            Common.SayAll($"Map has been changed to %h2{map.NiceName} %nby %h1{Common.Perms.GetFormattedName(sender)}");
 
                             Utilities.ExecuteCommand($"map {map.RawName}");
                         }
@@ -51,7 +48,7 @@ namespace BaseCommands
                argTypes: null,
                action: delegate (Entity sender, object[] args)
                {
-                   sender.Tell("%nAvailable maps:");
+                   sender.Tell("Available maps:");
                    Utils.PMOnInterval(sender, Utils.Maps.Where(x => Utils.MapFilesExist(x.RawName)).Select(x => $"%a{x.NiceName}"), 850);
                },
                usage: "!maps",
