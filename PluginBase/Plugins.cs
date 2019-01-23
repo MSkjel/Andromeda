@@ -23,11 +23,12 @@ namespace InfinityScript
                 var name = new AssemblyName(args.Name);
 
                 foreach (var entry in assemblies)
-                    if (name.Name == entry.Key.Name && name.Version > entry.Key.Version)
+                    if (name.Name == entry.Key.Name)
                         return LoadAssembly(entry.Value);
 
                 return null;
             }
+
 
             AppDomain.CurrentDomain.AssemblyResolve += resolve;
 
