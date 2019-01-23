@@ -19,10 +19,10 @@ namespace Andromeda.Mock
             normal: "^7",
             info: "^6",
             error: "^1",
-            admin: "^4",
+            admin: "^3",
 
             highlight1: "^2",
-            highlight2: "^3",
+            highlight2: "^8",
             highlight3: "^5",
             highlight4: "^;",
             highlight5: "^:");
@@ -38,14 +38,14 @@ namespace Andromeda.Mock
                 {
                     Utilities.RawSayAll($"[Server] {message}");
 
-                    yield return BaseScript.Wait(0.7f);
+                    yield return BaseScript.Wait(0.85f);
                 }
             }
 
             BaseScript.StartAsync(routine());
         }
 
-        public void SayTo(Entity player, IEnumerable<string> messages)
+        public void SayTo(Entity player, IEnumerable<string> messages, bool raw = false)
         {
             if (!messages.Any())
                 return;
@@ -54,9 +54,9 @@ namespace Andromeda.Mock
             {
                 foreach (var message in messages)
                 {
-                    Utilities.RawSayTo(player, $"[PM] {message}");
+                    Utilities.RawSayTo(player, $"{(raw ? "" : "[PM]")}{message}");
 
-                    yield return BaseScript.Wait(0.7f);
+                    yield return BaseScript.Wait(0.85f);
                 }
             }
 

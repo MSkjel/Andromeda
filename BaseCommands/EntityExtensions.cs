@@ -48,10 +48,6 @@ namespace BaseCommands
                 ent.SetField(field, new Parameter(args));
         }
 
-        public static T GetField<T>(this Entity ent, string field) => ent.GetField<T>(field);
-        public static bool HasField(this Entity ent, string field) => ent.HasField(field);
-        public static void SetField(this Entity ent, string field, Parameter args) => ent.SetField(field, args);
-        public static object GetField(this Entity ent, string field) => ent.GetField<object>(field);
         public static bool IsFieldTrue(this Entity ent, string field) => ent.HasField(field) && ent.GetField<int>(field) != 0;
         public static bool IsFieldEqual(this Entity ent, string field, int limit) => ent.HasField(field) && ent.GetField<int>(field) == limit;
         public static bool IsFieldHigherOrEqual(this Entity ent, string field, int limit) => ent.HasField(field) && ent.GetField<int>(field) >= limit;

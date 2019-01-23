@@ -79,6 +79,42 @@ namespace Andromeda
             return builder.ToString();
         }
 
+        public static IEnumerable<string> Condense(IEnumerable<string> enumerable, int condenselevel = 40, string separator = ", ")
+        {
+            string all = string.Join(separator, enumerable);
+            List<string> toRet = new List<string>();
+
+            while (all.Length > 0)
+            {
+                string toAdd = TruncateAtWord(ref all, condenselevel, separator);
+
+                if (toAdd == null)
+                    break;
+
+                toRet.Add(toAdd);
+            }
+
+            return toRet;
+        }
+
+        public static string TruncateAtWord(ref string input, int length, string separator)
+        {
+            if (input != null && input.Length > 0)
+            {
+                length = length > input.Length ? input.Length : length;
+
+                int iNextSpace = input.LastIndexOf(separator, length, StringComparison.Ordinal) + 1;
+                string toRet = input.Substring(0, (iNextSpace > 0) ? iNextSpace : length);
+
+
+                input = input.Replace(toRet, "");
+
+                return toRet.TrimStart();
+            }
+
+            return null;
+        }
+
         public static void Register(IFunctionality functionality)
         {
             if(functionality is IPerms perms)

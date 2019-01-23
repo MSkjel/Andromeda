@@ -48,8 +48,8 @@ namespace BaseCommands
                argTypes: null,
                action: delegate (Entity sender, object[] args)
                {
-                   sender.Tell("Available maps:");
-                   Utils.PMOnInterval(sender, Utils.Maps.Where(x => Utils.MapFilesExist(x.RawName)).Select(x => $"%a{x.NiceName}"), 850);
+                   sender.Tell("%iAvailable maps:");
+                   sender.Tell(Common.Condense(Utils.Maps.Where(x => Utils.MapFilesExist(x.RawName)).Select(x => $"%a{x.NiceName}")), true);
                },
                usage: "!maps",
                permission: "maps",
@@ -67,6 +67,12 @@ namespace BaseCommands
                 description: "Sets the next map to the map specified"));
             #endregion
             #endregion
+        }
+
+        [EntryPoint]
+        private void Init()
+        {
+
         }
     }
 }
