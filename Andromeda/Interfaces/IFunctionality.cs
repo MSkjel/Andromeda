@@ -8,5 +8,7 @@ namespace Andromeda.Interfaces
     public interface IFunctionality
     {
         string Version { get; }
+
+        string[] Credits { get; }
     }
 }

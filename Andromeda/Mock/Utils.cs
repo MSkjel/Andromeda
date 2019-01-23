@@ -11,6 +11,9 @@ namespace Andromeda.Mock
     {
         public string Version
             => "MockUtils";
+        public string[] Credits
+            => new string[0];
+
 
         public ColorScheme ColorScheme { get; } = new ColorScheme(
             normal: "^7",
