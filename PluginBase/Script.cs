@@ -47,5 +47,14 @@ namespace InfinityScript
             Log.Info("Done loading plugins.");
                  
         }
+
+        internal static void Cleanup()
+        {
+            Log.Info("Cleaning up plugins...");
+            foreach (var plugin in LoadedPlugins)
+                plugin.RunCleanups();
+
+            Log.Info("Cleaned up plugins!");
+        }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using InfinityScript;
+using InfinityScript.Events;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,11 +15,16 @@ namespace Andromeda
     [Plugin]
     public static class PlayerDB
     {
+        public static readonly Event<Entity> PlayerLoggedIn = new Event<Entity>(Events.Events.ErrorHandler(nameof(PlayerLoggedIn)));
+        public static readonly Event<Entity> PlayerLoggedOut = new Event<Entity>(Events.Events.ErrorHandler(nameof(PlayerLoggedOut)));
+
+        private const string dateFormat = "yyyy-MM-dd HH:mm:ss.fffffff";
+
         internal class PlayerInfo
         {
             public string HWID;
             public byte[] PasswordHash;
-            public string JsonString;
+            public Dictionary<string, string> Data;
 
             public bool LoggedIn { get; set; }
 
@@ -29,7 +36,7 @@ namespace Andromeda
                     {
                         HWID = reader["hwid"] as string,
                         PasswordHash = reader["password"] as byte[],
-                        JsonString = reader["data"] as string,
+                        Data = JsonConvert.DeserializeObject<Dictionary<string, string>>(reader["data"] as string),
                         LoggedIn = false,
                     };
                 }
@@ -37,21 +44,41 @@ namespace Andromeda
                 return null;
             }
 
-            public void UpdateData()
+            public void UpdateData(Action<int> action = null)
             {
                 var cmd = new SQLiteCommand("UPDATE players SET data = @data WHERE hwid = @hwid");
 
-                cmd.Parameters.AddWithValue("@data", JsonString);
+                cmd.Parameters.AddWithValue("@data", JsonConvert.SerializeObject(Data));
                 cmd.Parameters.AddWithValue("@hwid", HWID);
 
-                ExecuteNonQuery(cmd);
+                ExecuteNonQuery(cmd, action);
             }
 
             public override string ToString()
                 => $"Entry({HWID},{BitConverter.ToString(PasswordHash)})";
         }
 
-        internal static bool TryGetRow(this Entity ent, out PlayerInfo row)
+        public static string GetDBFieldOr(this Entity ent, string field, string def = default)
+        {
+            if (TryGetInfo(ent, out var info))
+                if (info.LoggedIn && info.Data.TryGetValue(field, out var ret))
+                    return ret;
+
+            return def;
+        }
+
+        public static bool TrySetDBField(this Entity ent, string field, string value)
+        {
+            if (TryGetInfo(ent, out var info) && info.LoggedIn)
+            {
+                info.Data[field] = value;
+                return true;
+            }
+
+            return false;
+        }
+
+        internal static bool TryGetInfo(this Entity ent, out PlayerInfo row)
         {
             var possibleRow = ConnectedPlayers[ent.EntRef];
             if (possibleRow != null)
@@ -66,11 +93,14 @@ namespace Andromeda
 
         public static bool IsLogged(this Entity ent)
         {
-            if (TryGetRow(ent, out var row))
-                return row.LoggedIn;
+            if (TryGetInfo(ent, out var info))
+                return info.LoggedIn;
 
             return false;
         }
+
+        private static byte[] GetLoginHash(Entity player)
+            => Sha256(player.HWID + player.GUID.ToString());
 
         private static byte[] Sha256(string str)
         {
@@ -175,7 +205,7 @@ namespace Andromeda
                     {
                         HWID = hwid,
                         PasswordHash = bytes,
-                        JsonString = "{}",
+                        Data = new Dictionary<string, string>(),
                         LoggedIn = true,
                     };
 
@@ -204,13 +234,56 @@ namespace Andromeda
                         Log.Info($"Found entry for player {player.Name}");
                     else
                         Log.Info($"Did not find entry for player {player.Name}");
+
+                    if (entry != null)
+                    {
+                        var hash = Sha256(player.HWID + player.GUID.ToString());
+
+                        var findLogged = new SQLiteCommand("SELECT * FROM loggedin WHERE hash = @hash;");
+
+                        findLogged.Parameters.AddWithValue("@hash", hash);
+
+                        ExecuteReader(findLogged, delegate (SQLiteDataReader reader)
+                        {
+                            if (reader.Read())
+                            {
+                                var time = DateTime.ParseExact(reader["time"] as string, dateFormat, System.Globalization.CultureInfo.InvariantCulture);
+
+                                if (DateTime.Now < time)
+                                    return true;
+                            }
+
+                            return false;
+                        },
+                        delegate (bool logged)
+                        {
+                            if (logged)
+                            {
+                                ConnectedPlayers[player.EntRef].LoggedIn = true;
+                                PlayerLoggedIn.Run(null, player);
+
+                                var updateLogged = new SQLiteCommand("UPDATE loggedin SET time = @time WHERE hash = @hash;");
+
+                                updateLogged.Parameters.AddWithValue("@time", DateTime.Now + TimeSpan.FromHours(6));
+                                updateLogged.Parameters.AddWithValue("@hash", hash);
+
+                                ExecuteNonQuery(cmd);
+                            }
+                        });
+                    }
                 });
-            });
+            }, int.MinValue);
 
             Script.PlayerDisconnected.Add((sender, player) =>
             {
-                ConnectedPlayers[player.EntRef] = null;
-            });
+                if (player.IsLogged())
+                    PlayerLoggedOut.Run(null, player);
+
+                ConnectedPlayers[player.EntRef]?.UpdateData(delegate
+                {
+                    ConnectedPlayers[player.EntRef] = null;
+                });
+            }, int.MaxValue);
 
             #region Commands
             // REGISTER
@@ -252,9 +325,9 @@ namespace Andromeda
                 {
                     var pw = args[0] as string;
 
-                    if (sender.TryGetRow(out var row))
+                    if (sender.TryGetInfo(out var row))
                     {
-                        if(row.LoggedIn)
+                        if (row.LoggedIn)
                         {
                             sender.Tell("%eYou are already logged in.");
                             return;
@@ -267,6 +340,16 @@ namespace Andromeda
                         }
 
                         row.LoggedIn = true;
+
+                        var cmd = new SQLiteCommand("INSERT INTO loggedin (hash, time) VALUES (@hash, @time);");
+
+                        cmd.Parameters.AddWithValue("@hash", GetLoginHash(sender));
+                        cmd.Parameters.AddWithValue("@time", DateTime.Now + TimeSpan.FromHours(6));
+
+                        ExecuteNonQuery(cmd);
+
+                        PlayerLoggedIn.Run(null, sender);
+
                         sender.Tell("%iYou have logged in.");
                         return;
                     }
@@ -283,7 +366,7 @@ namespace Andromeda
                 argTypes: new Cmd.IArgParse[0],
                 action: delegate (Entity sender, object[] args)
                 {
-                    if (sender.TryGetRow(out var row))
+                    if (sender.TryGetInfo(out var row))
                     {
                         if (!row.LoggedIn)
                         {
@@ -292,6 +375,15 @@ namespace Andromeda
                         }
 
                         row.LoggedIn = false;
+
+                        var cmd = new SQLiteCommand("DELETE FROM loggedin WHERE hash = @hash;");
+
+                        cmd.Parameters.AddWithValue("@hash", GetLoginHash(sender));
+
+                        ExecuteNonQuery(cmd);
+
+                        PlayerLoggedOut.Run(null, sender);
+
                         sender.Tell("%iYou have logged out.");
                         return;
                     }
@@ -308,7 +400,7 @@ namespace Andromeda
                     var pw = args[0] as string;
                     var confirmation = args[1] as string;
 
-                    if (sender.TryGetRow(out var row) && row.LoggedIn)
+                    if (sender.TryGetInfo(out var row) && row.LoggedIn)
                     {
                         if (pw != confirmation)
                         {
@@ -317,7 +409,7 @@ namespace Andromeda
                         }
 
                         var hash = Sha256(pw);
-                        var cmd = new SQLiteCommand("UPDATE players SET password = @hash WHERE hwid = @value");
+                        var cmd = new SQLiteCommand("UPDATE players SET password = @hash WHERE hwid = @value;");
 
                         cmd.Parameters.AddWithValue("@value", sender.HWID);
                         cmd.Parameters.AddWithValue("@hash", hash);
@@ -344,14 +436,19 @@ namespace Andromeda
                 description: "Logs you into the server database"));
 
             #endregion
-
         }
 
+        [Cleanup]
         private static void Cleanup()
         {
-            foreach(var info in ConnectedPlayers)
+            foreach (var info in ConnectedPlayers)
             {
                 info?.UpdateData();
+            }
+
+            lock (Connection)
+            {
+                Connection.Close();
             }
         }
 
@@ -363,14 +460,27 @@ namespace Andromeda
 
             Log.Info("Preparing DB...");
 
-            Connection.Open();
-
-            using (var prepare = new SQLiteCommand(@"CREATE TABLE IF NOT EXISTS players (hwid VARCHAR(32) PRIMARY KEY NOT NULL, password BLOB NOT NULL, data LONGTEXT);", Connection))
+            lock (Connection)
             {
-                Log.Info($"result: {prepare.ExecuteNonQuery()}");
-            }
+                Connection.Open();
 
-            Log.Info("Done preparing.");
+                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS players (hwid VARCHAR(32) PRIMARY KEY NOT NULL, password BLOB NOT NULL, data LONGTEXT);", Connection))
+                {
+                    Log.Info($"result: {prepare.ExecuteNonQuery()}");
+                }
+
+                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS loggedin (hash BLOB PRIMARY KEY NOT NULL, time TEXT);", Connection))
+                {
+                    Log.Info($"result: {prepare.ExecuteNonQuery()}");
+                }
+
+                using (var prepare = new SQLiteCommand("DELETE FROM loggedin WHERE time > datetime('now');", Connection))
+                {
+                    Log.Info($"result: {prepare.ExecuteNonQuery()}");
+                }
+
+                Log.Info("Done preparing.");
+            }
         }
     }
 }

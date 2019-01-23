@@ -8,6 +8,13 @@ namespace InfinityScript
     [AttributeUsage(AttributeTargets.Method,
                    AllowMultiple = false,
                    Inherited = false)]
+    public class CleanupAttribute : Attribute
+    {
+    }
+
+    [AttributeUsage(AttributeTargets.Method,
+               AllowMultiple = false,
+               Inherited = false)]
     public class EntryPointAttribute : Attribute
     {
     }
@@ -18,5 +25,4 @@ namespace InfinityScript
     public class PluginAttribute : Attribute
     {
     }
-
 }

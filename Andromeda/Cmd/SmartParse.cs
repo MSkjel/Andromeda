@@ -15,6 +15,21 @@ namespace Andromeda.Cmd
         public static readonly IArgParse GreedyString = new GreedyStringParse();
         public static readonly IArgParse Player = new PlayerParse();
 
+        public static readonly IArgParse UnimmunePlayer = new ConstraintParse(Player, delegate (object obj, Entity ent)
+        {
+            if (Common.Perms.IsImmuneTo(obj as Entity, ent))
+                return "Player is immune";
+
+            return null;
+        });
+        public static readonly IArgParse LoggedInPlayer = new ConstraintParse(Player, delegate (object obj, Entity ent)
+        {
+            if ((obj as Entity).IsLogged())
+                return null;
+
+            return "Player is not logged";
+        });
+
         internal static readonly IArgParse CommandName = new CommandNameParse();
 
         public static Command CreateCommand(string name, IArgParse[] argTypes, Action<Entity, object[]> action, string usage, string[] aliases = null, string permission = null, string description = null)
@@ -121,6 +136,8 @@ namespace Andromeda.Cmd
         }
     }
 
+    delegate bool PlayerPredicate(Entity sender, Entity target);
+
     public class PlayerParse : IArgParse
     {
         public virtual string Parse(ref string str, out object parsed, Entity sender)
@@ -169,26 +186,27 @@ namespace Andromeda.Cmd
         }
     }
 
-    public class UnimmunePlayerParse : PlayerParse
+    public delegate string Constraint(object obj, Entity sender);
+
+    public class ConstraintParse : IArgParse
     {
-        public override string Parse(ref string str, out object parsed, Entity sender)
+        private readonly Constraint constraint;
+        private readonly IArgParse parse;
+        public ConstraintParse(IArgParse parse, Constraint constraint)
         {
-            if (base.Parse(ref str, out parsed, sender) is string error)
+            this.parse = parse;
+            this.constraint = constraint;
+        }
+
+        public string Parse(ref string str, out object parsed, Entity sender)
+        {
+            if (parse.Parse(ref str, out parsed, sender) is string error)
                 return error;
 
-            if (parsed is Entity player)
-            {
-                if (Common.Perms.IsImmuneTo(player, sender))
-                {
-                    parsed = null;
+            if (constraint(parsed, sender) is string err)
+                return err;
 
-                    return "Player is immune.";
-                }
-
-                return null;
-            }
-
-            return "Parsed is not Entity?";
+            return null;
         }
     }
 

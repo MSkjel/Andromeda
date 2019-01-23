@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace InfinityScript
 {
@@ -69,6 +69,7 @@ namespace InfinityScript
         public int EntryPointCount { get; private set; } = 0;
 
         private readonly Action EntryPoint;
+        private readonly Action Cleanups;
 
         public bool IsLibrary
             => EntryPointCount > 0;
@@ -101,6 +102,11 @@ namespace InfinityScript
                             EntryPoint += Delegate.CreateDelegate(typeof(Action), method) as Action;
                             EntryPointCount++;
                         }
+
+                        if (method.GetCustomAttributes(typeof(CleanupAttribute), false).FirstOrDefault() != null)
+                        {
+                            Cleanups += Delegate.CreateDelegate(typeof(Action), method) as Action;
+                        }
                     }
                 }
             }
@@ -112,10 +118,26 @@ namespace InfinityScript
             {
                 EntryPoint?.Invoke();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error($"Error running one of plugin {Assembly.GetName().Name}'s entry points:");
                 Log.Error(ex);
+            }
+        }
+
+        public void RunCleanups()
+        {
+            foreach (Action action in Cleanups.GetInvocationList())
+            {
+                try
+                {
+                    action();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error running one of plugin {Assembly.GetName().Name}'s cleanups:");
+                    Log.Error(ex);
+                }
             }
         }
     }

@@ -17,7 +17,7 @@ namespace Andromeda
         internal static readonly string[] Credits = new[]
             {
                 "Lambder & Markus - dem bois",
-                "Slvr99 - help with AbominationScript"
+                "Slvr99 - help with AbortScript"
             };
 
         private static IPerms perms;
