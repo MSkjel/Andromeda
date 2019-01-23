@@ -21,7 +21,9 @@ namespace Andromeda.Cmd
             => new Command(name,
                 delegate (Entity sender, string message)
                 {
-                    object[] arguments = new object[argTypes.Length];
+                    if (argTypes != null)
+                    {
+                        object[] arguments = new object[argTypes.Length];
 
                     for(int i = 0; i < argTypes.Length; i++)
                         if(argTypes[i].Parse(ref message, out arguments[i], sender) is string error)
@@ -31,16 +33,19 @@ namespace Andromeda.Cmd
                                 $"Usage: %i{usage}",
                                 $"%eError parsing argument {i}:",
                                 error
-                            };
+                                };
 
-                            sender.Tell(response);
-                            return;
-                        }
+                                sender.Tell(response);
+                                return;
+                            }
 
-                    if (string.IsNullOrEmpty(message))
-                        action(sender, arguments);
+                        if (string.IsNullOrEmpty(message))
+                            action(sender, arguments);
+                        else
+                            sender.Tell("%eToo many arguments given");
+                    }
                     else
-                        sender.Tell("%eToo many arguments given");
+                        action(sender, null);
 
                 }, usage, aliases, permission, description);
     }
