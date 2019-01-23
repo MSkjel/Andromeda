@@ -50,7 +50,7 @@ namespace Andromeda
             return null;
         }
 
-        public static T GetImportOr<T>(string name, T defaultValue)
+        public static T GetImportOr<T>(string name, T defaultValue = default)
         {
             if (GetImport<T>(name, out var ret))
                 return ret;

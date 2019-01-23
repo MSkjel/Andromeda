@@ -12,8 +12,13 @@ namespace Andromeda
     [Plugin]
     public static partial class Common
     {
-        internal static string Version
-            => "Andromeda v0.0.1";
+        internal static readonly string Version = "Andromeda v0.0.1";
+
+        internal static readonly string[] Credits = new[]
+            {
+                "Lambder & Markus - dem bois",
+                "Slvr99 - help with AbominationScript"
+            };
 
         private static IPerms perms;
         private static readonly IPerms mockPerms = new Mock.Perms();
@@ -202,6 +207,30 @@ namespace Andromeda
                 },
                 usage: "!version",
                 description: "Shows versions of functionalities"));
+
+            // CREDITS
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "credits",
+                argTypes: new IArgParse[0],
+                action: delegate (Entity sender, object[] args)
+                {
+                    var msg = new[]
+                    {
+                        "%iVersions:",
+                        $"%h1{Version}",
+                    }.Concat(Credits);
+
+                    foreach (var func in functionalities)
+                    {
+                        msg = msg.Concat(new[]
+                        {
+                            $"%h1{func.Version}"
+                        }.Concat(func.Credits));
+                    }
+
+                    sender.Tell(msg);
+                },
+                usage: "!credits"));
         }
     }
 }

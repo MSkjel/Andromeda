@@ -10,6 +10,9 @@ namespace Andromeda.Mock
     {
         public string Version
             => "MockAdmin";
+        public string[] Credits
+            => new string[0];
+
         public void Kick(Entity player, string issuer, string message)
             => throw new NotImplementedException();
 

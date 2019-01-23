@@ -11,6 +11,9 @@ namespace Andromeda.Mock
         public string Version
             => "MockPerms";
 
+        public string[] Credits
+            => new string[0];
+
         public bool RequestPermission(Entity ent, string perm, out string message)
         {
             message = "Allowed";

@@ -23,12 +23,11 @@ namespace InfinityScript
                 var name = new AssemblyName(args.Name);
 
                 foreach (var entry in assemblies)
-                    if (name.Name == entry.Key.Name)
+                    if (name.Name == entry.Key.Name && name.Version <= entry.Key.Version)
                         return LoadAssembly(entry.Value);
 
                 return null;
             }
-
 
             AppDomain.CurrentDomain.AssemblyResolve += resolve;
 
@@ -85,7 +84,15 @@ namespace InfinityScript
             {
                 if (type.GetCustomAttributes(typeof(PluginAttribute), false).FirstOrDefault() is PluginAttribute attr)
                 {
-                    System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+                    try
+                    {
+                        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"Error running {type.FullName}'s static constructor:");
+                        Log.Error(ex);
+                    }
 
                     foreach (var method in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public))
                     {
@@ -101,7 +108,15 @@ namespace InfinityScript
 
         public void RunEntryPoint()
         {
-            EntryPoint?.Invoke();
+            try
+            {
+                EntryPoint?.Invoke();
+            }
+            catch(Exception ex)
+            {
+                Log.Error($"Error running one of plugin {Assembly.GetName().Name}'s entry points:");
+                Log.Error(ex);
+            }
         }
     }
 }

@@ -29,10 +29,7 @@ namespace BaseCommands
 
                         if (Utils.MapFilesExist(map.RawName))
                         {
-                            Common.Utils.SayAll(new[]
-                            {
-                                $"%iMap has been changed to %h2{map.NiceName} %iby %h1{Common.Perms.GetFormattedName(sender)}"
-                            });
+                            Common.SayAll($"Map has been changed to %h2{map.NiceName} %nby %h1{Common.Perms.GetFormattedName(sender)}");
 
                             Utilities.ExecuteCommand($"map {map.RawName}");
                         }

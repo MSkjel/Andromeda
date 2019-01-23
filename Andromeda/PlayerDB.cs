@@ -21,6 +21,32 @@ namespace Andromeda
 
             public bool LoggedIn { get; set; }
 
+            public static PlayerInfo Get(SQLiteDataReader reader)
+            {
+                if (reader.Read())
+                {
+                    return new PlayerInfo
+                    {
+                        HWID = reader["hwid"] as string,
+                        PasswordHash = reader["password"] as byte[],
+                        JsonString = reader["data"] as string,
+                        LoggedIn = false,
+                    };
+                }
+
+                return null;
+            }
+
+            public void UpdateData()
+            {
+                var cmd = new SQLiteCommand("UPDATE players SET data = @data WHERE hwid = @hwid");
+
+                cmd.Parameters.AddWithValue("@data", JsonString);
+                cmd.Parameters.AddWithValue("@hwid", HWID);
+
+                ExecuteNonQuery(cmd);
+            }
+
             public override string ToString()
                 => $"Entry({HWID},{BitConverter.ToString(PasswordHash)})";
         }
@@ -170,21 +196,7 @@ namespace Andromeda
 
                 cmd.Parameters.AddWithValue("@value", player.HWID);
 
-                ExecuteReader(cmd, delegate (SQLiteDataReader reader)
-                {
-                    if (reader.Read())
-                    {
-                        return new PlayerInfo
-                        {
-                            HWID = reader["hwid"] as string,
-                            PasswordHash = reader["password"] as byte[],
-                            JsonString = reader["data"] as string,
-                            LoggedIn = false,
-                        };
-                    }
-
-                    return null;
-                },
+                ExecuteReader(cmd, PlayerInfo.Get,
                 delegate (PlayerInfo entry)
                 {
                     ConnectedPlayers[player.EntRef] = entry;
@@ -334,6 +346,14 @@ namespace Andromeda
 
             #endregion
 
+        }
+
+        private static void Cleanup()
+        {
+            foreach(var info in ConnectedPlayers)
+            {
+                info?.UpdateData();
+            }
         }
 
         static PlayerDB()

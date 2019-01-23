@@ -133,7 +133,8 @@ namespace BaseCommands
             return axis == 0 && allies == 0 && none > 0;
         }
 
-        public static bool CaseInsensitiveContains(string str1, string str2) => str1.IndexOf(str2, StringComparison.InvariantCultureIgnoreCase) != -1;
+        public static bool CaseInsensitiveContains(string str1, string str2)
+            => str1.IndexOf(str2, StringComparison.InvariantCultureIgnoreCase) != -1;
 
         public static string ColorRemover(string message)
         {
