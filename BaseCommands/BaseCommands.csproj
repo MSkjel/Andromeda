@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BaseCommands</RootNamespace>
-    <AssemblyName>BaseCommands.plugin</AssemblyName>
+    <AssemblyName>BaseCommands</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -56,4 +56,8 @@
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>del BaseCommands.plugin.dll
+ren BaseCommands.dll BaseCommands.plugin.dll</PostBuildEvent>
+  </PropertyGroup>
 </Project>

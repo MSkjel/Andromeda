@@ -142,33 +142,33 @@ namespace BaseCommands
             return message;
         }
 
-        public static IEnumerable<string> Condense(IEnumerable<string> enumerable, int condenselevel = 40, string separator = ", ")
-        {
-            using (var enrt = enumerable.GetEnumerator())
-            {
-                List<string> toRet = new List<string>();
-                string line = "";
+        //public static IEnumerable<string> Condense(IEnumerable<string> enumerable, int condenselevel = 40, string separator = ", ")
+        //{
+        //    using (var enrt = enumerable.GetEnumerator())
+        //    {
+        //        List<string> toRet = new List<string>();
+        //        string line = "";
 
-                if (!enrt.MoveNext())
-                    return Enumerable.Empty<string>();
-                else
-                    line = enrt.Current;
+        //        if (!enrt.MoveNext())
+        //            return Enumerable.Empty<string>();
+        //        else
+        //            line = enrt.Current;
 
-                while (enrt.MoveNext())
-                    if (ColorRemover(line + separator + enrt.Current).Length > condenselevel)
-                    {
-                        toRet.Add(line);
+        //        while (enrt.MoveNext())
+        //            if ((line + separator + enrt.Current).Length > condenselevel)
+        //            {
+        //                toRet.Add(line);
 
-                        line = enrt.Current;
-                    }
-                    else
-                        line += separator + enrt.Current;
+        //                line = enrt.Current;
+        //            }
+        //            else
+        //                line += separator + enrt.Current;
 
-                toRet.Add(line);
+        //        toRet.Add(line);
 
-                return toRet;
-            }
-        }
+        //        return toRet;
+        //    }
+        //}
 
         public static void PMOnInterval(Entity ent, IEnumerable<string> messages, int delay)
         {

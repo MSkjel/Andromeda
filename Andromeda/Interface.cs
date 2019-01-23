@@ -15,13 +15,14 @@ namespace Andromeda
         public static void SayAll(string message)
             => SayAll(message.Yield());
 
-        public static void Tell(this Entity player, IEnumerable<string> messages)
-            => Utils.SayTo(player, messages.Select(msg => msg.ColorFormat()));
+        public static void Tell(this Entity player, IEnumerable<string> messages, bool raw = false)
+            => Utils.SayTo(player, messages.Select(msg => msg.ColorFormat()), raw);
 
         public static void Tell(this Entity player, string message)
             => player.Tell(message.Yield());
 
         private static Dictionary<string, string> colorScheme = Utils.ColorScheme.Export();
+
         public static string ColorFormat(this string message)
         {
             var sb = new StringBuilder("%n" + message);

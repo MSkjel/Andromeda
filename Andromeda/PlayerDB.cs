@@ -28,6 +28,7 @@ namespace Andromeda
         internal static bool TryGetRow(this Entity ent, out PlayerInfo row)
         {
             var possibleRow = ConnectedPlayers[ent.EntRef];
+
             if (possibleRow != null)
             {
                 row = possibleRow;
