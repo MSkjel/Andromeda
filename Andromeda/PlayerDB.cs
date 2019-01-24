@@ -518,7 +518,7 @@ namespace Andromeda
                     Log.Info($"result: {prepare.ExecuteNonQuery()}");
                 }
 
-                using (var prepare = new SQLiteCommand("DELETE FROM loggedin WHERE time > datetime('now');", Connection))
+                using (var prepare = new SQLiteCommand("DELETE FROM loggedin WHERE time < datetime('now');", Connection))
                 {
                     Log.Info($"result: {prepare.ExecuteNonQuery()}");
                 }
