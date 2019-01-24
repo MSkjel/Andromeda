@@ -88,12 +88,22 @@ namespace Andromeda
 
             public void UpdateData(Action<int> action = null)
             {
-                var cmd = new SQLiteCommand("UPDATE players SET data = @data WHERE hwid = @hwid");
+                IEnumerator routine()
+                {
+                    var cmd = new SQLiteCommand("UPDATE players SET data = @data WHERE hwid = @hwid", Connection);
 
-                cmd.Parameters.AddWithValue("@data", JsonConvert.SerializeObject(Data));
-                cmd.Parameters.AddWithValue("@hwid", HWID);
+                    cmd.Parameters.AddWithValue("@data", JsonConvert.SerializeObject(Data));
+                    cmd.Parameters.AddWithValue("@hwid", HWID);
 
-                ExecuteNonQuery(cmd, action);
+                    yield return Async.Detach();
+
+                    lock (Connection)
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                Async.Start(routine());
             }
 
             public override string ToString()
@@ -101,13 +111,21 @@ namespace Andromeda
         }
 
         private static byte[] GetLoginHash(Entity player)
-            => Sha256(player.HWID + player.GUID.ToString());
+            => Md5(player.HWID + player.GUID.ToString() + player.IP.Address);
 
         private static byte[] Sha256(string str)
         {
             using (SHA256 sha256Hash = SHA256.Create())
             {
                 return sha256Hash.ComputeHash(Encoding.ASCII.GetBytes(str));
+            }
+        }
+
+        private static byte[] Md5(string str)
+        {
+            using (MD5 md5Hash = MD5.Create())
+            {
+                return md5Hash.ComputeHash(Encoding.ASCII.GetBytes(str));
             }
         }
 
@@ -128,72 +146,32 @@ namespace Andromeda
         internal static SQLiteConnection Connection;
         internal static PlayerInfo[] ConnectedPlayers = new PlayerInfo[18];
 
-        internal static void ExecuteNonQuery(SQLiteCommand cmd, Action<int> callback = null)
-        {
-            IEnumerator pseudoThread()
-            {
-                yield return Async.Detach();
-
-                int ret;
-                lock (Connection)
-                {
-                    cmd.Connection = Connection;
-                    ret = cmd.ExecuteNonQuery();
-
-                    cmd.Dispose();
-                }
-
-                yield return Async.Attach();
-
-                callback?.Invoke(ret);
-            }
-
-            Async.Start(pseudoThread());
-        }
-
-        internal static void ExecuteReader<T>(SQLiteCommand cmd, Func<SQLiteDataReader, T> reading, Action<T> callback)
-        {
-            IEnumerator pseudoThread()
-            {
-                yield return Async.Detach();
-
-                T ret;
-
-                lock (Connection)
-                {
-                    cmd.Connection = Connection;
-                    var reader = cmd.ExecuteReader();
-
-                    ret = reading(reader);
-
-                    cmd.Dispose();
-                }
-
-                yield return Async.Attach();
-
-                callback(ret);
-            }
-
-            Async.Start(pseudoThread());
-        }
-
         internal static bool TryRegister(Entity ent, string password, Action onFinish)
         {
             var exists = ConnectedPlayers[ent.EntRef] != null;
-            var hwid = ent.HWID;
 
             if (!exists)
             {
-                byte[] bytes = Sha256(password);
-
-                var command = new SQLiteCommand("INSERT INTO players (hwid, password, data) VALUES (@hwid, @password, @data);");
-
-                command.Parameters.AddWithValue("@hwid", hwid);
-                command.Parameters.AddWithValue("@password", bytes);
-                command.Parameters.AddWithValue("@data", "{}");
-
-                ExecuteNonQuery(command, delegate
+                IEnumerator routine()
                 {
+                    var hwid = ent.HWID;
+                    byte[] bytes = Sha256(password);
+
+                    var command = new SQLiteCommand("INSERT INTO players (hwid, password, data) VALUES (@hwid, @password, @data);", Connection);
+
+                    command.Parameters.AddWithValue("@hwid", hwid);
+                    command.Parameters.AddWithValue("@password", bytes);
+                    command.Parameters.AddWithValue("@data", "{}");
+
+                    yield return Async.Detach();
+
+                    lock (Connection)
+                    {
+                        command.ExecuteNonQuery();
+                    }
+
+                    yield return Async.Attach();
+
                     Log.Info($"Registered HWID {hwid} inside database");
 
                     ConnectedPlayers[ent.EntRef] = new PlayerInfo
@@ -205,68 +183,110 @@ namespace Andromeda
                     };
 
                     onFinish();
-                });
+
+                    var cmd = new SQLiteCommand("INSERT INTO loggedin (hash, time) VALUES (@hash, @time);", Connection);
+
+                    cmd.Parameters.AddWithValue("@hash", GetLoginHash(ent));
+                    cmd.Parameters.AddWithValue("@time", DateTime.Now + TimeSpan.FromHours(6));
+
+                    yield return Async.Detach();
+
+                    lock (Connection)
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+
+                }
+
+                Async.Start(routine());
             }
 
             return !exists;
         }
-
+        
         [EntryPoint]
         private static void Init()
         {
             Script.PlayerConnected.Add((sender, player) =>
             {
-                var cmd = new SQLiteCommand($"SELECT * FROM players WHERE hwid = @value;");
-
-                cmd.Parameters.AddWithValue("@value", player.HWID);
-
-                ExecuteReader(cmd, PlayerInfo.Get,
-                delegate (PlayerInfo entry)
+                IEnumerator routine()
                 {
-                    ConnectedPlayers[player.EntRef] = entry;
+                    var cmd = new SQLiteCommand($"SELECT * FROM players WHERE hwid = @value;", Connection);
 
-                    if (entry != null)
+                    cmd.Parameters.AddWithValue("@value", player.HWID);
+
+                    yield return Async.Detach();
+
+                    PlayerInfo found;
+                    lock (Connection)
+                    {
+                        found = PlayerInfo.Get(cmd.ExecuteReader());
+                    }
+
+                    yield return Async.Attach();
+
+                    ConnectedPlayers[player.EntRef] = found;
+
+                    if (found != null)
                         Log.Info($"Found entry for player {player.Name}");
                     else
                         Log.Info($"Did not find entry for player {player.Name}");
 
-                    if (entry != null)
+                    if (found != null)
                     {
-                        var hash = Sha256(player.HWID + player.GUID.ToString());
+                        var hash = GetLoginHash(player);
 
-                        var findLogged = new SQLiteCommand("SELECT * FROM loggedin WHERE hash = @hash;");
+                        var findLogged = new SQLiteCommand("SELECT * FROM loggedin WHERE hash = @hash;", Connection);
 
                         findLogged.Parameters.AddWithValue("@hash", hash);
 
-                        ExecuteReader(findLogged, delegate (SQLiteDataReader reader)
+                        yield return Async.Detach();
+
+                        bool logged;
+                        lock (Connection)
                         {
+                            var reader = findLogged.ExecuteReader();
+
                             if (reader.Read())
                             {
                                 var time = DateTime.ParseExact(reader["time"] as string, dateFormat, System.Globalization.CultureInfo.InvariantCulture);
 
                                 if (DateTime.Now < time)
-                                    return true;
+                                    logged = true;
+                                else
+                                    logged = false;
                             }
+                            else
+                                logged = false;
+                        }
 
-                            return false;
-                        },
-                        delegate (bool logged)
+                        yield return Async.Attach();
+
+                        if (logged)
                         {
-                            if (logged)
+                            ConnectedPlayers[player.EntRef].LoggedIn = true;
+
+                            player.Tell("%iYou have logged in automatically.");
+                            Log.Info($"Player {player.Name} automatically logged in.");
+
+                            PlayerLoggedIn.Run(null, player);
+
+                            var updateLogged = new SQLiteCommand("UPDATE loggedin SET time = @time WHERE hash = @hash;", Connection);
+
+                            updateLogged.Parameters.AddWithValue("@time", DateTime.Now + TimeSpan.FromHours(6));
+                            updateLogged.Parameters.AddWithValue("@hash", hash);
+
+                            yield return Async.Detach();
+
+                            lock (Connection)
                             {
-                                ConnectedPlayers[player.EntRef].LoggedIn = true;
-                                PlayerLoggedIn.Run(null, player);
-
-                                var updateLogged = new SQLiteCommand("UPDATE loggedin SET time = @time WHERE hash = @hash;");
-
-                                updateLogged.Parameters.AddWithValue("@time", DateTime.Now + TimeSpan.FromHours(6));
-                                updateLogged.Parameters.AddWithValue("@hash", hash);
-
-                                ExecuteNonQuery(cmd);
+                                updateLogged.ExecuteNonQuery();
                             }
-                        });
+                        }
                     }
-                });
+                }
+
+                Async.Start(routine());
             }, int.MinValue);
 
             Script.PlayerDisconnected.Add((sender, player) =>
@@ -336,12 +356,22 @@ namespace Andromeda
 
                         row.LoggedIn = true;
 
-                        var cmd = new SQLiteCommand("INSERT INTO loggedin (hash, time) VALUES (@hash, @time);");
+                        IEnumerator routine()
+                        {
+                            var cmd = new SQLiteCommand("INSERT INTO loggedin (hash, time) VALUES (@hash, @time);", Connection);
 
-                        cmd.Parameters.AddWithValue("@hash", GetLoginHash(sender));
-                        cmd.Parameters.AddWithValue("@time", DateTime.Now + TimeSpan.FromHours(6));
+                            cmd.Parameters.AddWithValue("@hash", GetLoginHash(sender));
+                            cmd.Parameters.AddWithValue("@time", DateTime.Now + TimeSpan.FromHours(6));
 
-                        ExecuteNonQuery(cmd);
+                            yield return Async.Detach();
+
+                            lock (Connection)
+                            {
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        Async.Start(routine());
 
                         PlayerLoggedIn.Run(null, sender);
 
@@ -371,11 +401,21 @@ namespace Andromeda
 
                         row.LoggedIn = false;
 
-                        var cmd = new SQLiteCommand("DELETE FROM loggedin WHERE hash = @hash;");
+                        IEnumerator routine()
+                        {
+                            var cmd = new SQLiteCommand("DELETE FROM loggedin WHERE hash = @hash;", Connection);
 
-                        cmd.Parameters.AddWithValue("@hash", GetLoginHash(sender));
+                            cmd.Parameters.AddWithValue("@hash", GetLoginHash(sender));
 
-                        ExecuteNonQuery(cmd);
+                            yield return Async.Detach();
+
+                            lock (Connection)
+                            {
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        Async.Start(routine());
 
                         PlayerLoggedOut.Run(null, sender);
 
@@ -403,23 +443,35 @@ namespace Andromeda
                             return;
                         }
 
-                        var hash = Sha256(pw);
-                        var cmd = new SQLiteCommand("UPDATE players SET password = @hash WHERE hwid = @value;");
-
-                        cmd.Parameters.AddWithValue("@value", sender.HWID);
-                        cmd.Parameters.AddWithValue("@hash", hash);
-
-                        ExecuteNonQuery(cmd, delegate (int status)
+                        IEnumerator routine()
                         {
+                            var hash = Sha256(pw);
+                            var cmd = new SQLiteCommand("UPDATE players SET password = @hash WHERE hwid = @value;", Connection);
+
+                            cmd.Parameters.AddWithValue("@value", sender.HWID);
+                            cmd.Parameters.AddWithValue("@hash", hash);
+
+                            yield return Async.Detach();
+
+                            int status;
+                            lock (Connection)
+                            {
+                                status = cmd.ExecuteNonQuery();
+                            }
+
+                            yield return Async.Attach();
+
                             if (status == -1)
                             {
                                 sender.Tell($"%eError changing password: {status}");
-                                return;
+                                yield break;
                             }
 
                             row.PasswordHash = hash;
                             sender.Tell("%iPassword changed successfully.");
-                        });
+                        }
+
+                        Async.Start(routine());
                     }
                     else
                         sender.Tell("%ePlease log in to change password.");
