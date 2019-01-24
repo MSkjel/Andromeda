@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Async.cs" />
     <Compile Include="Chat.cs" />
     <Compile Include="Cmd\SmartParse.cs" />
     <Compile Include="ColorScheme.cs" />

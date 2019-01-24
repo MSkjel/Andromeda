@@ -132,55 +132,49 @@ namespace Andromeda
         {
             IEnumerator pseudoThread()
             {
-                using (cmd)
+                yield return Async.Detach();
+
+                int ret;
+                lock (Connection)
                 {
-                    var task = Task.Factory.StartNew(delegate
-                    {
-                        lock (Connection)
-                        {
-                            cmd.Connection = Connection;
-                            var ret = cmd.ExecuteNonQuery();
+                    cmd.Connection = Connection;
+                    ret = cmd.ExecuteNonQuery();
 
-                            return ret;
-                        }
-                    });
-
-                    while (!task.IsCompleted)
-                        yield return BaseScript.WaitForFrame();
-
-                    callback?.Invoke(task.Result);
+                    cmd.Dispose();
                 }
+
+                yield return Async.Attach();
+
+                callback?.Invoke(ret);
             }
 
-            BaseScript.StartAsync(pseudoThread());
+            Async.Start(pseudoThread());
         }
 
         internal static void ExecuteReader<T>(SQLiteCommand cmd, Func<SQLiteDataReader, T> reading, Action<T> callback)
         {
             IEnumerator pseudoThread()
             {
-                using (cmd)
+                yield return Async.Detach();
+
+                T ret;
+
+                lock (Connection)
                 {
-                    Task<T> task;
-                    lock (Connection)
-                    {
-                        cmd.Connection = Connection;
-                        task = Task.Factory.StartNew(delegate
-                        {
-                            var reader = cmd.ExecuteReader();
-                            var ret = reading(reader);
-                            return ret;
-                        });
+                    cmd.Connection = Connection;
+                    var reader = cmd.ExecuteReader();
 
-                        while (!task.IsCompleted)
-                            yield return BaseScript.WaitForFrame();
-                    }
+                    ret = reading(reader);
 
-                    callback(task.Result);
+                    cmd.Dispose();
                 }
+
+                yield return Async.Attach();
+
+                callback(ret);
             }
 
-            BaseScript.StartAsync(pseudoThread());
+            Async.Start(pseudoThread());
         }
 
         internal static bool TryRegister(Entity ent, string password, Action onFinish)
@@ -428,10 +422,7 @@ namespace Andromeda
                         });
                     }
                     else
-                    {
                         sender.Tell("%ePlease log in to change password.");
-                        return;
-                    }
                 },
                 usage: "!changepassword <newpassword> <confirm>",
                 description: "Logs you into the server database"));
@@ -459,10 +450,10 @@ namespace Andromeda
 
             Connection = new SQLiteConnection(@"Data Source=scripts\Andromeda\players.sqlite;Version=3;");
 
-            Log.Info("Preparing DB...");
-
             lock (Connection)
             {
+                Log.Info("Preparing DB...");
+
                 Connection.Open();
 
                 using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS players (hwid VARCHAR(32) PRIMARY KEY NOT NULL, password BLOB NOT NULL, data LONGTEXT);", Connection))
