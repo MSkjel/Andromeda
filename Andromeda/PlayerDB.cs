@@ -18,46 +18,6 @@ namespace Andromeda
         public static readonly Event<Entity> PlayerLoggedIn = new Event<Entity>(Events.Events.ErrorHandler(nameof(PlayerLoggedIn)));
         public static readonly Event<Entity> PlayerLoggedOut = new Event<Entity>(Events.Events.ErrorHandler(nameof(PlayerLoggedOut)));
 
-        private const string dateFormat = "yyyy-MM-dd HH:mm:ss.fffffff";
-
-        internal class PlayerInfo
-        {
-            public string HWID;
-            public byte[] PasswordHash;
-            public Dictionary<string, string> Data;
-
-            public bool LoggedIn { get; set; }
-
-            public static PlayerInfo Get(SQLiteDataReader reader)
-            {
-                if (reader.Read())
-                {
-                    return new PlayerInfo
-                    {
-                        HWID = reader["hwid"] as string,
-                        PasswordHash = reader["password"] as byte[],
-                        Data = JsonConvert.DeserializeObject<Dictionary<string, string>>(reader["data"] as string),
-                        LoggedIn = false,
-                    };
-                }
-
-                return null;
-            }
-
-            public void UpdateData(Action<int> action = null)
-            {
-                var cmd = new SQLiteCommand("UPDATE players SET data = @data WHERE hwid = @hwid");
-
-                cmd.Parameters.AddWithValue("@data", JsonConvert.SerializeObject(Data));
-                cmd.Parameters.AddWithValue("@hwid", HWID);
-
-                ExecuteNonQuery(cmd, action);
-            }
-
-            public override string ToString()
-                => $"Entry({HWID},{BitConverter.ToString(PasswordHash)})";
-        }
-
         public static string GetDBFieldOr(this Entity ent, string field, string def = default)
         {
             if (TryGetInfo(ent, out var info))
@@ -100,6 +60,46 @@ namespace Andromeda
             return false;
         }
 
+        private const string dateFormat = "yyyy-MM-dd HH:mm:ss.fffffff";
+
+        internal class PlayerInfo
+        {
+            public string HWID;
+            public byte[] PasswordHash;
+            public Dictionary<string, string> Data;
+
+            public bool LoggedIn { get; set; }
+
+            public static PlayerInfo Get(SQLiteDataReader reader)
+            {
+                if (reader.Read())
+                {
+                    return new PlayerInfo
+                    {
+                        HWID = reader["hwid"] as string,
+                        PasswordHash = reader["password"] as byte[],
+                        Data = JsonConvert.DeserializeObject<Dictionary<string, string>>(reader["data"] as string),
+                        LoggedIn = false,
+                    };
+                }
+
+                return null;
+            }
+
+            public void UpdateData(Action<int> action = null)
+            {
+                var cmd = new SQLiteCommand("UPDATE players SET data = @data WHERE hwid = @hwid");
+
+                cmd.Parameters.AddWithValue("@data", JsonConvert.SerializeObject(Data));
+                cmd.Parameters.AddWithValue("@hwid", HWID);
+
+                ExecuteNonQuery(cmd, action);
+            }
+
+            public override string ToString()
+                => $"Entry({HWID},{BitConverter.ToString(PasswordHash)})";
+        }
+
         private static byte[] GetLoginHash(Entity player)
             => Sha256(player.HWID + player.GUID.ToString());
 
@@ -128,7 +128,7 @@ namespace Andromeda
         internal static SQLiteConnection Connection;
         internal static PlayerInfo[] ConnectedPlayers = new PlayerInfo[18];
 
-        public static void ExecuteNonQuery(SQLiteCommand cmd, Action<int> callback = null)
+        internal static void ExecuteNonQuery(SQLiteCommand cmd, Action<int> callback = null)
         {
             IEnumerator pseudoThread()
             {
@@ -155,7 +155,7 @@ namespace Andromeda
             BaseScript.StartAsync(pseudoThread());
         }
 
-        public static void ExecuteReader<T>(SQLiteCommand cmd, Func<SQLiteDataReader, T> reading, Action<T> callback)
+        internal static void ExecuteReader<T>(SQLiteCommand cmd, Func<SQLiteDataReader, T> reading, Action<T> callback)
         {
             IEnumerator pseudoThread()
             {
