@@ -60,7 +60,9 @@ namespace Andromeda
             return false;
         }
 
-        private const string dateFormat = "yyyy-MM-dd HH:mm:ss.fffffff";
+        private const string dateFormat = "yyyy-MM-dd HH:mm:ss";
+        internal static string FormatDate(DateTime dateTime)
+            => dateTime.ToString(dateFormat, System.Globalization.CultureInfo.InvariantCulture);
 
         internal class PlayerInfo
         {
@@ -184,17 +186,7 @@ namespace Andromeda
 
                     onFinish();
 
-                    var cmd = new SQLiteCommand("INSERT INTO loggedin (hash, time) VALUES (@hash, @time);", Connection);
-
-                    cmd.Parameters.AddWithValue("@hash", GetLoginHash(ent));
-                    cmd.Parameters.AddWithValue("@time", DateTime.Now + TimeSpan.FromHours(6));
-
-                    yield return Async.Detach();
-
-                    lock (Connection)
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
+                    yield return UpdateLogin(GetLoginHash(ent));
 
                 }
 
@@ -204,6 +196,21 @@ namespace Andromeda
             return !exists;
         }
         
+        private static IEnumerator UpdateLogin(byte[] hash)
+        {
+            var updateLogged = new SQLiteCommand("INSERT OR REPLACE INTO loggedin (hash, time) VALUES (@hash, @time);", Connection);
+
+            updateLogged.Parameters.AddWithValue("@time", FormatDate(DateTime.Now + TimeSpan.FromHours(6)));
+            updateLogged.Parameters.AddWithValue("@hash", hash);
+
+            yield return Async.Detach();
+
+            lock (Connection)
+            {
+                updateLogged.ExecuteNonQuery();
+            }
+        }
+
         [EntryPoint]
         private static void Init()
         {
@@ -243,13 +250,14 @@ namespace Andromeda
                         yield return Async.Detach();
 
                         bool logged;
+                        DateTime time = DateTime.MinValue;
                         lock (Connection)
                         {
                             var reader = findLogged.ExecuteReader();
 
                             if (reader.Read())
                             {
-                                var time = DateTime.ParseExact(reader["time"] as string, dateFormat, System.Globalization.CultureInfo.InvariantCulture);
+                                time = DateTime.ParseExact(reader["time"] as string, dateFormat, System.Globalization.CultureInfo.InvariantCulture);
 
                                 if (DateTime.Now < time)
                                     logged = true;
@@ -271,17 +279,7 @@ namespace Andromeda
 
                             PlayerLoggedIn.Run(null, player);
 
-                            var updateLogged = new SQLiteCommand("UPDATE loggedin SET time = @time WHERE hash = @hash;", Connection);
-
-                            updateLogged.Parameters.AddWithValue("@time", DateTime.Now + TimeSpan.FromHours(6));
-                            updateLogged.Parameters.AddWithValue("@hash", hash);
-
-                            yield return Async.Detach();
-
-                            lock (Connection)
-                            {
-                                updateLogged.ExecuteNonQuery();
-                            }
+                            yield return UpdateLogin(hash);
                         }
                     }
                 }
@@ -356,22 +354,7 @@ namespace Andromeda
 
                         row.LoggedIn = true;
 
-                        IEnumerator routine()
-                        {
-                            var cmd = new SQLiteCommand("INSERT INTO loggedin (hash, time) VALUES (@hash, @time);", Connection);
-
-                            cmd.Parameters.AddWithValue("@hash", GetLoginHash(sender));
-                            cmd.Parameters.AddWithValue("@time", DateTime.Now + TimeSpan.FromHours(6));
-
-                            yield return Async.Detach();
-
-                            lock (Connection)
-                            {
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-
-                        Async.Start(routine());
+                        Async.Start(UpdateLogin(GetLoginHash(sender)));
 
                         PlayerLoggedIn.Run(null, sender);
 
