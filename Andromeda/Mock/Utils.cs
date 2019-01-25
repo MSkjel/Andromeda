@@ -34,33 +34,45 @@ namespace Andromeda.Mock
 
             IEnumerator routine()
             {
-                foreach(var message in messages)
+                using (var e = messages.GetEnumerator())
                 {
-                    Utilities.RawSayAll($"[Server] {message}");
+                    if (e.MoveNext())
+                        Utilities.RawSayAll($"[Server] {e.Current}");
 
-                    yield return BaseScript.Wait(0.85f);
+                    while (e.MoveNext())
+                    {
+                        yield return BaseScript.Wait(0.85f);
+
+                        Utilities.RawSayAll($"* {e.Current}");
+                    }
                 }
             }
 
-            BaseScript.StartAsync(routine());
+            Async.Start(routine());
         }
 
-        public void SayTo(Entity player, IEnumerable<string> messages, bool raw = false)
+        public void SayTo(Entity player, IEnumerable<string> messages)
         {
             if (!messages.Any())
                 return;
 
             IEnumerator routine()
             {
-                foreach (var message in messages)
+                using (var e = messages.GetEnumerator())
                 {
-                    Utilities.RawSayTo(player, $"{(raw ? "" : "[PM]")}{message}");
+                    if (e.MoveNext())
+                        Utilities.RawSayTo(player, $"[PM] {e.Current}");
 
-                    yield return BaseScript.Wait(0.85f);
+                    while(e.MoveNext())
+                    {
+                        yield return BaseScript.Wait(0.85f);
+
+                        Utilities.RawSayTo(player, $"> {e.Current}");
+                    }
                 }
             }
 
-            BaseScript.StartAsync(routine());
+            Async.Start(routine());
         }
     }
 }

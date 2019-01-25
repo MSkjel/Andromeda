@@ -6,14 +6,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Andromeda;
 using InfinityScript;
-using InfinityScript.PBase;
+using static InfinityScript.BaseScript;
 
 namespace BaseCommands
 {
     public class Utils
     {
-        public static List<Entity> Players => BaseScript.Players;
-
         public static readonly List<GameMap> Maps = new List<GameMap>()
         {
             #region Stock
@@ -138,91 +136,8 @@ namespace BaseCommands
 
         public static string ColorRemover(string message)
         {
-            message = Regex.Replace(message, @"\^[0-9]", "");
-            message = Regex.Replace(message, @"\^[;:]", "");
+            message = Regex.Replace(message, @"\^[0-9;:]", "");
             return message;
-        }
-
-        //public static IEnumerable<string> Condense(IEnumerable<string> enumerable, int condenselevel = 40, string separator = ", ")
-        //{
-        //    using (var enrt = enumerable.GetEnumerator())
-        //    {
-        //        List<string> toRet = new List<string>();
-        //        string line = "";
-
-        //        if (!enrt.MoveNext())
-        //            return Enumerable.Empty<string>();
-        //        else
-        //            line = enrt.Current;
-
-        //        while (enrt.MoveNext())
-        //            if ((line + separator + enrt.Current).Length > condenselevel)
-        //            {
-        //                toRet.Add(line);
-
-        //                line = enrt.Current;
-        //            }
-        //            else
-        //                line += separator + enrt.Current;
-
-        //        toRet.Add(line);
-
-        //        return toRet;
-        //    }
-        //}
-
-        public static void PMOnInterval(Entity ent, IEnumerable<string> messages, int delay)
-        {
-            var enumerator = messages.GetEnumerator();
-
-            BaseScript.OnInterval(delay, () =>
-            {
-                if (enumerator.MoveNext())
-                {
-                    if (ent != null && ent.IsFieldTrue("StopPM"))
-                    {
-                        ent.SetField("StopPM", 0);
-                        ent.Tell("%nStopped PM");
-
-                        return false;
-                    }
-
-                    ent.Tell(enumerator.Current);
-                    return true;
-                }
-                else
-                {
-                    enumerator.Dispose();
-                    return false;
-                }
-            });
-        }
-
-        public void PMOnInterval(Entity ent, string Prefix, IEnumerable<string> messages, int delay)
-        {
-            var enumerator = messages.GetEnumerator();
-
-            BaseScript.OnInterval(delay, () =>
-            {
-                if (enumerator.MoveNext())
-                {
-                    if (ent != null && ent.IsFieldTrue("StopPM"))
-                    {
-                        ent.SetField("StopPM", 0);
-                        ent.Tell("%nStopped PM");
-
-                        return false;
-                    }
-
-                    ent.Tell(Prefix + enumerator.Current);
-                    return true;
-                }
-                else
-                {
-                    enumerator.Dispose();
-                    return false;
-                }
-            });
         }
     }
 }

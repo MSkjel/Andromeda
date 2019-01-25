@@ -12,6 +12,6 @@ namespace Andromeda.Interfaces
 
         void SayAll(IEnumerable<string> message);
 
-        void SayTo(Entity player, IEnumerable<string> messages, bool raw = false);
+        void SayTo(Entity player, IEnumerable<string> messages);
     }
 }
