@@ -92,6 +92,20 @@ namespace Andromeda.Events
 
                 WeaponChanged.Run(player, new WeaponChangedArgs(player, par[0].As<string>()));
             },
+
+            ["grenade_pullback"] = (arg) =>
+            {
+                var (player, _, par) = arg;
+
+                GrenadePullback.Run(player, new GrenadePullbackArgs(player, par[0].As<string>()));
+            },
+
+            ["grenade_fire"] = (arg) =>
+            {
+                var (player, _, par) = arg;
+
+                GrenadeFire.Run(player, new GrenadeFireArgs(player, arg.EntityParam, par[1].As<string>()));
+            }
         };
 
         [EntryPoint]
@@ -117,65 +131,7 @@ namespace Andromeda.Events
             {
                 if(specialNotifies.TryGetValue(args.Notify, out var val))
                     val(args);
-            });
-
-            PlayerSpawned.Add((sender, player) =>
-            {
-                Log.Info("Hai");
-                player.IPrintLnBold("Hai");
-            });
-
-            GrenadePullback.Add((sender, args) =>
-            {
-                args.Player.IPrintLnBold(args.Grenade);
-            });
-
-            WeaponReloaded.Add((sender, args) =>
-            {
-                args.Player.IPrintLnBold(args.Weapon);
-            });
-            /*
-            Script.PlayerConnected.Add((sender, player) =>
-            {
-                player.OnNotify("menuresponse", (ent, arg1, arg2) =>
-                {
-                    string response = arg1.As<string>();
-
-                    if (response == "changeclass")
-                        ChangedClass.Run(player, new ChangedClassArgs(player, arg2.As<string>()));
-                    else if (response == "changeteam")
-                        ChangedTeam.Run(player, new ChangedTeamArgs(player, player.SessionTeam, arg2.As<string>()));
-
-                });
-
-                player.OnNotify("weapon_fired", (ent, wep) =>
-                {
-                    WeaponFired.Run(player, new WeaponFiredArgs(player, wep.As<string>()));
-                });
-
-                player.OnNotify("reload", (ent) =>
-                {
-                    WeaponReloaded.Run(player, new WeaponReloadedArgs(player, player.CurrentWeapon));
-                });
-
-                player.OnNotify("weapon_taken", (ent, wep) =>
-                {
-                    WeaponTaken.Run(player, new WeaponTakenArgs(player, wep.As<string>()));
-                });
-
-                player.OnNotify("weapon_switch_started", (ent, wep) =>
-                {
-                    WeaponSwitch.Run(player, new WeaponSwitchArgs(player, wep.As<string>()));
-                });
-
-                player.OnNotify("weapon_change", (ent, wep) =>
-                {
-                    WeaponChanged.Run(player, new WeaponChangedArgs(player, wep.As<string>()));
-                });
-
-
-            });
-            */
+            });        
         }
     }
 }
