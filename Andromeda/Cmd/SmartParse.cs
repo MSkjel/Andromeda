@@ -45,7 +45,7 @@ namespace Andromeda.Cmd
                             {
                                 var response = new[]
                                 {
-                                    $"%eerror",
+                                    $"%e({i + 1}) {error}",
                                     $"Usage: %i{usage}",
                                 };
 
