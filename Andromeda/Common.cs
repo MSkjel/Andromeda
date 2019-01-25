@@ -5,7 +5,7 @@ using System.Text;
 using Andromeda.Interfaces;
 using Andromeda.Events;
 using InfinityScript;
-using Andromeda.Cmd;
+using Andromeda.Parse;
 
 namespace Andromeda
 {
@@ -79,7 +79,8 @@ namespace Andromeda
             return builder.ToString();
         }
 
-        public static IEnumerable<string> Condense(IEnumerable<string> enumerable, int condenselevel = 40, string separator = ", ")
+        [Obsolete]
+        public static IEnumerable<string> CondenseDeprecated(IEnumerable<string> enumerable, int condenselevel = 40, string separator = ", ")
         {
             string all = string.Join(separator, enumerable);
             List<string> toRet = new List<string>();
@@ -96,7 +97,7 @@ namespace Andromeda
 
             return toRet;
         }
-
+        [Obsolete /* Cancer */]
         public static string TruncateAtWord(ref string input, int length, string separator)
         {
             if (input != null && input.Length > 0)
@@ -107,12 +108,37 @@ namespace Andromeda
                 string toRet = input.Substring(0, (iNextSpace > 0) ? iNextSpace : length);
 
 
-                input = input.Replace(toRet, "");
+                input = input.Replace(toRet, ""); // this is cancer no matter how you put it
 
                 return toRet.TrimStart();
             }
 
             return null;
+        }
+
+
+        public static IEnumerable<string> Condense(this IEnumerable<string> strings, int condenseLevel = 40, string separator = ", ")
+        {
+            var sb = new StringBuilder();
+
+            foreach(var str in strings)
+            {
+                if(sb.Length == 0)
+                {
+                    sb.Append(str);
+                    continue;
+                }
+
+                if(sb.Length + separator.Length + str.Length <= condenseLevel)
+                {
+                    sb.Append(separator);
+                    sb.Append(str);
+                    continue;
+                }
+
+                yield return sb.ToString();
+                sb.Clear();
+            }
         }
 
         public static void Register(IFunctionality functionality)

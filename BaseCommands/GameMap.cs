@@ -8,7 +8,7 @@ namespace BaseCommands
 {
     public class GameMap
     {
-        List<string> KnownNames = new List<string>();
+        private readonly List<string> KnownNames = new List<string>();
 
         public GameMap(string mapname, string nicename, params string[] aliases)
         {

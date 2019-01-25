@@ -6,14 +6,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Andromeda;
 using InfinityScript;
-using InfinityScript.PBase;
+using static InfinityScript.BaseScript;
 
 namespace BaseCommands
 {
     public class Utils
     {
-        public static List<Entity> Players => BaseScript.Players;
-
         public static readonly List<GameMap> Maps = new List<GameMap>()
         {
             #region Stock
@@ -135,5 +133,11 @@ namespace BaseCommands
 
         public static bool CaseInsensitiveContains(string str1, string str2)
             => str1.IndexOf(str2, StringComparison.InvariantCultureIgnoreCase) != -1;
+
+        public static string ColorRemover(string message)
+        {
+            message = Regex.Replace(message, @"\^[0-9;:]", "");
+            return message;
+        }
     }
 }

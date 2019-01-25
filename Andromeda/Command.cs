@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Andromeda.Cmd;
+using Andromeda.Parse;
 
 namespace Andromeda
 {
@@ -82,7 +82,7 @@ namespace Andromeda
                         if (cmd == null)
                             args.Player.Tell($"%eNo such command: {cmdName}");
                         else if (!CanDo(args.Player, cmd, out var err))
-                            args.Player.Tell($"%eerr");
+                            args.Player.Tell($"%e{err}");
                         else
                             cmd.TryRun(args.Player, message);
                     }
