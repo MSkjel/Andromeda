@@ -1,5 +1,5 @@
 ﻿using Andromeda;
-using Andromeda.Cmd;
+using Andromeda.Parse;
 using InfinityScript;
 using InfinityScript.PBase;
 using System;
@@ -50,9 +50,10 @@ namespace BaseCommands
 
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "setnextmap",
-                argTypes: new[] { SmartParse.String },
+                argTypes: new[] { Parse.GameMap.Obj },
                 action: delegate (Entity sender, object[] args)
                 {
+                    var map = args[0] as GameMap;
 
                 },
                 usage: "!setnextmap <map>",

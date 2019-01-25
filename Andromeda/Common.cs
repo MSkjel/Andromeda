@@ -5,7 +5,7 @@ using System.Text;
 using Andromeda.Interfaces;
 using Andromeda.Events;
 using InfinityScript;
-using Andromeda.Cmd;
+using Andromeda.Parse;
 
 namespace Andromeda
 {

@@ -300,9 +300,9 @@ namespace Andromeda
 
             #region Commands
             // REGISTER
-            Command.TryRegister(Cmd.SmartParse.CreateCommand(
+            Command.TryRegister(Parse.SmartParse.CreateCommand(
                 name: "register",
-                argTypes: new[] { Cmd.SmartParse.String, Cmd.SmartParse.String },
+                argTypes: new[] { Parse.SmartParse.String, Parse.SmartParse.String },
                 action: delegate (Entity sender, object[] args)
                 {
                     var pw = args[0] as string;
@@ -331,9 +331,9 @@ namespace Andromeda
                 description: "Register to the server's database"));
 
             // LOGIN
-            Command.TryRegister(Cmd.SmartParse.CreateCommand(
+            Command.TryRegister(Parse.SmartParse.CreateCommand(
                 name: "login",
-                argTypes: new[] { Cmd.SmartParse.String },
+                argTypes: new[] { Parse.SmartParse.String },
                 action: delegate (Entity sender, object[] args)
                 {
                     var pw = args[0] as string;
@@ -369,9 +369,9 @@ namespace Andromeda
                 description: "Logs you into the server database"));
 
             // LOGOUT
-            Command.TryRegister(Cmd.SmartParse.CreateCommand(
+            Command.TryRegister(Parse.SmartParse.CreateCommand(
                 name: "logout",
-                argTypes: new Cmd.IArgParse[0],
+                argTypes: new Parse.IArgParse[0],
                 action: delegate (Entity sender, object[] args)
                 {
                     if (sender.TryGetInfo(out var row))
@@ -410,9 +410,9 @@ namespace Andromeda
                 description: "Logs you out of the server database"));
 
             // CHANGEPASSWORD
-            Command.TryRegister(Cmd.SmartParse.CreateCommand(
+            Command.TryRegister(Parse.SmartParse.CreateCommand(
                 name: "changepassword",
-                argTypes: new[] { Cmd.SmartParse.String, Cmd.SmartParse.String },
+                argTypes: new[] { Parse.SmartParse.String, Parse.SmartParse.String },
                 action: delegate (Entity sender, object[] args)
                 {
                     var pw = args[0] as string;
