@@ -45,9 +45,8 @@ namespace Andromeda.Cmd
                             {
                                 var response = new[]
                                 {
-                                $"Usage: %i{usage}",
-                                $"%eError parsing argument {i}:",
-                                error
+                                    $"%eerror",
+                                    $"Usage: %i{usage}",
                                 };
 
                                 sender.Tell(response);
@@ -57,7 +56,11 @@ namespace Andromeda.Cmd
                         if (string.IsNullOrEmpty(message))
                             action(sender, arguments);
                         else
-                            sender.Tell("%eToo many arguments given");
+                            sender.Tell(new[]
+                            {
+                                "%eToo many arguments given",
+                                $"Usage: %i{usage}"
+                            });
                     }
                     else
                         action(sender, null);
