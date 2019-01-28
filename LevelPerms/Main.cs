@@ -25,6 +25,9 @@ namespace LevelPerms
             return 100;
         }
 
+        public static bool TrySetLevel(Entity ent, int level)
+            => ent.TrySetDBField("admin.level", level.ToString());
+
         private static void ReadPerms()
         {
             Directory.CreateDirectory(path);
@@ -34,7 +37,8 @@ namespace LevelPerms
             if (!File.Exists(file))
                 File.WriteAllText(file, JsonConvert.SerializeObject(new SortedList<string, int>()
                 {
-                    ["examplePermission"] = 0
+                    ["setlevel"] = 100,
+                    ["admin.show"] = 20
                 }, Formatting.Indented));
 
             var str = File.ReadAllText(file);
@@ -53,7 +57,7 @@ namespace LevelPerms
                     var target = args[0] as Entity;
                     var lvl = (int)args[1];
 
-                    target.TrySetDBField("admin.level", lvl.ToString());
+                    TrySetLevel(target, lvl);
 
                     Common.SayAll($"%h1{sender.GetFormattedName()} %nhas set %h2{target.GetFormattedName()}%n's level to %i{lvl}%n.");
                 },
@@ -69,7 +73,7 @@ namespace LevelPerms
                 {
                     var msgs = "%iOnline admins:".Yield().Concat(
                         BaseScript.Players
-                            .Where(player => Perms.getLevel(player) > 0)
+                            .Where(player => player.RequestPermission("admin.show", out _))
                             .Select(ent => ent.GetFormattedName())
                         .Condense());
 
