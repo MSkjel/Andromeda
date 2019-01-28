@@ -36,6 +36,9 @@ namespace Andromeda
             return Regex.Replace(sb.ToString(), @"(?:\^[\d;:]( *))+(\^[\d;:])", "$1$2");
         }
 
+        public static int ColorlessLength(this string message)
+            => Regex.Replace(message, @"\^[0-9;:]", "").Length;
+
         public static bool RequestPermission(this Entity player, string permission, out string message)
             => Perms.RequestPermission(player, permission, out message);
 

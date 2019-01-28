@@ -1,12 +1,12 @@
 ﻿using Andromeda;
+using Andromeda.Parse;
 using InfinityScript;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
-using System.IO;
-using Andromeda.Parse;
 
 namespace LevelPerms
 {
@@ -26,7 +26,12 @@ namespace LevelPerms
         }
 
         public static bool TrySetLevel(Entity ent, int level)
-            => ent.TrySetDBField("perms.level", level.ToString());
+        {
+            if (level == 0)
+                return ent.TryRemoveDBField("perms.level");
+
+            return ent.TrySetDBField("perms.level", level.ToString());
+        }
 
         public static int GetLevel(Entity ent)
         {
@@ -79,9 +84,9 @@ namespace LevelPerms
 
                 var player = parsed as Entity;
 
-                if(int.TryParse(args[1], out var lvl) && lvl >= 0 && lvl <= 100)
+                if (int.TryParse(args[1], out var lvl) && lvl >= 0 && lvl <= 100)
                 {
-                    if(player.TrySetDBField("admin.level", lvl.ToString()))
+                    if (player.TrySetDBField("admin.level", lvl.ToString()))
                     {
                         Log.Info($"Player level set to {lvl.ToString()}");
                         return true;

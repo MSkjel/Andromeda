@@ -38,6 +38,17 @@ namespace Andromeda
             return false;
         }
 
+        public static bool TryRemoveDBField(this Entity ent, string field)
+        {
+            if (TryGetInfo(ent, out var info) && info.LoggedIn)
+            {
+                info.Data.Remove(field);
+                return true;
+            }
+
+            return false;
+        }
+
         internal static bool TryGetInfo(this Entity ent, out PlayerInfo row)
         {
             var possibleRow = ConnectedPlayers[ent.EntRef];

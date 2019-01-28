@@ -133,11 +133,5 @@ namespace BaseCommands
 
         public static bool CaseInsensitiveContains(string str1, string str2)
             => str1.IndexOf(str2, StringComparison.InvariantCultureIgnoreCase) != -1;
-
-        public static string ColorRemover(string message)
-        {
-            message = Regex.Replace(message, @"\^[0-9;:]", "");
-            return message;
-        }
     }
 }

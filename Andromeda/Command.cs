@@ -170,10 +170,42 @@ namespace Andromeda
                     var target = args[0] as Entity;
                     var message = args[1] as string;
 
-                    target.Tell($"{sender.Name}: {message}");
+                    target.Tell($"{sender.Name}: ^2{message}");
+
+                    sender.SetField("pm.target", new Parameter(target));
+                    target.SetField("pm.target", new Parameter(sender));
                 },
                 usage: "!pm <player> <message>",
                 description: "Sends a private message to a player"));
+
+            // REPLY
+            TryRegister(SmartParse.CreateCommand(
+                name: "reply",
+                aliases: new[] { "r" },
+                argTypes: new[] { SmartParse.GreedyString },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var message = args[0];
+
+                    if(!sender.HasField("pm.target"))
+                    {
+                        sender.Tell("%eYou have nobody to reply to.");
+                        return;
+                    }
+
+                    var target = sender.GetField<Entity>("pm.target");
+
+                    if(!BaseScript.Players.Contains(target))
+                    {
+                        sender.Tell("%eTarget is no longer connected.");
+                        sender.ClearField("pm.target");
+                        return;
+                    }
+
+                    target.Tell($"{sender.Name}: ^2{message}");
+                },
+                usage: "!reply <message>",
+                description: "Reply to a received pm"));
 
             // USAGE
             TryRegister(SmartParse.CreateCommand(

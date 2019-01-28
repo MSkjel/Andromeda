@@ -79,65 +79,36 @@ namespace Andromeda
             return builder.ToString();
         }
 
-        [Obsolete]
-        public static IEnumerable<string> CondenseDeprecated(IEnumerable<string> enumerable, int condenselevel = 40, string separator = ", ")
-        {
-            string all = string.Join(separator, enumerable);
-            List<string> toRet = new List<string>();
-
-            while (all.Length > 0)
-            {
-                string toAdd = TruncateAtWord(ref all, condenselevel, separator);
-
-                if (toAdd == null)
-                    break;
-
-                toRet.Add(toAdd);
-            }
-
-            return toRet;
-        }
-        [Obsolete /* Cancer */]
-        public static string TruncateAtWord(ref string input, int length, string separator)
-        {
-            if (input != null && input.Length > 0)
-            {
-                length = length > input.Length ? input.Length : length;
-
-                int iNextSpace = input.LastIndexOf(separator, length, StringComparison.Ordinal) + 1;
-                string toRet = input.Substring(0, (iNextSpace > 0) ? iNextSpace : length);
-
-
-                input = input.Replace(toRet, ""); // this is cancer no matter how you put it
-
-                return toRet.TrimStart();
-            }
-
-            return null;
-        }
-
-
         public static IEnumerable<string> Condense(this IEnumerable<string> strings, int condenseLevel = 40, string separator = ", ")
         {
             var sb = new StringBuilder();
+            int sbLength = 0;
+
+            int sepLength = separator.ColorlessLength();
 
             foreach (var str in strings)
             {
-                if (sb.Length == 0)
+                var strLength = str.ColorlessLength();
+
+                if (sbLength == 0)
                 {
                     sb.Append(str);
+                    sbLength += strLength;
                     continue;
                 }
 
-                if (sb.Length + separator.Length + str.Length <= condenseLevel)
+                if (sb.Length + sepLength + strLength <= condenseLevel)
                 {
                     sb.Append(separator);
                     sb.Append(str);
+
+                    sbLength += sepLength + strLength;
                     continue;
                 }
 
                 yield return sb.ToString();
                 sb.Clear();
+                sbLength = 0;
             }
         }
 
