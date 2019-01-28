@@ -14,6 +14,7 @@ namespace Andromeda.Parse
         public static readonly IArgParse OptionalGreedyString = new OptionalGreedyStringParse();
         public static readonly IArgParse GreedyString = new GreedyStringParse();
         public static readonly IArgParse Player = new PlayerParse();
+        public static readonly IArgParse Integer = new IntegerParse();
 
         public static readonly IArgParse UnimmunePlayer = new ConstraintParse(Player, delegate (object obj, Entity ent)
         {
@@ -29,10 +30,21 @@ namespace Andromeda.Parse
 
             return "Player is not logged";
         });
+        public static IArgParse RangedInteger(int min, int max)
+            => new ConstraintParse(Integer, delegate (object obj, Entity ent)
+            {
+                var x = (int)obj;
+
+                if (x < min || x > max)
+                    return $"Integer is not in range({min}-{max})";
+
+                return null;
+            });
 
         internal static readonly IArgParse CommandName = new CommandNameParse();
 
-        public static Command CreateCommand(string name, IArgParse[] argTypes, Action<Entity, object[]> action, string usage, string[] aliases = null, string permission = null, string description = null)
+        public static Command CreateCommand(string name, IArgParse[] argTypes, Action<Entity, object[]> action, string usage,
+            string[] aliases = null, string permission = null, string description = null)
             => new Command(name,
                 delegate (Entity sender, string message)
                 {
@@ -139,8 +151,6 @@ namespace Andromeda.Parse
         }
     }
 
-    delegate bool PlayerPredicate(Entity sender, Entity target);
-
     public class PlayerParse : IArgParse
     {
         public virtual string Parse(ref string str, out object parsed, Entity sender)
@@ -210,6 +220,23 @@ namespace Andromeda.Parse
                 return err;
 
             return null;
+        }
+    }
+
+    public class IntegerParse : StringParse
+    {
+        public override string Parse(ref string str, out object parsed, Entity sender)
+        {
+            if (base.Parse(ref str, out parsed, sender) is string)
+                return "Integer expected";
+
+            if(int.TryParse(str, out var number))
+            {
+                parsed = number;
+                return null;
+            }
+
+            return $"{parsed.ToString()} is not an integer";
         }
     }
 

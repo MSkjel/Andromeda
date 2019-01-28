@@ -27,7 +27,7 @@ namespace Andromeda
         {
             if (cmd.permission == null)
             {
-                response = "Command has null permission";
+                response = "Command has no permission";
                 return true;
             }
 
@@ -67,7 +67,8 @@ namespace Andromeda
             // Command processing
             Script.PlayerSay.Add((sender, args) =>
             {
-                if(args.Message.StartsWith("!"))
+                if(args.ChatType == BaseScript.ChatType.All
+                    && args.Message.StartsWith("!"))
                 {
                     var message = args.Message;
 

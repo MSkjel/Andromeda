@@ -4,15 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3839CED4-C199-4417-93D3-576E91BDD2E0}</ProjectGuid>
+    <ProjectGuid>{9711C8F1-8073-4BFF-8249-E437E6E35802}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Andromeda</RootNamespace>
-    <AssemblyName>Andromeda</AssemblyName>
+    <RootNamespace>LevelPerms</RootNamespace>
+    <AssemblyName>LevelPerms</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,8 +21,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>7.1</LangVersion>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,13 +29,13 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>7.3</LangVersion>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Andromeda.plugin">
+      <HintPath>..\Andromeda\bin\Release\Andromeda.plugin.dll</HintPath>
+    </Reference>
     <Reference Include="InfinityScript">
-      <HintPath>..\PluginBase\InfinityScript v1.5\InfinityScript.dll</HintPath>
+      <HintPath>..\PluginBase\bin\Release\InfinityScript.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -48,46 +45,19 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.SQLite">
-      <HintPath>..\Dependencies\System.Data.SQLite.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Async.cs" />
-    <Compile Include="Parse\SmartParse.cs" />
-    <Compile Include="ColorScheme.cs" />
-    <Compile Include="Common.cs" />
-    <Compile Include="Command.cs" />
-    <Compile Include="Events\EventArguments\ChangedTeamArgs.cs" />
-    <Compile Include="Events\EventArguments\ChangedClassArgs.cs" />
-    <Compile Include="Events\EventArguments\EarnedKillstreakArgs.cs" />
-    <Compile Include="Events\EventArguments\GrenadeFireArgs.cs" />
-    <Compile Include="Events\EventArguments\GrenadePullbackArgs.cs" />
-    <Compile Include="Events\EventArguments\WeaponChangedArgs.cs" />
-    <Compile Include="Events\EventArguments\WeaponFiredArgs.cs" />
-    <Compile Include="Events\EventArguments\WeaponReloadedArgs.cs" />
-    <Compile Include="Events\EventArguments\WeaponSwitchArgs.cs" />
-    <Compile Include="Events\EventArguments\WeaponTakenArgs.cs" />
-    <Compile Include="Events\Events.cs" />
-    <Compile Include="Interface.cs" />
-    <Compile Include="Interfaces\IAdmin.cs" />
-    <Compile Include="Interfaces\IFunctionality.cs" />
-    <Compile Include="Interfaces\IPerms.cs" />
-    <Compile Include="Interfaces\IUtils.cs" />
-    <Compile Include="Mock\Admin.cs" />
-    <Compile Include="Mock\Perms.cs" />
-    <Compile Include="PlayerDB.cs" />
+    <Compile Include="Perms.cs" />
+    <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Mock\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>del Andromeda.plugin.dll
-ren Andromeda.dll Andromeda.plugin.dll</PostBuildEvent>
-  </PropertyGroup>
 </Project>

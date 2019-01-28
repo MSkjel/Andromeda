@@ -23,7 +23,7 @@ namespace BaseCommands
                 {
                     var map = args[0] as GameMap;
 
-                    Common.SayAll($"Map has been changed to %h2{map.NiceName} %nby %h1{Common.Perms.GetFormattedName(sender)}");
+                    Common.SayAll($"Map has been changed to %h2{map.NiceName} %nby %h1{sender.GetFormattedName()}");
 
                     Utilities.ExecuteCommand($"map {map.RawName}");
                 },

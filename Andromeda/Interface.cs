@@ -21,6 +21,9 @@ namespace Andromeda
         public static void Tell(this Entity player, string message)
             => player.Tell(message.Yield());
 
+        public static string GetFormattedName(this Entity player)
+            => Perms.GetFormattedName(player);
+
         private static Dictionary<string, string> colorScheme = Utils.ColorScheme.Export();
 
         public static string ColorFormat(this string message)
