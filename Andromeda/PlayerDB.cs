@@ -89,7 +89,6 @@ namespace Andromeda
             public string HWID;
             public byte[] PasswordHash;
             public Dictionary<string, string> Data;
-            public ReaderWriterLock rwlock;
 
             public bool LoggedIn { get; set; }
 

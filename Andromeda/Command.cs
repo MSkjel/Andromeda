@@ -143,20 +143,18 @@ namespace Andromeda
                             return;
                         }
 
-                        sender.Tell(new[]
-                        {
-                            $"%iCommands matching {filter}:",
-                            string.Join(", ", cmds.Select(c => $"!{c.Name}")),
-                        });
+                        sender.Tell($"%iCommands matching {filter}:".Yield().Concat(
+                            cmds.Select(c => $"!{c.Name}")
+                                .Condense()));
 
                         return;
                     }
 
-                    sender.Tell(new[]
-                    {
-                        "%iAvailable commands:",
-                        string.Join(", ", RegisteredCommands.Values.Where(cmd => CanDo(sender, cmd, out _)).Select(cmd => $"!{cmd.Name}"))
-                    });
+                    sender.Tell("%iAvailable commands:".Yield().Concat(
+                        RegisteredCommands.Values
+                            .Where(cmd => CanDo(sender, cmd, out _))
+                            .Select(cmd => $"!{cmd.Name}")
+                            .Condense()));
                 },
                 usage: "!help [filter]",
                 description: "Filters commands or shows description if a single command was found"));
@@ -170,7 +168,7 @@ namespace Andromeda
                     var target = args[0] as Entity;
                     var message = args[1] as string;
 
-                    target.Tell($"%p{sender.Name}: %i{message}");
+                    target.Tell($"^7{sender.Name}: ^2{message}");
 
                     sender.SetField("pm.target", new Parameter(target));
                     target.SetField("pm.target", new Parameter(sender));
@@ -202,7 +200,7 @@ namespace Andromeda
                         return;
                     }
 
-                    target.Tell($"{sender.Name}: ^2{message}");
+                    target.Tell($"^7{sender.Name}: ^2{message}");
                 },
                 usage: "!reply <message>",
                 description: "Reply to a received pm"));
