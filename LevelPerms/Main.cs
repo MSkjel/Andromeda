@@ -42,6 +42,43 @@ namespace LevelPerms
             Permissions = JsonConvert.DeserializeObject<SortedList<string, int>>(str);
         }
 
+        private static void RegisterCommands()
+        {
+            // SETLEVEL
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "setlevel",
+                argTypes: new[] { SmartParse.LoggedInPlayer, SmartParse.RangedInteger(0, 100) },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var target = args[0] as Entity;
+                    var lvl = (int)args[1];
+
+                    target.TrySetDBField("admin.level", lvl.ToString());
+
+                    Common.SayAll($"%h1{sender.GetFormattedName()} %nhas set %h2{target.GetFormattedName()}%n's level to %i{lvl}%n.");
+                },
+                usage: "!setlevel <player> <0-100>",
+                permission: "setlevel",
+                description: "Sets a player's admin level"));
+
+            // ADMINS
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "admins",
+                argTypes: null,
+                action: delegate (Entity sender, object[] args)
+                {
+                    var msgs = "%iOnline admins:".Yield().Concat(
+                        BaseScript.Players
+                            .Where(player => Perms.getLevel(player) > 0)
+                            .Select(ent => ent.GetFormattedName())
+                        .Condense());
+
+                    sender.Tell(msgs);
+                },
+                usage: "!admins",
+                description: "Shows online admins"));
+        }
+
         static Main()
         {
             Common.Register(new Perms());
@@ -82,22 +119,7 @@ namespace LevelPerms
 
             ReadPerms();
 
-            // SETLEVEL
-            Command.TryRegister(SmartParse.CreateCommand(
-                name: "setlevel",
-                argTypes: new[] { SmartParse.LoggedInPlayer, SmartParse.RangedInteger(0, 100) },
-                action: delegate (Entity sender, object[] args)
-                {
-                    var target = args[0] as Entity;
-                    var lvl = (int)args[1];
-
-                    target.TrySetDBField("admin.level", lvl.ToString());
-
-                    Common.SayAll($"%h1{sender.GetFormattedName()} %nhas set %h2{target.GetFormattedName()}%n's level to %i{lvl}%n.");
-                },
-                usage: "!setlevel <player> <0-100>",
-                permission: "setlevel",
-                description: "Sets a player's admin level"));
+            RegisterCommands();
         }
     }
 }

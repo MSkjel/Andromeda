@@ -10,7 +10,8 @@ namespace LevelPerms
 {
     internal class Perms : IPerms
     {
-        private static int getLevel(Entity ent)
+        public static readonly IPerms Instance = new Perms();
+        internal static int getLevel(Entity ent)
         {
             var field = ent.GetDBFieldOr("admin.level", "0");
             if (int.TryParse(field, out var lvl))
