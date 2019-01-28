@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Andromeda.Events;
+using Andromeda.Interfaces;
+using Andromeda.Parse;
+using InfinityScript;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Andromeda.Interfaces;
-using Andromeda.Events;
-using InfinityScript;
-using Andromeda.Parse;
 
 namespace Andromeda
 {
@@ -15,10 +15,10 @@ namespace Andromeda
         internal static readonly string Version = "Andromeda v0.0.1";
 
         internal static readonly string[] Credits = new[]
-            {
-                "Lambder & Markus - dem bois",
-                "Slvr99 - help with AbortScript"
-            };
+        {
+            "Lambder & Markus - dem bois",
+            "Slvr99 - help with AbortScript"
+        };
 
         private static IPerms perms;
         private static readonly IPerms mockPerms = new Mock.Perms();
@@ -36,7 +36,7 @@ namespace Andromeda
             => admin ?? mockAdmin;
 
         internal static readonly List<IFunctionality> functionalities = new List<IFunctionality>();
-        
+
         internal static readonly Dictionary<string, object> Exports = new Dictionary<string, object>();
 
         public static void PrintException(string message, string source)
@@ -121,15 +121,15 @@ namespace Andromeda
         {
             var sb = new StringBuilder();
 
-            foreach(var str in strings)
+            foreach (var str in strings)
             {
-                if(sb.Length == 0)
+                if (sb.Length == 0)
                 {
                     sb.Append(str);
                     continue;
                 }
 
-                if(sb.Length + separator.Length + str.Length <= condenseLevel)
+                if (sb.Length + separator.Length + str.Length <= condenseLevel)
                 {
                     sb.Append(separator);
                     sb.Append(str);
@@ -143,7 +143,7 @@ namespace Andromeda
 
         public static void Register(IFunctionality functionality)
         {
-            if(functionality is IPerms perms)
+            if (functionality is IPerms perms)
             {
                 if (Common.perms == null)
                 {
@@ -154,7 +154,7 @@ namespace Andromeda
                     Warning("Perms already assigned", $"Ignoring new register: {perms.Version}");
             }
 
-            if(functionality is IUtils utils)
+            if (functionality is IUtils utils)
             {
                 if (Common.utils == null)
                 {
@@ -167,7 +167,7 @@ namespace Andromeda
                     Warning("Utils already assigned", $"Ignoring new register: {utils.Version}");
             }
 
-            if(functionality is IAdmin admin)
+            if (functionality is IAdmin admin)
             {
                 if (Common.admin == null)
                 {
@@ -186,7 +186,7 @@ namespace Andromeda
         {
             Log.Info("Initializing Andromeda");
 
-            if(perms == null)
+            if (perms == null)
             {
                 Warning(new[]
                 {

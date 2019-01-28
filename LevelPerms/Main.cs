@@ -26,15 +26,15 @@ namespace LevelPerms
         }
 
         public static bool TrySetLevel(Entity ent, int level)
-            => ent.TrySetDBField("admin.level", level.ToString());
+            => ent.TrySetDBField("perms.level", level.ToString());
 
-        internal static int GetLevel(Entity ent)
+        public static int GetLevel(Entity ent)
         {
-            var field = ent.GetDBFieldOr("admin.level", "0");
+            var field = ent.GetDBFieldOr("perms.level", "0");
             if (int.TryParse(field, out var lvl))
                 return lvl;
 
-            Common.Warning($"{ent.Name}:{ent.HWID}: Invalid \"admin.level\" value: {field}");
+            Common.Warning($"{ent.Name}:{ent.HWID}: Invalid \"perms.level\" value: {field}");
             return -1;
         }
 
@@ -42,13 +42,13 @@ namespace LevelPerms
         {
             Directory.CreateDirectory(path);
 
-            var file = Path.Combine(path, "levels.json");
+            var file = Path.Combine(path, "perms.json");
 
             if (!File.Exists(file))
                 File.WriteAllText(file, JsonConvert.SerializeObject(new SortedList<string, int>()
                 {
                     ["setlevel"] = 100,
-                    ["admin.show"] = 20
+                    ["perms.show"] = 20
                 }, Formatting.Indented));
 
             var str = File.ReadAllText(file);
@@ -122,7 +122,7 @@ namespace LevelPerms
                 {
                     var msgs = "%iOnline admins:".Yield().Concat(
                         BaseScript.Players
-                            .Where(player => player.RequestPermission("admin.show", out _))
+                            .Where(player => player.RequestPermission("perms.show", out _))
                             .Select(ent => ent.GetFormattedName())
                         .Condense());
 

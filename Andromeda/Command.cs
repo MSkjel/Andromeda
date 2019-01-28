@@ -190,6 +190,21 @@ namespace Andromeda
                 },
                 usage: "!usage <cmd/alias>",
                 description: "Shows usage of a command or an alias"));
+
+            // STATUS
+            TryRegister(SmartParse.CreateCommand(
+                name: "status",
+                argTypes: null,
+                action: delegate (Entity sender, object[] args)
+                {
+                    var response = "%aOnline players:".Yield()
+                    .Concat(BaseScript.Players
+                        .Select(player => $"%h1{player.EntRef} %n- %h2{player.Name}"));
+
+                    sender.Tell(response);
+                },
+                usage: "!status",
+                description: "Shows online players and their slots"));
             #endregion
         }
         #endregion
