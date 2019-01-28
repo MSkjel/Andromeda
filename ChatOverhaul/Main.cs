@@ -29,19 +29,19 @@ namespace ChatOverhaul
                 {
                     if (args.Player.IsAlive)
                     {
-                        Utilities.RawSayAll($"{args.Player.GetAliasOrName()}: {args.Message}");
+                        Utilities.RawSayAll($"{args.Player.GetAliasOrName()}^7: {args.Message}");
                         args.Eat();
                         return;
                     }
                     if (args.Player.SessionTeam == "spectator")
                     {
-                        Utilities.RawSayAll($"(Spect) {args.Player.GetAliasOrName()}: {args.Message}");
+                        Utilities.RawSayAll($"(Spect) {args.Player.GetAliasOrName()}^7: {args.Message}");
                         args.Eat();
                         return;
                     }
                     if (!args.Player.IsAlive)
                     {
-                        Utilities.RawSayAll($"(Dead) {args.Player.GetAliasOrName()}: {args.Message}");
+                        Utilities.RawSayAll($"(Dead) {args.Player.GetAliasOrName()}^7: {args.Message}");
                         args.Eat();
                         return;
                     }
@@ -51,19 +51,19 @@ namespace ChatOverhaul
                     var team = args.Player.SessionTeam;
                     if (args.Player.IsAlive)
                     {
-                        RawSayTeam(team, $"^4[TEAM]^7 {args.Player.GetAliasOrName()}: {args.Message}");
+                        RawSayTeam(team, $"^4[TEAM]^7 {args.Player.GetAliasOrName()}^7: {args.Message}");
                         args.Eat();
                         return;
                     }
                     if (args.Player.SessionTeam == "spectator")
                     {
-                        RawSayTeam(team, $"^4[TEAM]^7 {args.Player.GetAliasOrName()}: {args.Message}");
+                        RawSayTeam(team, $"^4[TEAM]^7 {args.Player.GetAliasOrName()}^7: {args.Message}");
                         args.Eat();
                         return;
                     }
                     if (!args.Player.IsAlive)
                     {
-                        RawSayTeam(team, $"^4[TEAM]^7(Dead) {args.Player.GetAliasOrName()}: {args.Message}");
+                        RawSayTeam(team, $"^4[TEAM]^7(Dead) {args.Player.GetAliasOrName()}^7: {args.Message}");
                         args.Eat();
                         return;
                     }
