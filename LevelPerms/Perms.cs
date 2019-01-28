@@ -25,7 +25,7 @@ namespace LevelPerms
             if (lvl == 0)
                 return entity.Name;
 
-            return $"^7[^2{lvl}^7]{entity.Name}";
+            return $"^7[^2{lvl}^7]%p{entity.Name}";
         }
 
         public bool IsImmuneTo(Entity target, Entity issuer)

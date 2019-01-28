@@ -24,7 +24,7 @@ namespace BaseCommands
                 {
                     var map = args[0] as GameMap;
 
-                    Common.SayAll($"Map has been changed to %h2{map.NiceName} %nby %h1{sender.GetFormattedName()}");
+                    Common.SayAll($"Map has been changed to %h1{map.NiceName} %nby %p{sender.GetFormattedName()}");
 
                     Utilities.ExecuteCommand($"map {map.RawName}");
                 },

@@ -72,7 +72,7 @@ namespace InfinityScript
         private readonly Action Cleanups;
 
         public bool IsLibrary
-            => EntryPointCount > 0;
+            => EntryPointCount == 0;
 
         public readonly string Name;
 

@@ -86,13 +86,13 @@ namespace ChatOverhaul
                     {
                         target.TrySetDBField("chat.alias", alias);
 
-                        Common.SayAll($"%h1{sender.GetFormattedName()} %nhas set %h2{target.GetFormattedName()}%n's alias to %i{alias}%n.");
+                        Common.SayAll($"%p{sender.GetFormattedName()} %nhas set %p{target.GetFormattedName()}%n's alias to %i{alias}%n.");
                     }
                     else
                     {
                         target.TryRemoveDBField("chat.alias");
 
-                        Common.SayAll($"%h1{sender.GetFormattedName()} %nhas removed %h2{target.GetFormattedName()}%n's alias.");
+                        Common.SayAll($"%p{sender.GetFormattedName()} %nhas removed %p{target.GetFormattedName()}%n's alias.");
                     }
                 },
                 usage: "!setalias <player> [alias]",
@@ -113,7 +113,7 @@ namespace ChatOverhaul
                             return;
                         }
 
-                        Common.SayAll($"%h1{sender.GetFormattedName()} %nhas set their own alias to %i{alias}%n.");
+                        Common.SayAll($"%p{sender.GetFormattedName()} %nhas set their own alias to %i{alias}%n.");
                         return;
                     }
                     else
@@ -124,7 +124,7 @@ namespace ChatOverhaul
                             return;
                         }
 
-                        Common.SayAll($"%h1{sender.GetFormattedName()} %nhas removed their alias.");
+                        Common.SayAll($"%p{sender.GetFormattedName()} %nhas removed their alias.");
                         return;
                     }
                 },

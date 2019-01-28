@@ -170,7 +170,7 @@ namespace Andromeda
                     var target = args[0] as Entity;
                     var message = args[1] as string;
 
-                    target.Tell($"{sender.Name}: ^2{message}");
+                    target.Tell($"%p{sender.Name}: %i{message}");
 
                     sender.SetField("pm.target", new Parameter(target));
                     target.SetField("pm.target", new Parameter(sender));
@@ -231,7 +231,7 @@ namespace Andromeda
                 {
                     var response = "%aOnline players:".Yield()
                     .Concat(BaseScript.Players
-                        .Select(player => $"%h1{player.EntRef} %n- %h2{player.Name}"));
+                        .Select(player => $"%h1{player.EntRef} %n- %p{player.Name}"));
 
                     sender.Tell(response);
                 },

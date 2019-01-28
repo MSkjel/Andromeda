@@ -113,7 +113,7 @@ namespace LevelPerms
 
                     TrySetLevel(target, lvl);
 
-                    Common.SayAll($"%h1{sender.GetFormattedName()} %nhas set %h2{target.GetFormattedName()}%n's level to %i{lvl}%n.");
+                    Common.SayAll($"%p{sender.GetFormattedName()} %ahas set %p{target.GetFormattedName()}%a's level to %i{lvl}%n.");
                 },
                 usage: "!setlevel <player> <0-100>",
                 permission: "setlevel",
@@ -125,7 +125,7 @@ namespace LevelPerms
                 argTypes: null,
                 action: delegate (Entity sender, object[] args)
                 {
-                    var msgs = "%iOnline admins:".Yield().Concat(
+                    var msgs = "%aOnline admins:".Yield().Concat(
                         BaseScript.Players
                             .Where(player => player.RequestPermission("perms.show", out _))
                             .Select(ent => ent.GetFormattedName())

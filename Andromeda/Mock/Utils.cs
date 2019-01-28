@@ -20,12 +20,12 @@ namespace Andromeda.Mock
             info: "^6",
             error: "^1",
             admin: "^3",
-
-            highlight1: "^2",
-            highlight2: "^8",
-            highlight3: "^5",
-            highlight4: "^;",
-            highlight5: "^:");
+            player: "^;",
+            
+            highlight1: "^:",
+            highlight2: "^2",
+            highlight3: "^8",
+            highlight4: "^5");
 
         public void SayAll(IEnumerable<string> messages)
         {
