@@ -11,15 +11,6 @@ namespace LevelPerms
     internal class Perms : IPerms
     {
         public static readonly IPerms Instance = new Perms();
-        internal static int getLevel(Entity ent)
-        {
-            var field = ent.GetDBFieldOr("admin.level", "0");
-            if (int.TryParse(field, out var lvl))
-                return lvl;
-
-            Common.Warning($"{ent.Name}:{ent.HWID}: Invalid \"admin.level\" value: {field}");
-            return -1;
-        }
 
         public string Version
             => "LevelPerms v0.0.1";
@@ -29,7 +20,7 @@ namespace LevelPerms
 
         public string GetFormattedName(Entity entity)
         {
-            var lvl = getLevel(entity);
+            var lvl = Main.GetLevel(entity);
 
             if (lvl == 0)
                 return entity.Name;
@@ -38,11 +29,11 @@ namespace LevelPerms
         }
 
         public bool IsImmuneTo(Entity target, Entity issuer)
-            => getLevel(target) >= getLevel(issuer);
+            => Main.GetLevel(target) >= Main.GetLevel(issuer);
 
         public bool RequestPermission(Entity entity, string permission, out string message)
         {
-            var lvl = getLevel(entity);
+            var lvl = Main.GetLevel(entity);
 
             var reqlvl = Main.GetPermissionLevel(permission);
 

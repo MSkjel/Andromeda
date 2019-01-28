@@ -28,6 +28,16 @@ namespace LevelPerms
         public static bool TrySetLevel(Entity ent, int level)
             => ent.TrySetDBField("admin.level", level.ToString());
 
+        internal static int GetLevel(Entity ent)
+        {
+            var field = ent.GetDBFieldOr("admin.level", "0");
+            if (int.TryParse(field, out var lvl))
+                return lvl;
+
+            Common.Warning($"{ent.Name}:{ent.HWID}: Invalid \"admin.level\" value: {field}");
+            return -1;
+        }
+
         private static void ReadPerms()
         {
             Directory.CreateDirectory(path);
@@ -46,46 +56,9 @@ namespace LevelPerms
             Permissions = JsonConvert.DeserializeObject<SortedList<string, int>>(str);
         }
 
-        private static void RegisterCommands()
-        {
-            // SETLEVEL
-            Command.TryRegister(SmartParse.CreateCommand(
-                name: "setlevel",
-                argTypes: new[] { SmartParse.LoggedInPlayer, SmartParse.RangedInteger(0, 100) },
-                action: delegate (Entity sender, object[] args)
-                {
-                    var target = args[0] as Entity;
-                    var lvl = (int)args[1];
-
-                    TrySetLevel(target, lvl);
-
-                    Common.SayAll($"%h1{sender.GetFormattedName()} %nhas set %h2{target.GetFormattedName()}%n's level to %i{lvl}%n.");
-                },
-                usage: "!setlevel <player> <0-100>",
-                permission: "setlevel",
-                description: "Sets a player's admin level"));
-
-            // ADMINS
-            Command.TryRegister(SmartParse.CreateCommand(
-                name: "admins",
-                argTypes: null,
-                action: delegate (Entity sender, object[] args)
-                {
-                    var msgs = "%iOnline admins:".Yield().Concat(
-                        BaseScript.Players
-                            .Where(player => player.RequestPermission("admin.show", out _))
-                            .Select(ent => ent.GetFormattedName())
-                        .Condense());
-
-                    sender.Tell(msgs);
-                },
-                usage: "!admins",
-                description: "Shows online admins"));
-        }
-
         static Main()
         {
-            Common.Register(new Perms());
+            Common.Register(Perms.Instance);
 
             // doesn't work. :mad: fuck InfintyAbortion
             Script.OnServerCommand("setAdminLevel", (args) =>
@@ -123,9 +96,44 @@ namespace LevelPerms
                 return true;
             });
 
-            ReadPerms();
+            #region Commands
+            // SETLEVEL
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "setlevel",
+                argTypes: new[] { SmartParse.LoggedInPlayer, SmartParse.RangedInteger(0, 100) },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var target = args[0] as Entity;
+                    var lvl = (int)args[1];
 
-            RegisterCommands();
+                    TrySetLevel(target, lvl);
+
+                    Common.SayAll($"%h1{sender.GetFormattedName()} %nhas set %h2{target.GetFormattedName()}%n's level to %i{lvl}%n.");
+                },
+                usage: "!setlevel <player> <0-100>",
+                permission: "setlevel",
+                description: "Sets a player's admin level"));
+
+            // ADMINS
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "admins",
+                argTypes: null,
+                action: delegate (Entity sender, object[] args)
+                {
+                    var msgs = "%iOnline admins:".Yield().Concat(
+                        BaseScript.Players
+                            .Where(player => player.RequestPermission("admin.show", out _))
+                            .Select(ent => ent.GetFormattedName())
+                        .Condense());
+
+                    sender.Tell(msgs);
+                },
+                usage: "!admins",
+                description: "Shows online admins"));
+
+            #endregion
+
+            ReadPerms();
         }
     }
 }
