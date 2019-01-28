@@ -93,7 +93,7 @@ namespace LevelPerms
                 if (args.Length != 2)
                 {
                     Log.Info("Usage: setAdminLevel <player> <0-100>");
-                    return;
+                    return true;
                 }
 
                 var parseObj = SmartParse.LoggedInPlayer;
@@ -101,7 +101,7 @@ namespace LevelPerms
                 if (parseObj.Parse(ref args[0], out object parsed, null) is string error)
                 {
                     Log.Error(error);
-                    return;
+                    return true;
                 }
 
                 var player = parsed as Entity;
@@ -111,14 +111,16 @@ namespace LevelPerms
                     if(player.TrySetDBField("admin.level", lvl.ToString()))
                     {
                         Log.Info($"Player level set to {lvl.ToString()}");
-                        return;
+                        return true;
                     }
                 }
                 else
                 {
                     Log.Info("Usage: setAdminLevel <player> <0-100>");
-                    return;
+                    return true;
                 }
+
+                return true;
             });
 
             ReadPerms();

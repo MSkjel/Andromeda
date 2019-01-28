@@ -37,10 +37,7 @@ namespace InfinityScript
         public static IEnumerator WaitTillAnyOrTimeout(string type, int timeout, Action<string> action = null)
             => Instance.WaitTill_notify_or_timeout(type, timeout, action);
 
-        public static void OnServerCommand(string command, Action<string[]> action)
-            => Instance.OnServerCommand(command, action);
-
-        public static void OnClientCommand(string command, Action<Entity, string[]> action)
-            => Instance.OnClientCommand(command, action);
+        public static void OnServerCommand(string command, Func<string[], bool> func)
+            => Instance.OnServerCommand(command, func);
     }
 }
