@@ -10,8 +10,8 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Andromeda
 {
@@ -36,7 +36,7 @@ namespace Andromeda
             {
                 info.Data[field] = value;
 #if DBWorkaround
-                info.UpdateData();
+                info.UpdateDataAsync();
 #endif
                 return true;
             }
@@ -50,7 +50,7 @@ namespace Andromeda
             {
                 info.Data.Remove(field);
 #if DBWorkaround
-                info.UpdateData();
+                info.UpdateDataAsync();
 #endif
                 return true;
             }
@@ -109,7 +109,7 @@ namespace Andromeda
                 return null;
             }
 
-            public void UpdateData(Action<int> action = null)
+            public void UpdateDataAsync(Action<int> action = null)
             {
                 IEnumerator routine()
                 {
@@ -127,6 +127,19 @@ namespace Andromeda
                 }
 
                 Async.Start(routine());
+            }
+
+            public void UpdateData()
+            {
+                var cmd = new SQLiteCommand("UPDATE players SET data = @data WHERE hwid = @hwid", Connection);
+
+                cmd.Parameters.AddWithValue("@data", JsonConvert.SerializeObject(Data));
+                cmd.Parameters.AddWithValue("@hwid", HWID);
+
+                lock(Connection)
+                {
+                    cmd.ExecuteNonQuery();
+                }
             }
 
             public override string ToString()
@@ -216,7 +229,7 @@ namespace Andromeda
 
             return !exists;
         }
-        
+
         private static IEnumerator UpdateLogin(byte[] hash)
         {
             var updateLogged = new SQLiteCommand("INSERT OR REPLACE INTO loggedin (hash, time) VALUES (@hash, @time);", Connection);
@@ -313,13 +326,13 @@ namespace Andromeda
                 if (player.IsLogged())
                     PlayerLoggedOut.Run(null, player);
 
-                ConnectedPlayers[player.EntRef]?.UpdateData(delegate
+                ConnectedPlayers[player.EntRef]?.UpdateDataAsync(delegate
                 {
                     ConnectedPlayers[player.EntRef] = null;
                 });
             }, int.MaxValue);
 
-#region Commands
+            #region Commands
             // REGISTER
             Command.TryRegister(Parse.SmartParse.CreateCommand(
                 name: "register",
@@ -483,19 +496,20 @@ namespace Andromeda
                 usage: "!changepassword <newpassword> <confirm>",
                 description: "Logs you into the server database"));
 
-#endregion
+            #endregion
         }
 
         [Cleanup]
         private static void Cleanup()
         {
-            foreach (var info in ConnectedPlayers)
-            {
-                info?.UpdateData();
-            }
-
             lock (Connection)
             {
+                foreach (var info in ConnectedPlayers)
+                {
+                    if (info != null)
+                        info.UpdateData();
+                }
+
                 Connection.Close();
             }
         }
