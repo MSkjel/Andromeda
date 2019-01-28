@@ -54,7 +54,7 @@ namespace InfinityScript
             foreach (var plugin in LoadedPlugins)
                 plugin.RunCleanups();
 
-            Log.Info("Cleaned up plugins!");
+            Log.Info("Done cleaning plugins.");
         }
     }
 }

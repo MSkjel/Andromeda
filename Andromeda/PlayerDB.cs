@@ -1,4 +1,6 @@
-﻿using InfinityScript;
+﻿#define DBWorkaround
+
+using InfinityScript;
 using InfinityScript.Events;
 using Newtonsoft.Json;
 using System;
@@ -9,6 +11,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Andromeda
 {
@@ -32,6 +35,9 @@ namespace Andromeda
             if (TryGetInfo(ent, out var info) && info.LoggedIn)
             {
                 info.Data[field] = value;
+#if DBWorkaround
+                info.UpdateData();
+#endif
                 return true;
             }
 
@@ -43,6 +49,9 @@ namespace Andromeda
             if (TryGetInfo(ent, out var info) && info.LoggedIn)
             {
                 info.Data.Remove(field);
+#if DBWorkaround
+                info.UpdateData();
+#endif
                 return true;
             }
 
@@ -80,6 +89,7 @@ namespace Andromeda
             public string HWID;
             public byte[] PasswordHash;
             public Dictionary<string, string> Data;
+            public ReaderWriterLock rwlock;
 
             public bool LoggedIn { get; set; }
 
@@ -309,7 +319,7 @@ namespace Andromeda
                 });
             }, int.MaxValue);
 
-            #region Commands
+#region Commands
             // REGISTER
             Command.TryRegister(Parse.SmartParse.CreateCommand(
                 name: "register",
@@ -473,7 +483,7 @@ namespace Andromeda
                 usage: "!changepassword <newpassword> <confirm>",
                 description: "Logs you into the server database"));
 
-            #endregion
+#endregion
         }
 
         [Cleanup]
