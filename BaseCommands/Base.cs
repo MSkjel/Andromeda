@@ -16,6 +16,7 @@ namespace BaseCommands
         {
             #region Commands
             #region Map
+            // MAP
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "map",
                 argTypes: new[] { Parse.GameMap.Obj },
@@ -31,6 +32,7 @@ namespace BaseCommands
                 permission: "map",
                 description: "Changes the map to the map specified"));
 
+            // MAPS
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "maps",
                 argTypes: null,
@@ -48,6 +50,7 @@ namespace BaseCommands
                 permission: "maps",
                 description: "Displays the available maps"));
 
+            // SETNEXTMAP (incomplete)
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "setnextmap",
                 argTypes: new[] { Parse.GameMap.Obj },
@@ -60,6 +63,24 @@ namespace BaseCommands
                 permission: "setnextmap",
                 description: "Sets the next map to the map specified"));
             #endregion
+
+            // EXECUTECOMMAND
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "executecommand",
+                argTypes: new[] { SmartParse.GreedyString },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var cmd = args[0] as string;
+
+                    Utilities.ExecuteCommand(cmd);
+
+                    sender.Tell("%aCommand executed.");
+                },
+                usage: "!executecommand <cmd>",
+                aliases: new[] { "exec" },
+                permission: "executecommand",
+                description: "Executes a command in the server console"));
+
             #endregion
         }
 
