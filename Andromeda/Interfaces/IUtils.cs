@@ -10,6 +10,8 @@ namespace Andromeda.Interfaces
     {
         ColorScheme ColorScheme { get; }
 
+        string ServerName { get; }
+
         void SayAll(IEnumerable<string> message);
 
         void SayTo(Entity player, IEnumerable<string> messages);

@@ -1,4 +1,6 @@
-﻿using InfinityScript;
+﻿#define DBWorkaround
+
+using InfinityScript;
 using InfinityScript.Events;
 using Newtonsoft.Json;
 using System;
@@ -8,6 +10,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Andromeda
@@ -15,6 +18,7 @@ namespace Andromeda
     [Plugin]
     public static class PlayerDB
     {
+        internal static readonly string DBFile;
         public static readonly Event<Entity> PlayerLoggedIn = new Event<Entity>(Events.Events.ErrorHandler(nameof(PlayerLoggedIn)));
         public static readonly Event<Entity> PlayerLoggedOut = new Event<Entity>(Events.Events.ErrorHandler(nameof(PlayerLoggedOut)));
 
@@ -32,6 +36,9 @@ namespace Andromeda
             if (TryGetInfo(ent, out var info) && info.LoggedIn)
             {
                 info.Data[field] = value;
+#if DBWorkaround
+                info.UpdateDataAsync();
+#endif
                 return true;
             }
 
@@ -43,6 +50,9 @@ namespace Andromeda
             if (TryGetInfo(ent, out var info) && info.LoggedIn)
             {
                 info.Data.Remove(field);
+#if DBWorkaround
+                info.UpdateDataAsync();
+#endif
                 return true;
             }
 
@@ -99,7 +109,7 @@ namespace Andromeda
                 return null;
             }
 
-            public void UpdateData(Action<int> action = null)
+            public void UpdateDataAsync(Action<int> action = null)
             {
                 IEnumerator routine()
                 {
@@ -117,6 +127,19 @@ namespace Andromeda
                 }
 
                 Async.Start(routine());
+            }
+
+            public void UpdateData()
+            {
+                var cmd = new SQLiteCommand("UPDATE players SET data = @data WHERE hwid = @hwid", Connection);
+
+                cmd.Parameters.AddWithValue("@data", JsonConvert.SerializeObject(Data));
+                cmd.Parameters.AddWithValue("@hwid", HWID);
+
+                lock(Connection)
+                {
+                    cmd.ExecuteNonQuery();
+                }
             }
 
             public override string ToString()
@@ -206,7 +229,7 @@ namespace Andromeda
 
             return !exists;
         }
-        
+
         private static IEnumerator UpdateLogin(byte[] hash)
         {
             var updateLogged = new SQLiteCommand("INSERT OR REPLACE INTO loggedin (hash, time) VALUES (@hash, @time);", Connection);
@@ -246,9 +269,9 @@ namespace Andromeda
                     ConnectedPlayers[player.EntRef] = found;
 
                     if (found != null)
-                        Log.Info($"Found entry for player {player.Name}");
+                        Log.Debug($"Found entry for player {player.Name}");
                     else
-                        Log.Info($"Did not find entry for player {player.Name}");
+                        Log.Debug($"Did not find entry for player {player.Name}");
 
                     if (found != null)
                     {
@@ -303,7 +326,7 @@ namespace Andromeda
                 if (player.IsLogged())
                     PlayerLoggedOut.Run(null, player);
 
-                ConnectedPlayers[player.EntRef]?.UpdateData(delegate
+                ConnectedPlayers[player.EntRef]?.UpdateDataAsync(delegate
                 {
                     ConnectedPlayers[player.EntRef] = null;
                 });
@@ -479,22 +502,27 @@ namespace Andromeda
         [Cleanup]
         private static void Cleanup()
         {
-            foreach (var info in ConnectedPlayers)
-            {
-                info?.UpdateData();
-            }
-
             lock (Connection)
             {
+                foreach (var info in ConnectedPlayers)
+                {
+                    if (info != null)
+                        info.UpdateData();
+                }
+
                 Connection.Close();
             }
         }
 
         static PlayerDB()
         {
+            GSCFunctions.SetDvarIfUninitialized("database.path", @"scripts\Andromeda\players.sqlite");
+
+            DBFile = GSCFunctions.GetDvar("database.path");
+
             System.IO.Directory.CreateDirectory(@"scripts\Andromeda");
 
-            Connection = new SQLiteConnection(@"Data Source=scripts\Andromeda\players.sqlite;Version=3;");
+            Connection = new SQLiteConnection($"Data Source={DBFile};Version=3;");
 
             lock (Connection)
             {
@@ -504,17 +532,17 @@ namespace Andromeda
 
                 using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS players (hwid VARCHAR(32) PRIMARY KEY NOT NULL, password BLOB NOT NULL, data LONGTEXT);", Connection))
                 {
-                    Log.Info($"result: {prepare.ExecuteNonQuery()}");
+                    prepare.ExecuteNonQuery();
                 }
 
                 using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS loggedin (hash BLOB PRIMARY KEY NOT NULL, time TEXT);", Connection))
                 {
-                    Log.Info($"result: {prepare.ExecuteNonQuery()}");
+                    prepare.ExecuteNonQuery();
                 }
 
                 using (var prepare = new SQLiteCommand("DELETE FROM loggedin WHERE time < datetime('now');", Connection))
                 {
-                    Log.Info($"result: {prepare.ExecuteNonQuery()}");
+                    prepare.ExecuteNonQuery();
                 }
 
                 Log.Info("Done preparing.");
