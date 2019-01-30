@@ -58,7 +58,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>del BaseCommands.plugin.dll
-ren BaseCommands.dll BaseCommands.plugin.dll</PostBuildEvent>
+    <PostBuildEvent>del BaseAdmin.plugin.dll
+ren BaseAdmin.dll BaseAdmin.plugin.dll</PostBuildEvent>
   </PropertyGroup>
 </Project>

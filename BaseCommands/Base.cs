@@ -68,6 +68,29 @@ namespace BaseCommands
                 description: "Sets the next map to the map specified"));
             #endregion
 
+            #region Mode
+            // MAP
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "mode",
+                argTypes: new[] { SmartParse.String },
+                action: delegate (Entity sender, object[] args)
+                {
+                    string dsr = args[0] as string;
+
+                    if (DSR.DSRExists(dsr))
+                    {
+                        Common.SayAll($"Mode has been changed to %h1{DSR.GetFullDSRName(dsr)} %nby %p{sender.GetFormattedName()}");
+                        DSR.SetNextMode(DSR.GetFullDSRName(dsr));
+
+                        Utilities.ExecuteCommand("map_rotate");
+                    }
+                    
+                },
+                usage: "!mode <mode>",
+                permission: "mode",
+                description: "Changes the mode to the mode specified"));
+            #endregion
+
             // EXECUTECOMMAND
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "executecommand",
