@@ -93,7 +93,7 @@ namespace Andromeda
             => SetNextMapRotation(LoadedMap, dsr);
 
         public static IEnumerable<string> GetAllDSRFiles()
-            => Directory.GetFiles(DSRFolder, "*.dsr");
+            => Directory.GetFiles(DSRFolder, "*.dsr").Select(x => Path.GetFileNameWithoutExtension(x));
 
         private static IEnumerable<string> ReadNonCommentedLines(string file)
             => File.ReadLines(file).Where(x => !x.StartsWith("//"));

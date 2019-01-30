@@ -20,7 +20,7 @@ namespace BaseAdmin.Parse
             var query = Utils.Maps.Where(m => m.Matches(mapname));
 
             if (!query.Any())
-                return "No maps found";
+                return "No maps found. Do !maps";
 
             if(query.Count() == 1)
             {
