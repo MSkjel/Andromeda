@@ -12,11 +12,12 @@ namespace LevelPerms
     {
         public static readonly IPerms Instance = new Perms();
 
-        public string Version
-            => "LevelPerms v0.0.1";
+        public string Version { get; } = "LevelPerms v0.0.1";
 
-        public string[] Credits
-            => new[] { "da bois" };
+        public string[] Credits { get; } = new[]
+        {
+            "da bois"
+        };
 
         public string GetFormattedName(Entity entity)
         {
@@ -43,13 +44,13 @@ namespace LevelPerms
                 return true;
             }
 
-            if(lvl <= 0)
+            if (lvl <= 0)
             {
                 message = "Permission denied. Try logging in.";
                 return false;
             }
 
-            if(lvl >= reqlvl)
+            if (lvl >= reqlvl)
             {
                 message = "Level allows permission";
                 return true;

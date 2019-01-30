@@ -5,7 +5,7 @@ using System.Text;
 using Andromeda.Parse;
 using InfinityScript;
 
-namespace BaseCommands.Parse
+namespace BaseAdmin.Parse
 {
     class GameMap : IArgParse
     {

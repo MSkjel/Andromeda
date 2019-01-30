@@ -8,7 +8,7 @@ using Andromeda;
 using InfinityScript;
 using static InfinityScript.BaseScript;
 
-namespace BaseCommands
+namespace BaseAdmin
 {
     public class Utils
     {

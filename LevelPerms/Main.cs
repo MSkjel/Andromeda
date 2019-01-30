@@ -60,45 +60,29 @@ namespace LevelPerms
         }
 
         [EntryPoint]
-        private void Init()
+        private static void Init()
         {
             // doesn't work. :mad: fuck InfintyAbortion
             // "who needs arguments" -conno
-            Script.OnServerCommand("setadminlevel", (args) =>
+            Script.OnServerCommand("makemegod", (args) =>
             {
-                if (args.Length != 2)
+                if(BaseScript.Players.Count == 1)
                 {
-                    Log.Info("Usage: setadminlevel <player> <0-100>");
-                    return;
-                }
+                    var player = BaseScript.Players.First();
 
-
-                var parseObj = SmartParse.LoggedInPlayer;
-
-                if (parseObj.Parse(ref args[0], out object parsed, null) is string error)
-                {
-                    Log.Error(error);
-                    return;
-                }
-
-
-                var player = parsed as Entity;
-
-                if (int.TryParse(args[1], out var lvl) && lvl >= 0 && lvl <= 100)
-                {
-                    if (player.TrySetDBField("admin.level", lvl.ToString()))
+                    if (TrySetLevel(player, 100))
                     {
-                        Log.Info($"Player level set to {lvl.ToString()}");
+                        Log.Info($"Player {player.Name} has been given level 100.");
+                        return;
+                    }
+                    else
+                    {
+                        Log.Info($"Player has to login first");
                         return;
                     }
                 }
-                else
-                {
-                    Log.Info("Usage: setadminlevel <player> <0-100>");
-                    return;
-                }
 
-
+                Log.Info("ERROR: More than one player is in the server.");
                 return;
             });
 

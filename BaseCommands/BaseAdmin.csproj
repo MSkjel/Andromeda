@@ -7,8 +7,8 @@
     <ProjectGuid>{CE1D3CB7-16F8-4459-9645-EB1D8FE4B2D5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BaseCommands</RootNamespace>
-    <AssemblyName>BaseCommands</AssemblyName>
+    <RootNamespace>BaseAdmin</RootNamespace>
+    <AssemblyName>BaseAdmin</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -42,6 +42,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite, Version=1.0.109.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Deps\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,10 +53,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Base.cs" />
+    <Compile Include="Admin.cs" />
+    <Compile Include="Funcs.cs" />
+    <Compile Include="Main.cs" />
     <Compile Include="EntityExtensions.cs" />
     <Compile Include="GameMap.cs" />
     <Compile Include="Parse\GameMap.cs" />
+    <Compile Include="Parse\TimeSpan.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BaseCommands
+namespace BaseAdmin
 {
     public static partial class EntityExtensions
     {
