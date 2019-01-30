@@ -23,7 +23,7 @@ namespace Andromeda.Events
 
         #region Andromeda
         //DSROptions
-        public static readonly Event<FinishedLoadingDSROptionsArgs> FinishedLoadingDSROptions = new Event<FinishedLoadingDSROptionsArgs>(ErrorHandler(nameof(FinishedLoadingDSROptions)));
+        public static readonly Event<DSRLoadArgs> DSRLoad = new Event<DSRLoadArgs>(ErrorHandler(nameof(DSRLoad)));
         #endregion
 
         #region Entity Events
