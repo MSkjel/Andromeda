@@ -85,7 +85,7 @@ namespace BaseCommands
         }
 
         [EntryPoint]
-        private void Init()
+        private static void Init()
         {
 
         }

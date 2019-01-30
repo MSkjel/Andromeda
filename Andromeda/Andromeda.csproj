@@ -60,16 +60,16 @@
     <Compile Include="ColorScheme.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Command.cs" />
-    <Compile Include="Events\EventArguments\ChangedTeamArgs.cs" />
-    <Compile Include="Events\EventArguments\ChangedClassArgs.cs" />
-    <Compile Include="Events\EventArguments\EarnedKillstreakArgs.cs" />
-    <Compile Include="Events\EventArguments\GrenadeFireArgs.cs" />
-    <Compile Include="Events\EventArguments\GrenadePullbackArgs.cs" />
-    <Compile Include="Events\EventArguments\WeaponChangedArgs.cs" />
-    <Compile Include="Events\EventArguments\WeaponFiredArgs.cs" />
-    <Compile Include="Events\EventArguments\WeaponReloadedArgs.cs" />
-    <Compile Include="Events\EventArguments\WeaponSwitchArgs.cs" />
-    <Compile Include="Events\EventArguments\WeaponTakenArgs.cs" />
+    <Compile Include="Events\EventArguments\Entity\ChangedTeamArgs.cs" />
+    <Compile Include="Events\EventArguments\Entity\ChangedClassArgs.cs" />
+    <Compile Include="Events\EventArguments\Entity\EarnedKillstreakArgs.cs" />
+    <Compile Include="Events\EventArguments\Entity\GrenadeFireArgs.cs" />
+    <Compile Include="Events\EventArguments\Entity\GrenadePullbackArgs.cs" />
+    <Compile Include="Events\EventArguments\Entity\WeaponChangedArgs.cs" />
+    <Compile Include="Events\EventArguments\Entity\WeaponFiredArgs.cs" />
+    <Compile Include="Events\EventArguments\Entity\WeaponReloadedArgs.cs" />
+    <Compile Include="Events\EventArguments\Entity\WeaponSwitchArgs.cs" />
+    <Compile Include="Events\EventArguments\Entity\WeaponTakenArgs.cs" />
     <Compile Include="Events\Events.cs" />
     <Compile Include="Interface.cs" />
     <Compile Include="Interfaces\IAdmin.cs" />
@@ -84,6 +84,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Events\EventArguments\Level\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

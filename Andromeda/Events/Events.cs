@@ -21,6 +21,7 @@ namespace Andromeda.Events
             };
         }
 
+        #region Entity Events
         //Spawns
         public static readonly Event<Entity> PlayerSpawned = new Event<Entity>(ErrorHandler(nameof(PlayerSpawned)));
         public static readonly Event<Entity> PlayerRespawned = new Event<Entity>(ErrorHandler(nameof(PlayerRespawned)));
@@ -43,6 +44,21 @@ namespace Andromeda.Events
         public static readonly Event<GrenadePullbackArgs> GrenadePullback = new Event<GrenadePullbackArgs>(ErrorHandler(nameof(GrenadePullback)));
         public static readonly Event<GrenadeFireArgs> GrenadeFire = new Event<GrenadeFireArgs>(ErrorHandler(nameof(GrenadeFire)));
 
+        //KillStreaks
+        public static readonly Event<EarnedKillstreakArgs> EarnedKillstreak = new Event<EarnedKillstreakArgs>(ErrorHandler(nameof(EarnedKillstreak)));
+        #endregion
+
+        #region Level Events
+        //Killcam
+        public static readonly Event FinalKillcamDone = new Event(ErrorHandler(nameof(FinalKillcamDone)));
+        public static readonly Event ShowingFinalKillcam = new Event(ErrorHandler(nameof(ShowingFinalKillcam)));
+
+        //Game
+        public static readonly Event<string> GameEnded = new Event<string>(ErrorHandler(nameof(GameEnded)));
+        public static readonly Event<string> GameWin = new Event<string>(ErrorHandler(nameof(GameWin)));
+        public static readonly Event GameOver = new Event(ErrorHandler(nameof(GameOver)));
+        public static readonly Event PreMatchDone = new Event(ErrorHandler(nameof(PreMatchDone)));
+        #endregion
 
         private static readonly SortedList<string, Action<NotifyArgs>> specialNotifies = new SortedList<string, Action<NotifyArgs>>
         {
@@ -56,6 +72,13 @@ namespace Andromeda.Events
                     ChangedClass.Run(player, new ChangedClassArgs(player, par[1].As<string>()));
                 else if (response == "changeteam")
                     ChangedTeam.Run(player, new ChangedTeamArgs(player, player.SessionTeam, par[1].As<string>()));
+            },
+
+            ["give_loadout"] = (arg) =>
+            {
+                var (player, _, par) = arg;
+
+                GiveLoadout.Run(player, arg.EntityParam);
             },
 
             ["weapon_fired"] = (arg) =>
@@ -105,6 +128,13 @@ namespace Andromeda.Events
                 var (player, _, par) = arg;
 
                 GrenadeFire.Run(player, new GrenadeFireArgs(player, arg.EntityParam, par[1].As<string>()));
+            },
+
+            ["received_earned_killstreak"] = (arg) =>
+            {
+                var (player, _, par) = arg;
+
+                BaseScript.AfterDelay(50, () => EarnedKillstreak.Run(player, new EarnedKillstreakArgs(player, GSCFunctions.GetDvar("Last_Killstreak"))));
             }
         };
 
@@ -113,18 +143,49 @@ namespace Andromeda.Events
         {
             Script.Notified.Add((sender, args) =>
             {
-                if (args.Notify == "player_spawned")
+                switch(args.Notify)
                 {
-                    Entity player = args.EntityParam;
+                    case "player_spawned":
+                        Entity player = args.EntityParam;
 
-                    if (!player.HasField("Spawned") || player.GetField<int>("Spawned") == 0)
-                    {
-                        player.SetField("Spawned", 1);
-                        PlayerSpawned.Run(player, player);
-                    }
-                    else
-                        PlayerRespawned.Run(player, player);
+                        if (!player.HasField("Spawned") || player.GetField<int>("Spawned") == 0)
+                        {
+                            player.SetField("Spawned", 1);
+                            PlayerSpawned.Run(player, player);
+                        }
+                        else
+                            PlayerRespawned.Run(player, player);
+                        break;
+
+                    case "gave_killstreak":
+                        GSCFunctions.SetDvar("Last_Killstreak", args.Parameters[0].As<string>());
+                        break;
+
+                    case "final_killcam_done":
+                        FinalKillcamDone.Run(sender);
+                        break;
+
+                    case "showing_final_killcam":
+                        ShowingFinalKillcam.Run(sender);
+                        break;
+
+                    case "prematch_done":
+                        PreMatchDone.Run(sender);
+                        break;
+
+                    case "game_ended":
+                        GameEnded.Run(sender, args.Parameters[0].As<string>());
+                        break;
+
+                    case "game_win":
+                        GameWin.Run(sender, args.Parameters[0].As<string>());
+                        break;
+
+                    case "game_over":
+                        GameOver.Run(sender);
+                        break;
                 }
+                
             });
 
             Script.PlayerNotified.Add((sender, args) =>
