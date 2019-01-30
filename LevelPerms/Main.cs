@@ -21,7 +21,7 @@ namespace LevelPerms
             if (Permissions.TryGetValue(permission, out var lvl))
                 return lvl;
 
-            Common.Warning($"Requested permission \"{permission}\" has no level assigned", "returning default value of 100.");
+            Log.Debug($"Requested permission \"{permission}\" has no level assigned.");
             return 100;
         }
 

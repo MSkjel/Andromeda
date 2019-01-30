@@ -12,7 +12,7 @@ namespace LevelPerms
     {
         public static readonly IPerms Instance = new Perms();
 
-        public string Version { get; } = "LevelPerms v0.0.1";
+        public string Version { get; } = "LevelPerms v1.0.0";
 
         public string[] Credits { get; } = new[]
         {
