@@ -65,7 +65,7 @@ namespace Andromeda.Events
         public static readonly Event PreMatchDone = new Event(ErrorHandler(nameof(PreMatchDone)));
         #endregion
 
-        private static readonly SortedList<string, Action<NotifyArgs>> specialNotifies = new SortedList<string, Action<NotifyArgs>>
+        private static readonly SortedList<string, Action<NotifyArgs>> specialPlayerNotifies = new SortedList<string, Action<NotifyArgs>>
         {
             ["menuresponse"] = (arg) =>
             {
@@ -143,59 +143,70 @@ namespace Andromeda.Events
             }
         };
 
+        private static readonly SortedList<string, Action<NotifyArgs>> specialNotifies = new SortedList<string, Action<NotifyArgs>>
+        {
+            ["player_spawned"] = (arg) =>
+            {
+                Entity player = arg.EntityParam;
+
+                if (!player.HasField("Spawned") || player.GetField<int>("Spawned") == 0)
+                {
+                    player.SetField("Spawned", 1);
+                    PlayerSpawned.Run(player, player);
+                }
+                else
+                    PlayerRespawned.Run(player, player);
+            },
+
+            ["gave_killstreak"] = (arg) =>
+            {
+                GSCFunctions.SetDvar("Last_Killstreak", arg.Parameters[0].As<string>());
+            },
+
+            ["final_killcam_done"] = (arg) =>
+            {
+                FinalKillcamDone.Run(null);
+            },
+
+            ["showing_final_killcam"] = (arg) =>
+            {
+                ShowingFinalKillcam.Run(null);
+            },
+
+            ["prematch_done"] = (arg) =>
+            {
+                PreMatchDone.Run(null);
+            },
+
+            ["game_ended"] = (arg) =>
+            {
+                GameEnded.Run(null, arg.Parameters[0].As<string>());
+            },
+
+            ["game_win"] = (arg) =>
+            {
+                GameWin.Run(null, arg.Parameters[0].As<string>());
+            },
+
+            ["game_over"] = (arg) =>
+            {
+                GameOver.Run(null);
+            }
+        };
+
         [EntryPoint]
         private static void Init()
         {
             Script.Notified.Add((sender, args) =>
             {
-                switch (args.Notify)
-                {
-                    case "player_spawned":
-                        Entity player = args.EntityParam;
-
-                        if (!player.HasField("Spawned") || player.GetField<int>("Spawned") == 0)
-                        {
-                            player.SetField("Spawned", 1);
-                            PlayerSpawned.Run(player, player);
-                        }
-                        else
-                            PlayerRespawned.Run(player, player);
-                        break;
-
-                    case "gave_killstreak":
-                        GSCFunctions.SetDvar("Last_Killstreak", args.Parameters[0].As<string>());
-                        break;
-
-                    case "final_killcam_done":
-                        FinalKillcamDone.Run(sender);
-                        break;
-
-                    case "showing_final_killcam":
-                        ShowingFinalKillcam.Run(sender);
-                        break;
-
-                    case "prematch_done":
-                        PreMatchDone.Run(sender);
-                        break;
-
-                    case "game_ended":
-                        GameEnded.Run(sender, args.Parameters[0].As<string>());
-                        break;
-
-                    case "game_win":
-                        GameWin.Run(sender, args.Parameters[0].As<string>());
-                        break;
-
-                    case "game_over":
-                        GameOver.Run(sender);
-                        break;
-                }
+                if (specialNotifies.TryGetValue(args.Notify, out var val))
+                    val(args);
 
             });
 
             Script.PlayerNotified.Add((sender, args) =>
             {
-                if(specialNotifies.TryGetValue(args.Notify, out var val))
+                if(specialPlayerNotifies.TryGetValue(args.Notify, out var val))
                     val(args);
             });        
         }
