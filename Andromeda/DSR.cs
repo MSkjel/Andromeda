@@ -18,9 +18,11 @@ namespace Andromeda
 
         private static Dictionary<string, string> DSROptions = new Dictionary<string, string>();
 
-        public static string LoadedMap => GSCFunctions.GetDvar("mapname");
+        public static string LoadedMap
+            => GSCFunctions.GetDvar("mapname");
 
-        public static string LoadedDSR => GSCFunctions.GetDvar("sv_current_dsr").Split('.')[0];
+        public static string LoadedDSR
+            => Path.GetFileNameWithoutExtension(GSCFunctions.GetDvar("sv_current_dsr"));
 
         public static string LoadedMapRotation => $"{LoadedMap},{LoadedDSR}";
 
@@ -43,7 +45,7 @@ namespace Andromeda
                     yield return BaseScript.Wait(0.05f);
 
                 ReadDSROptions(LoadedDSR);
-                Events.Events.FinishedLoadingDSROptions.Run(null, new Events.EventArguments.FinishedLoadingDSROptionsArgs(DSROptions));
+                Events.Events.DSRLoad.Run(null, new Events.EventArguments.DSRLoadArgs(DSROptions));
             }
 
             Async.Start(routine());
@@ -53,20 +55,13 @@ namespace Andromeda
         {
             try
             {
-                foreach (var fline in ReadNonCommentedLines(DSRFolder + "\\" + dsrName + ".dsr"))
+                foreach (var fline in ReadNonCommentedLines(Path.Combine(DSRFolder, $"{dsrName}.dsr")))
                 {
-                    string line = fline;
+                    var match = Regex.Match(fline, @"^dsrOpt\s+(\S+)\s+""(\S+)""");
 
-                    if (line.StartsWith("dsrOpt") && line.Length > "dsrOpt".Length)
+                    if(match.Success)
                     {
-                        line = line.Substring("dsrOpt".Length + 1);
-
-                        int findex = line.IndexOf('"'), lindex = line.LastIndexOf('"');
-
-                        if (findex != lindex)
-                        {
-                            DSROptions[line.Substring(0, findex).Trim()] = line.Substring(findex + 1, lindex - findex - 1);
-                        }
+                        DSROptions[match.Groups[1].Value] = match.Groups[2].Value;
                     }
                 }
             }
@@ -91,17 +86,23 @@ namespace Andromeda
             throw new ArgumentException($"DSR: {dsr} does not exist");
         }
 
-        public static void SetNextMap(string map) => SetNextMapRotation(map, LoadedDSR);
+        public static void SetNextMap(string map)
+            => SetNextMapRotation(map, LoadedDSR);
 
-        public static void SetNextMode(string dsr) => SetNextMapRotation(LoadedMap, dsr);
+        public static void SetNextMode(string dsr)
+            => SetNextMapRotation(LoadedMap, dsr);
 
-        public static IEnumerable<string> GetAllDSRFiles() => Directory.GetFiles(DSRFolder, "*.dsr");
+        public static IEnumerable<string> GetAllDSRFiles()
+            => Directory.GetFiles(DSRFolder, "*.dsr");
 
-        private static IEnumerable<string> ReadNonCommentedLines(string file) => File.ReadLines(file).Where(x => !x.StartsWith("//"));
+        private static IEnumerable<string> ReadNonCommentedLines(string file)
+            => File.ReadLines(file).Where(x => !x.StartsWith("//"));
 
-        public static bool DSRExists(string dsrName) => GetFullDSRName(dsrName).StartsWith(dsrName, StringComparison.InvariantCultureIgnoreCase);
+        public static bool DSRExists(string dsrName) 
+            => GetFullDSRName(dsrName).StartsWith(dsrName, StringComparison.InvariantCultureIgnoreCase);
 
-        public static string GetFullDSRName(string dsrName) => GetAllDSRFiles().Where(x => Path.GetFileNameWithoutExtension(x).StartsWith(dsrName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+        public static string GetFullDSRName(string dsrName) 
+            => GetAllDSRFiles().Where(x => Path.GetFileNameWithoutExtension(x).StartsWith(dsrName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
 
         private static string EscapeNonPathChars(string str)
         {

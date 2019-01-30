@@ -44,7 +44,7 @@ namespace BaseCommands
                     var msgs = "%iAvailable maps:".Yield()
                         .Concat(Common.Condense(
                             Utils.Maps.Where(x => Utils.MapFilesExist(x.RawName))
-                            .Select(x => $"%a{x.NiceName}"))
+                            .Select(x => $"%a{x.NiceName}%n"))
                             );
 
                     sender.Tell(msgs);
@@ -62,6 +62,8 @@ namespace BaseCommands
                     var map = args[0] as GameMap;
 
                     DSR.SetNextMap(map.RawName);
+
+                    Common.SayAll($"%p{sender.GetFormattedName()} %nhas set next map to %i{map.NiceName}%n.");
                 },
                 usage: "!setnextmap <map>",
                 permission: "setnextmap",
