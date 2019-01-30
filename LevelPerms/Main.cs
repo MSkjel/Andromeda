@@ -13,7 +13,7 @@ namespace LevelPerms
     [Plugin]
     public class Main
     {
-        private const string path = @"scripts\LevelPerms";
+        private static readonly string filePath;
         private static SortedList<string, int> Permissions;
 
         public static int GetPermissionLevel(string permission)
@@ -45,26 +45,23 @@ namespace LevelPerms
 
         private static void ReadPerms()
         {
-            Directory.CreateDirectory(path);
+            Directory.CreateDirectory(@"scripts\LevelPerms");
 
-            var file = Path.Combine(path, "perms.json");
-
-            if (!File.Exists(file))
-                File.WriteAllText(file, JsonConvert.SerializeObject(new SortedList<string, int>()
+            if (!File.Exists(filePath))
+                File.WriteAllText(filePath, JsonConvert.SerializeObject(new SortedList<string, int>()
                 {
                     ["setlevel"] = 100,
                     ["perms.show"] = 20
                 }, Formatting.Indented));
 
-            var str = File.ReadAllText(file);
+            var str = File.ReadAllText(filePath);
 
             Permissions = JsonConvert.DeserializeObject<SortedList<string, int>>(str);
         }
 
-        static Main()
+        [EntryPoint]
+        private void Init()
         {
-            Common.Register(Perms.Instance);
-            
             // doesn't work. :mad: fuck InfintyAbortion
             // "who needs arguments" -conno
             Script.OnServerCommand("setadminlevel", (args) =>
@@ -83,7 +80,7 @@ namespace LevelPerms
                     Log.Error(error);
                     return;
                 }
-                
+
 
                 var player = parsed as Entity;
 
@@ -141,6 +138,15 @@ namespace LevelPerms
                 description: "Shows online admins"));
 
             #endregion
+        }
+
+        static Main()
+        {
+            GSCFunctions.SetDvarIfUninitialized("perms.path", @"scripts\LevelPerms\perms.json");
+
+            filePath = GSCFunctions.GetDvar("perms.path");
+
+            Common.Register(Perms.Instance);
 
             ReadPerms();
         }

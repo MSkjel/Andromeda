@@ -18,6 +18,7 @@ namespace Andromeda
     [Plugin]
     public static class PlayerDB
     {
+        internal static readonly string DBFile;
         public static readonly Event<Entity> PlayerLoggedIn = new Event<Entity>(Events.Events.ErrorHandler(nameof(PlayerLoggedIn)));
         public static readonly Event<Entity> PlayerLoggedOut = new Event<Entity>(Events.Events.ErrorHandler(nameof(PlayerLoggedOut)));
 
@@ -515,9 +516,13 @@ namespace Andromeda
 
         static PlayerDB()
         {
+            GSCFunctions.SetDvarIfUninitialized("database.path", @"scripts\Andromeda\players.sqlite");
+
+            DBFile = GSCFunctions.GetDvar("database.path");
+
             System.IO.Directory.CreateDirectory(@"scripts\Andromeda");
 
-            Connection = new SQLiteConnection(@"Data Source=scripts\Andromeda\players.sqlite;Version=3;");
+            Connection = new SQLiteConnection($"Data Source={DBFile};Version=3;");
 
             lock (Connection)
             {

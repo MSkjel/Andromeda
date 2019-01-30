@@ -3,31 +3,28 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using System.Text;
+using Andromeda;
+using Andromeda.Interfaces;
 using InfinityScript;
 
-namespace Andromeda.Mock
+namespace ServerUtils
 {
-    public class Utils : Interfaces.IUtils
+    public class Utils : IUtils
     {
-        public string Version
-            => "MockUtils";
-        public string[] Credits
-            => new string[0];
+        public static IUtils Instance = new Utils();
+
+        public ColorScheme ColorScheme
+            => Config.Instance.ColorScheme;
 
         public string ServerName
-            => "^1Server";
+            => Config.Instance.ServerDisplayName;
 
-        public ColorScheme ColorScheme { get; } = new ColorScheme(
-            normal: "^7",
-            info: "^6",
-            error: "^1",
-            admin: "^3",
-            player: "^;",
-            
-            highlight1: "^:",
-            highlight2: "^2",
-            highlight3: "^8",
-            highlight4: "^5");
+        public string Version { get; } = "ServerUtils v1.0.0";
+
+        public string[] Credits { get; } = new[]
+        {
+            "dem bois"
+        };
 
         public void SayAll(IEnumerable<string> messages)
         {
@@ -39,13 +36,13 @@ namespace Andromeda.Mock
                 using (var e = messages.GetEnumerator())
                 {
                     if (e.MoveNext())
-                        Utilities.RawSayAll($"[Server] {e.Current}");
+                        Utilities.RawSayAll($"{Config.Instance.PublicPrefix}{e.Current}");
 
                     while (e.MoveNext())
                     {
-                        yield return BaseScript.Wait(0.85f);
+                        yield return BaseScript.Wait(Config.Instance.MessageTrailDelay);
 
-                        Utilities.RawSayAll($"* {e.Current}");
+                        Utilities.RawSayAll($"{Config.Instance.PublicTrail}{e.Current}");
                     }
                 }
             }
@@ -63,13 +60,13 @@ namespace Andromeda.Mock
                 using (var e = messages.GetEnumerator())
                 {
                     if (e.MoveNext())
-                        Utilities.RawSayTo(player, $"[PM] {e.Current}");
+                        Utilities.RawSayTo(player, $"{Config.Instance.PrivatePrefix}{e.Current}");
 
-                    while(e.MoveNext())
+                    while (e.MoveNext())
                     {
-                        yield return BaseScript.Wait(0.85f);
+                        yield return BaseScript.Wait(Config.Instance.MessageTrailDelay);
 
-                        Utilities.RawSayTo(player, $"> {e.Current}");
+                        Utilities.RawSayTo(player, $"{Config.Instance.PrivateTrail}{e.Current}");
                     }
                 }
             }

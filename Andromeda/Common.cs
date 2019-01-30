@@ -12,13 +12,15 @@ namespace Andromeda
     [Plugin]
     public static partial class Common
     {
-        internal static readonly string Version = "Andromeda v0.0.1";
+        internal static readonly string Version = "Andromeda v0.9.0";
 
         internal static readonly string[] Credits = new[]
         {
             "Lambder & Markus - dem bois",
-            "Slvr99 - help with AbortScript"
+            "Slvr99 - help-ish with AbortScript"
         };
+
+        public static readonly string ConfigsFolder;
 
         private static IPerms perms;
         private static readonly IPerms mockPerms = new Mock.Perms();

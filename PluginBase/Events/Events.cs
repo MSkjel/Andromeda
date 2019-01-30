@@ -109,7 +109,7 @@ namespace InfinityScript.Events
         }
 
         public void Run(object sender)
-            => Run(sender);
+            => Run(sender, EventArgs.Empty);
     }
 
     public class EatableEventArgs : EventArgs
