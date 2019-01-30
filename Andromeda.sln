@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28516.95
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{16CC7676-4FD1-4E9C-A615-963D68C394E4}"
 EndProject
@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginBase", "PluginBase\Pl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Andromeda", "Andromeda\Andromeda.csproj", "{3839CED4-C199-4417-93D3-576E91BDD2E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseCommands", "BaseCommands\BaseCommands.csproj", "{CE1D3CB7-16F8-4459-9645-EB1D8FE4B2D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseAdmin", "BaseCommands\BaseAdmin.csproj", "{CE1D3CB7-16F8-4459-9645-EB1D8FE4B2D5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LevelPerms", "LevelPerms\LevelPerms.csproj", "{9711C8F1-8073-4BFF-8249-E437E6E35802}"
 EndProject

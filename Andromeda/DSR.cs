@@ -98,9 +98,11 @@ namespace Andromeda
         private static IEnumerable<string> ReadNonCommentedLines(string file)
             => File.ReadLines(file).Where(x => !x.StartsWith("//"));
 
-        public static bool DSRExists(string dsrName)
-            => GetAllDSRFiles().Where(x => Path.GetFileNameWithoutExtension(x).IndexOf(dsrName, StringComparison.InvariantCultureIgnoreCase) != -1).Any();
+        public static bool DSRExists(string dsrName) 
+            => GetFullDSRName(dsrName).StartsWith(dsrName, StringComparison.InvariantCultureIgnoreCase);
 
+        public static string GetFullDSRName(string dsrName) 
+            => GetAllDSRFiles().Where(x => Path.GetFileNameWithoutExtension(x).StartsWith(dsrName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
 
         private static string EscapeNonPathChars(string str)
         {
