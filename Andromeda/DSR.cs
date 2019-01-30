@@ -42,30 +42,13 @@ namespace Andromeda
                 yield return BaseScript.Wait(0.5f);
 
                 while (LoadedDSR == "")
-                {
                     yield return BaseScript.Wait(0.05f);
-                }
 
                 ReadDSROptions(LoadedDSR);
                 Events.Events.DSRLoad.Run(null, new Events.EventArguments.DSRLoadArgs(DSROptions));
             }
 
             Async.Start(routine());
-        }
-
-        public static void SetNextMapRotation(string map, string dsr)
-        {
-            if (DSRExists(dsr))
-            {            
-                File.WriteAllText($"{DSRFolder}\\{DSPL}.dspl", $"{map},{dsr},1");
-                GSCFunctions.SetDevDvarIfUninitialized("sv_defaultmaprotation", GSCFunctions.GetDvar("sv_maprotation"));
-                GSCFunctions.SetDvar("sv_maprotation", DSPL);
-                NextMapRotation = $"{map},{dsr}";
-
-                return;
-            }
-
-            throw new ArgumentException($"DSR: {dsr} does not exist");
         }
 
         private static void ReadDSROptions(string dsrName)
@@ -86,6 +69,21 @@ namespace Andromeda
             {
                 Log.Error(e);
             }
+        }
+
+        public static void SetNextMapRotation(string map, string dsr)
+        {
+            if (DSRExists(dsr))
+            {
+                File.WriteAllText($"{DSRFolder}\\{DSPL}.dspl", $"{map},{dsr},1");
+                GSCFunctions.SetDevDvarIfUninitialized("sv_defaultmaprotation", GSCFunctions.GetDvar("sv_maprotation"));
+                GSCFunctions.SetDvar("sv_maprotation", DSPL);
+                NextMapRotation = $"{map},{ dsr}";
+
+                return;
+            }
+
+            throw new ArgumentException($"DSR: {dsr} does not exist");
         }
 
         public static void SetNextMap(string map)
