@@ -64,23 +64,26 @@ namespace LevelPerms
         static Main()
         {
             Common.Register(Perms.Instance);
-
+            
             // doesn't work. :mad: fuck InfintyAbortion
-            Script.OnServerCommand("setAdminLevel", (args) =>
+            // "who needs arguments" -conno
+            Script.OnServerCommand("setadminlevel", (args) =>
             {
                 if (args.Length != 2)
                 {
-                    Log.Info("Usage: setAdminLevel <player> <0-100>");
-                    return true;
+                    Log.Info("Usage: setadminlevel <player> <0-100>");
+                    return;
                 }
+
 
                 var parseObj = SmartParse.LoggedInPlayer;
 
                 if (parseObj.Parse(ref args[0], out object parsed, null) is string error)
                 {
                     Log.Error(error);
-                    return true;
+                    return;
                 }
+                
 
                 var player = parsed as Entity;
 
@@ -89,16 +92,17 @@ namespace LevelPerms
                     if (player.TrySetDBField("admin.level", lvl.ToString()))
                     {
                         Log.Info($"Player level set to {lvl.ToString()}");
-                        return true;
+                        return;
                     }
                 }
                 else
                 {
-                    Log.Info("Usage: setAdminLevel <player> <0-100>");
-                    return true;
+                    Log.Info("Usage: setadminlevel <player> <0-100>");
+                    return;
                 }
 
-                return true;
+
+                return;
             });
 
             #region Commands
