@@ -1,9 +1,12 @@
 ﻿using Andromeda;
+using Andromeda.Events;
 using Andromeda.Parse;
 using InfinityScript;
 using InfinityScript.PBase;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -58,6 +61,7 @@ namespace BaseCommands
                 {
                     var map = args[0] as GameMap;
 
+                    DSR.SetNextMap(map.RawName);
                 },
                 usage: "!setnextmap <map>",
                 permission: "setnextmap",
@@ -87,7 +91,6 @@ namespace BaseCommands
         [EntryPoint]
         private static void Init()
         {
-
         }
     }
 }

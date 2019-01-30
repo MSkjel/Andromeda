@@ -133,5 +133,8 @@ namespace BaseCommands
 
         public static bool CaseInsensitiveContains(string str1, string str2)
             => str1.IndexOf(str2, StringComparison.InvariantCultureIgnoreCase) != -1;
+
+        public static bool CaseInsensitiveStartsWith(string str1, string str2)
+            => str1.StartsWith(str2, StringComparison.InvariantCultureIgnoreCase);
     }
 }

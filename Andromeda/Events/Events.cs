@@ -21,6 +21,11 @@ namespace Andromeda.Events
             };
         }
 
+        #region Andromeda
+        //DSROptions
+        public static readonly Event<FinishedLoadingDSROptionsArgs> FinishedLoadingDSROptions = new Event<FinishedLoadingDSROptionsArgs>(ErrorHandler(nameof(FinishedLoadingDSROptions)));
+        #endregion
+
         #region Entity Events
         //Spawns
         public static readonly Event<Entity> PlayerSpawned = new Event<Entity>(ErrorHandler(nameof(PlayerSpawned)));
@@ -143,7 +148,7 @@ namespace Andromeda.Events
         {
             Script.Notified.Add((sender, args) =>
             {
-                switch(args.Notify)
+                switch (args.Notify)
                 {
                     case "player_spawned":
                         Entity player = args.EntityParam;
@@ -185,7 +190,7 @@ namespace Andromeda.Events
                         GameOver.Run(sender);
                         break;
                 }
-                
+
             });
 
             Script.PlayerNotified.Add((sender, args) =>

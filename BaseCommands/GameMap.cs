@@ -24,7 +24,7 @@ namespace BaseCommands
         public bool Matches(string identifier)
         {
             foreach (var name in KnownNames)
-                if (Utils.CaseInsensitiveContains(name, identifier))
+                if (Utils.CaseInsensitiveStartsWith(name, identifier))
                     return true;
 
             return false;
