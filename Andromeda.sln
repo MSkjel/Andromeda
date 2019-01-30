@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28516.95
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{16CC7676-4FD1-4E9C-A615-963D68C394E4}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatOverhaul", "ChatOverhaul\ChatOverhaul.csproj", "{DE56457B-7E1F-4D44-B6F8-EACB7D36F76E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerUtils", "ServerUtils\ServerUtils.csproj", "{10C8E3F1-E328-4384-8EAD-31188628E790}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ISnipe", "ISnipe\ISnipe.csproj", "{715610C4-4225-4A64-9CDF-4381F4EB5F43}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +101,18 @@ Global
 		{10C8E3F1-E328-4384-8EAD-31188628E790}.Release|x64.Build.0 = Release|Any CPU
 		{10C8E3F1-E328-4384-8EAD-31188628E790}.Release|x86.ActiveCfg = Release|Any CPU
 		{10C8E3F1-E328-4384-8EAD-31188628E790}.Release|x86.Build.0 = Release|Any CPU
+		{715610C4-4225-4A64-9CDF-4381F4EB5F43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{715610C4-4225-4A64-9CDF-4381F4EB5F43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{715610C4-4225-4A64-9CDF-4381F4EB5F43}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{715610C4-4225-4A64-9CDF-4381F4EB5F43}.Debug|x64.Build.0 = Debug|Any CPU
+		{715610C4-4225-4A64-9CDF-4381F4EB5F43}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{715610C4-4225-4A64-9CDF-4381F4EB5F43}.Debug|x86.Build.0 = Debug|Any CPU
+		{715610C4-4225-4A64-9CDF-4381F4EB5F43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{715610C4-4225-4A64-9CDF-4381F4EB5F43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{715610C4-4225-4A64-9CDF-4381F4EB5F43}.Release|x64.ActiveCfg = Release|Any CPU
+		{715610C4-4225-4A64-9CDF-4381F4EB5F43}.Release|x64.Build.0 = Release|Any CPU
+		{715610C4-4225-4A64-9CDF-4381F4EB5F43}.Release|x86.ActiveCfg = Release|Any CPU
+		{715610C4-4225-4A64-9CDF-4381F4EB5F43}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -109,6 +123,7 @@ Global
 		{9711C8F1-8073-4BFF-8249-E437E6E35802} = {16CC7676-4FD1-4E9C-A615-963D68C394E4}
 		{DE56457B-7E1F-4D44-B6F8-EACB7D36F76E} = {16CC7676-4FD1-4E9C-A615-963D68C394E4}
 		{10C8E3F1-E328-4384-8EAD-31188628E790} = {16CC7676-4FD1-4E9C-A615-963D68C394E4}
+		{715610C4-4225-4A64-9CDF-4381F4EB5F43} = {16CC7676-4FD1-4E9C-A615-963D68C394E4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F9E1D8AE-CAAA-4460-B36B-D66470A085B4}
