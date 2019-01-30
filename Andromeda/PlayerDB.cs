@@ -269,9 +269,9 @@ namespace Andromeda
                     ConnectedPlayers[player.EntRef] = found;
 
                     if (found != null)
-                        Log.Info($"Found entry for player {player.Name}");
+                        Log.Debug($"Found entry for player {player.Name}");
                     else
-                        Log.Info($"Did not find entry for player {player.Name}");
+                        Log.Debug($"Did not find entry for player {player.Name}");
 
                     if (found != null)
                     {
@@ -532,17 +532,17 @@ namespace Andromeda
 
                 using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS players (hwid VARCHAR(32) PRIMARY KEY NOT NULL, password BLOB NOT NULL, data LONGTEXT);", Connection))
                 {
-                    Log.Info($"result: {prepare.ExecuteNonQuery()}");
+                    prepare.ExecuteNonQuery();
                 }
 
                 using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS loggedin (hash BLOB PRIMARY KEY NOT NULL, time TEXT);", Connection))
                 {
-                    Log.Info($"result: {prepare.ExecuteNonQuery()}");
+                    prepare.ExecuteNonQuery();
                 }
 
                 using (var prepare = new SQLiteCommand("DELETE FROM loggedin WHERE time < datetime('now');", Connection))
                 {
-                    Log.Info($"result: {prepare.ExecuteNonQuery()}");
+                    prepare.ExecuteNonQuery();
                 }
 
                 Log.Info("Done preparing.");

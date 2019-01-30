@@ -35,7 +35,7 @@ namespace ServerUtils
         public string PrivatePrefix = "[PM] ";
         public string PrivateTrail = "> ";
 
-        public float AnnounceInterval = 20;
+        public float AnnounceInterval = 40;
 
         public string[] Announcements = new[]
         {
