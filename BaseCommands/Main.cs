@@ -74,23 +74,20 @@ namespace BaseAdmin
             // MODE
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "mode",
-                argTypes: new[] { SmartParse.String },
+                argTypes: new[] { Parse.GameMode.Obj },
                 action: delegate (Entity sender, object[] args)
                 {
-                    string dsr = args[0] as string;
+                    string dsr = DSR.GetFullDSRName(args[0] as string);
 
-                    if (DSR.DSRExists(dsr))
-                    {
-                        Common.SayAll($"Mode has been changed to %h1{DSR.GetFullDSRName(dsr)} %nby %p{sender.GetFormattedName()}");
-                        DSR.SetNextMode(DSR.GetFullDSRName(dsr));
-
-                        Utilities.ExecuteCommand("map_rotate");
-                    }
+                    DSR.SetNextMode(dsr);
+                    Common.SayAll($"Mode has been changed to %h1{dsr} %nby %p{sender.GetFormattedName()}");
+                    Utilities.ExecuteCommand("map_rotate");
 
                 },
                 usage: "!mode <mode>",
                 permission: "mode",
                 description: "Changes the mode to the mode specified"));
+            #endregion
             #endregion
 
             // EXECUTECOMMAND
@@ -109,8 +106,6 @@ namespace BaseAdmin
                 aliases: new[] { "exec" },
                 permission: "executecommand",
                 description: "Executes a command in the server console"));
-
-            #endregion
 
             #region Admin
 
