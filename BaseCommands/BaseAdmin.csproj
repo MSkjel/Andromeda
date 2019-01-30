@@ -7,8 +7,8 @@
     <ProjectGuid>{CE1D3CB7-16F8-4459-9645-EB1D8FE4B2D5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BaseCommands</RootNamespace>
-    <AssemblyName>BaseCommands</AssemblyName>
+    <RootNamespace>BaseAdmin</RootNamespace>
+    <AssemblyName>BaseAdmin</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -53,6 +53,7 @@
     <Compile Include="EntityExtensions.cs" />
     <Compile Include="GameMap.cs" />
     <Compile Include="Parse\GameMap.cs" />
+    <Compile Include="Parse\GameMode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

@@ -60,7 +60,7 @@ namespace LevelPerms
         }
 
         [EntryPoint]
-        private void Init()
+        private static void Init()
         {
             // doesn't work. :mad: fuck InfintyAbortion
             // "who needs arguments" -conno

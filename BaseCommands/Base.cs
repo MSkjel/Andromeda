@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace BaseCommands
+namespace BaseAdmin
 {
     [Plugin]
     public class Base
@@ -71,21 +71,17 @@ namespace BaseCommands
             #endregion
 
             #region Mode
-            // MAP
+            // Mode
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "mode",
-                argTypes: new[] { SmartParse.String },
+                argTypes: new[] { Parse.GameMode.Obj },
                 action: delegate (Entity sender, object[] args)
                 {
-                    string dsr = args[0] as string;
+                    string dsr = DSR.GetFullDSRName(args[0] as string);
 
-                    if (DSR.DSRExists(dsr))
-                    {
-                        Common.SayAll($"Mode has been changed to %h1{DSR.GetFullDSRName(dsr)} %nby %p{sender.GetFormattedName()}");
-                        DSR.SetNextMode(DSR.GetFullDSRName(dsr));
-
-                        Utilities.ExecuteCommand("map_rotate");
-                    }
+                    DSR.SetNextMode(dsr);
+                    Common.SayAll($"Mode has been changed to %h1{dsr} %nby %p{sender.GetFormattedName()}");
+                    Utilities.ExecuteCommand("map_rotate");
                     
                 },
                 usage: "!mode <mode>",
