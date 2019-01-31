@@ -45,6 +45,11 @@ namespace BaseAdmin
                 {
                     prepare.ExecuteNonQuery();
                 }
+
+                using (var prepare = new SQLiteCommand("DELETE FROM bans WHERE datetime('now', 'localtime') > datetime(expire);", Connection))
+                {
+                    prepare.ExecuteNonQuery();
+                }
             }
 
             Common.Register(Admin.Instance);

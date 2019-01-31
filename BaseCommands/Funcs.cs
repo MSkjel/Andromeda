@@ -32,16 +32,15 @@ namespace BaseAdmin
                 cmd.Parameters.AddWithValue("@reason", message);
                 cmd.Parameters.AddWithValue("@time", "permanent");
 
+                BanKick(ent, issuer, message);
+
+                Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^1banned %nby %p{issuer}%n. Reason: %i{message}");
+                
                 yield return Async.Detach();
                 lock (Main.Connection)
                 {
                     cmd.ExecuteNonQuery();
                 }
-
-                yield return Async.Attach();
-                BanKick(ent, issuer, message);
-
-                Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^1banned %nby %p{issuer}%n. Reason: %i{message}");
             }
 
             Async.Start(routine());
@@ -69,17 +68,17 @@ namespace BaseAdmin
                 cmd.Parameters.AddWithValue("@reason", message);
                 cmd.Parameters.AddWithValue("@time", Main.FormatDate(DateTime.Now + timeSpan));
 
-                yield return Async.Detach();
-                lock (Main.Connection)
-                {
-                    cmd.ExecuteNonQuery();
-                }
-
-                yield return Async.Attach();
                 BanKick(ent, issuer, message);
 
                 var spanstr = $"{timeSpan.Days}d{timeSpan.Hours}h{timeSpan.Minutes}m";
                 Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^1tempbanned %nby %p{issuer}%n for {spanstr}. Reason: %i{message}");
+
+                yield return Async.Detach();
+
+                lock (Main.Connection)
+                {
+                    cmd.ExecuteNonQuery();
+                }
             }
 
             Async.Start(routine());
