@@ -144,20 +144,20 @@ namespace ISnipe
         {
             Events.DSRLoad.Add((sender, args) =>
             {
-                if (args.DSROptions.TryGetValue("isnipe.enable", out var enabled) && parseBool(enabled))
+                if (args.TryGetOpt("isnipe.enable", out var enabled) && parseBool(enabled))
                 {
                     string value;
 
-                    if (args.DSROptions.TryGetValue("isnipe.antihs", out value))
+                    if (args.TryGetOpt("isnipe.antihs", out value))
                         AntiHS = parseBool(value);
 
-                    if (args.DSROptions.TryGetValue("isnipe.nomagnumammo", out value))
+                    if (args.TryGetOpt("isnipe.nomagnumammo", out value))
                         NoMagnumAmmo = parseBool(value);
 
-                    if (args.DSROptions.TryGetValue("isnipe.antiplant", out value))
+                    if (args.TryGetOpt("isnipe.antiplant", out value))
                         AntiPlant = parseBool(value);
 
-                    if (args.DSROptions.TryGetValue("isnipe.antifalldamage", out value))
+                    if (args.TryGetOpt("isnipe.antifalldamage", out value))
                         AntiFallDamage = parseBool(value);
 
                     Enable();
