@@ -30,5 +30,8 @@ namespace Andromeda.Mock
 
         public void TempBan(Entity ent, string issuer, TimeSpan timeSpan, string message)
             => throw new NotImplementedException();
+
+        public void ResetWarnings(Entity ent, string issuer, string message)
+            => throw new NotImplementedException();
     }
 }

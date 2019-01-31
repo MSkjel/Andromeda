@@ -144,7 +144,7 @@ namespace ISnipe
         {
             Events.DSRLoad.Add((sender, args) =>
             {
-                if (args.DSROptions.TryGetValue("isnipe.enabled", out var enabled) && parseBool(enabled))
+                if (args.DSROptions.TryGetValue("isnipe.enable", out var enabled) && parseBool(enabled))
                 {
                     string value;
 

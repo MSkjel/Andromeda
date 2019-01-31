@@ -5,12 +5,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace BaseAdmin
 {
     public static class Funcs
     {
+
+        internal static readonly int MaxWarnings = 3;
+
         private static void DelayedKick(Entity ent, string message)
         {
             var cmd = $"dropclient {ent.EntRef} \"{message}\"";
@@ -35,7 +39,7 @@ namespace BaseAdmin
                 BanKick(ent, issuer, message);
 
                 Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^1banned %nby %p{issuer}%n. Reason: %i{message}");
-                
+
                 yield return Async.Detach();
                 lock (Main.Connection)
                 {
@@ -53,7 +57,7 @@ namespace BaseAdmin
         {
             DelayedKick(ent, $"Kicked by %p{issuer}%n. Reason: %i{message}\"".ColorFormat());
 
-            Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^1kicked %n by %p{issuer}%n. Reason: %i{message}");
+            Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^1kicked %nby %p{issuer}%n. Reason: %i{message}");
         }
 
         public static void TempBan(Entity ent, string issuer, TimeSpan timeSpan, string message = "You have been temporarily banned")
@@ -84,7 +88,7 @@ namespace BaseAdmin
             Async.Start(routine());
         }
 
-        internal static void TmpBanKick(Entity ent, string issuer, TimeSpan timeSpan, string message)
+        internal static void TempBanKick(Entity ent, string issuer, TimeSpan timeSpan, string message)
         {
             var spanstr = $"{timeSpan.Days}d{timeSpan.Hours}h{timeSpan.Minutes}m";
 
@@ -93,12 +97,125 @@ namespace BaseAdmin
 
         public static void Unwarn(Entity ent, string issuer, string reason = "You have been unwarned")
         {
-            throw new NotImplementedException();
+            IEnumerator routine()
+            {
+                var cmd = new SQLiteCommand("SELECT amount FROM warnings WHERE hwid = @hwid;", Main.Connection);
+
+                cmd.Parameters.AddWithValue("@hwid", ent.HWID);
+
+                yield return Async.Detach();
+
+                int amount = 0;
+                lock (Main.Connection)
+                {
+                    var value = cmd.ExecuteScalar();
+
+                    if (value != null)
+                        amount = (int)value;
+                }
+
+                yield return Async.Attach();
+
+                amount--;
+
+                if (amount <= 0)
+                    amount = 0;
+
+                Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^3unwarned({amount}/3) %nby %p{issuer}%n. Reason: %i{reason}");
+
+                cmd.Parameters.Clear();
+                if (amount == 0)
+                {
+                    cmd.CommandText = "DELETE FROM warnings WHERE hwid = @hwid;";
+
+                    cmd.Parameters.AddWithValue("@hwid", ent.HWID);
+                }
+                else
+                {
+                    cmd.CommandText = "INSERT OR REPLACE INTO warnings (hwid, amount) VALUES (@hwid, @amount);";
+
+                    cmd.Parameters.AddWithValue("@hwid", ent.HWID);
+                    cmd.Parameters.AddWithValue("@amount", amount);
+                }
+
+                yield return Async.Detach();
+
+                lock (Main.Connection)
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            Async.Start(routine());
+        }
+
+        public static void ResetWarnings(Entity ent, string issuer, string reason = "You have been unwarned")
+        {
+            IEnumerator routine()
+            {
+                Common.SayAll($"%p{ent.GetFormattedName()} %nhad their warnings ^2reset %nby %p{issuer}%n. Reason: %i{reason}");
+
+                var cmd = new SQLiteCommand("DELETE FROM warnings WHERE hwid = @hwid;", Main.Connection);
+
+                cmd.Parameters.AddWithValue("@hwid", ent.HWID);
+
+                yield return Async.Detach();
+
+                lock (Main.Connection)
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            Async.Start(routine());
         }
 
         public static void Warn(Entity ent, string issuer, string reason = "You have been warned")
         {
-            throw new NotImplementedException();
+            IEnumerator routine()
+            {
+                var cmd = new SQLiteCommand("SELECT amount FROM warnings WHERE hwid = @hwid;", Main.Connection);
+
+                cmd.Parameters.AddWithValue("@hwid", ent.HWID);
+
+                yield return Async.Detach();
+
+                int amount = 0;
+                lock (Main.Connection)
+                {
+                    var value = cmd.ExecuteScalar();
+
+                    if (value != null)
+                        amount = (int)value;
+                }
+
+                yield return Async.Attach();
+
+                amount++;
+
+                Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^2warned({amount}/3) %nby %p{issuer}%n. Reason: %i{reason}");
+
+                if (amount >= MaxWarnings)
+                {
+                    Common.Admin.TempBan(ent, issuer, reason);
+                    amount = 0;
+                }
+
+                cmd.CommandText = "INSERT OR REPLACE INTO warnings (hwid, amount) VALUES (@hwid, @amount);";
+
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@hwid", ent.HWID);
+                cmd.Parameters.AddWithValue("@amount", amount);
+
+                yield return Async.Detach();
+
+                lock (Main.Connection)
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            Async.Start(routine());
         }
     }
 }
