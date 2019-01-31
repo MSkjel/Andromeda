@@ -24,6 +24,9 @@ namespace BaseAdmin
         public void Kick(Entity ent, string issuer, string message = "You have been kicked")
             => Funcs.Kick(ent, issuer, message);
 
+        public void ResetWarnings(Entity ent, string issuer, string reason = "Your warnings have been reset")
+            => Funcs.ResetWarnings(ent, issuer, reason);
+
         public void TempBan(Entity ent, string issuer, string message = "You have been temporarily banned")
             => Funcs.TempBan(ent, issuer, TimeSpan.FromMinutes(20), message);
 

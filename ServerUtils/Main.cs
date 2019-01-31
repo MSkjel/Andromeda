@@ -32,7 +32,8 @@ namespace ServerUtils
                 }
             }
 
-            Async.Start(announcer());
+            if(Config.Instance.Announcements.Length > 0)
+                Async.Start(announcer());
 
             foreach(var cmd in Config.Instance.InfoCommands)
             {

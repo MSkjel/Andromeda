@@ -42,7 +42,7 @@ namespace Andromeda
                 yield return BaseScript.Wait(0.5f);
 
                 while (LoadedDSR == "")
-                    yield return BaseScript.Wait(0.05f);
+                    yield return BaseScript.Wait(0.1f);
 
                 ReadDSROptions(LoadedDSR);
                 Events.Events.DSRLoad.Run(null, new Events.EventArguments.DSRLoadArgs(DSROptions));

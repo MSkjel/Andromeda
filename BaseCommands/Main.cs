@@ -45,6 +45,11 @@ namespace BaseAdmin
                 {
                     prepare.ExecuteNonQuery();
                 }
+
+                using (var prepare = new SQLiteCommand("DELETE FROM bans WHERE datetime('now', 'localtime') > datetime(expire);", Connection))
+                {
+                    prepare.ExecuteNonQuery();
+                }
             }
 
             Common.Register(Admin.Instance);
@@ -160,6 +165,24 @@ namespace BaseAdmin
                 usage: "!unwarn <player> [reason]",
                 permission: "!unwarn",
                 description: "Unwarns a player"));
+
+            // RESETWARNINGS
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "resetwarnings",
+                argTypes: new[] { SmartParse.UnimmunePlayer, SmartParse.OptionalGreedyString },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var target = args[0] as Entity;
+
+                    if (args[1] is string str)
+                        Funcs.Unwarn(target, sender.GetFormattedName(), str);
+                    else
+                        Funcs.Unwarn(target, sender.GetFormattedName());
+                },
+                usage: "!resetwarnings <player> [reason]",
+                permission: "!resetwarnings",
+                aliases: new[] { "resetwarns" },
+                description: "Resets a player's warnings"));
 
             // KICK
             Command.TryRegister(SmartParse.CreateCommand(
@@ -279,7 +302,7 @@ namespace BaseAdmin
                     {
                         if(timeSpan.HasValue)
                         {
-                            Funcs.TmpBanKick(player, issuer, timeSpan.Value, message);
+                            Funcs.TempBanKick(player, issuer, timeSpan.Value, message);
                             yield break;
                         }
 
