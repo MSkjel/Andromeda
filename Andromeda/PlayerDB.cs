@@ -280,31 +280,16 @@ namespace Andromeda
                     {
                         var hash = GetLoginHash(player);
 
-                        var findLogged = new SQLiteCommand("SELECT * FROM loggedin WHERE hash = @hash;", Connection);
+                        var findLogged = new SQLiteCommand("SELECT * FROM loggedin WHERE hash = @hash AND (datetime(time) > datetime('now', 'localtime'));", Connection);
 
                         findLogged.Parameters.AddWithValue("@hash", hash);
 
                         yield return Async.Detach();
 
                         bool logged;
-                        DateTime time = DateTime.MinValue;
                         lock (Connection)
                         {
-                            var reader = findLogged.ExecuteReader();
-
-                            if (reader.Read())
-                            {
-                                time = DateTime.ParseExact(reader["time"] as string, dateFormat, System.Globalization.CultureInfo.InvariantCulture);
-
-                                if (DateTime.Now < time)
-                                    logged = true;
-                                else
-                                    logged = false;
-                            }
-                            else
-                                logged = false;
-
-                            reader.Close();
+                            logged = findLogged.ExecuteScalar() != null;
                         }
 
                         yield return Async.Attach();
@@ -545,7 +530,7 @@ namespace Andromeda
                     prepare.ExecuteNonQuery();
                 }
 
-                using (var prepare = new SQLiteCommand("DELETE FROM loggedin WHERE time < datetime('now');", Connection))
+                using (var prepare = new SQLiteCommand("DELETE FROM loggedin WHERE datetime(time) < datetime('now', 'localtime');", Connection))
                 {
                     prepare.ExecuteNonQuery();
                 }

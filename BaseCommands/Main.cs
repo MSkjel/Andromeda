@@ -202,6 +202,7 @@ namespace BaseAdmin
                 action: delegate (Entity sender, object[] args)
                 {
                     var target = args[0] as Entity;
+
                     if (args[1] is TimeSpan ts)
                     {
                         if (args[2] is string str)
@@ -245,7 +246,7 @@ namespace BaseAdmin
             {
                 IEnumerator routine()
                 {
-                    var cmd = new SQLiteCommand("SELECT * FROM bans WHERE ((hwid = @hwid OR guid = @guid) AND (expire > datetime('now') OR expire = 'permanent'));", Connection);
+                    var cmd = new SQLiteCommand("SELECT * FROM bans WHERE ((hwid = @hwid OR guid = @guid) AND (datetime(expire) > datetime('now', 'localtime') OR expire = 'permanent'));", Connection);
 
                     cmd.Parameters.AddWithValue("@hwid", player.HWID);
                     cmd.Parameters.AddWithValue("@guid", player.GUID);

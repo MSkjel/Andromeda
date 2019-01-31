@@ -14,7 +14,7 @@ namespace BaseAdmin
         private static void DelayedKick(Entity ent, string message)
         {
             var cmd = $"dropclient {ent.EntRef} \"{message}\"";
-            BaseScript.AfterDelay(100, delegate
+            BaseScript.AfterDelay(150, delegate
             {
                 Utilities.ExecuteCommand(cmd);
             });
