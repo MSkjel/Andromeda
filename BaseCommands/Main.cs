@@ -41,7 +41,7 @@ namespace BaseAdmin
                     prepare.ExecuteNonQuery();
                 }
 
-                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS bans (banid INTEGER PRIMARY KEY NOT NULL, hwid VARCHAR(32) NOT NULL, guid INTEGER NOT NULL, issuer TEXT NOT NULL, reason TEXT NOT NULL, expire TEXT NOT NULL);", Connection))
+                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS bans (banid INTEGER PRIMARY KEY NOT NULL, hwid VARCHAR(32) NOT NULL, guid BIGINT NOT NULL, issuer TEXT NOT NULL, reason TEXT NOT NULL, expire TEXT NOT NULL);", Connection))
                 {
                     prepare.ExecuteNonQuery();
                 }

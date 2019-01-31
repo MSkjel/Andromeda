@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using Andromeda;
@@ -136,5 +138,66 @@ namespace BaseAdmin
 
         public static bool CaseInsensitiveStartsWith(string str1, string str2)
             => str1.StartsWith(str2, StringComparison.InvariantCultureIgnoreCase);
+
+
+        private static ProcessModule GetModule(Process process, string ModuleName)
+        {
+            foreach (ProcessModule module in process.Modules)
+                if (module.ModuleName == ModuleName)
+                    return module;
+
+            return null;
+        }
+
+        private static void WriteStringASCII(IntPtr Address, string Value)
+        {
+            byte[] asciipls = Encoding.ASCII.GetBytes(Value);
+            Marshal.Copy(asciipls, 0, Address, asciipls.Length);
+            Marshal.WriteByte(Address + asciipls.Length, 0);
+        }
+
+        private static IntPtr _serverString => Marshal.ReadIntPtr(GetModule(Process.GetCurrentProcess(), "TeknoMW3S.dll").BaseAddress + 0x00062C9C) + 0x74 + 0x7E1;
+
+        public static string ReportedMapName
+        {
+            get
+            {
+                string[] gt = Marshal.PtrToStringAnsi(_serverString).Split(new[] { @"\" }, StringSplitOptions.None);
+
+                for (int i = 0; i < gt.Length - 1; i++)
+                {
+                    if (gt[i] == "m")
+                        return gt[i + 1];
+                }
+
+                return null;
+            }
+
+            set
+            {
+                WriteStringASCII(_serverString, Marshal.PtrToStringAnsi(_serverString).Replace(ReportedMapName, value));
+            }
+        }
+
+        public static string ReportedGameType
+        {
+            get
+            {
+                string[] gt = Marshal.PtrToStringAnsi(_serverString).Split(new[] { @"\" }, StringSplitOptions.None);
+
+                for (int i = 0; i < gt.Length - 1; i++)
+                {
+                    if (gt[i] == "gt")
+                        return gt[i + 1];
+                }
+
+                return null;
+            }
+
+            set
+            {
+                WriteStringASCII(_serverString, Marshal.PtrToStringAnsi(_serverString).Replace(ReportedGameType, value));
+            }
+        }
     }
 }
