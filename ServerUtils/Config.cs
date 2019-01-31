@@ -18,9 +18,9 @@ namespace ServerUtils
             info: "^6",
             error: "^1",
             admin: "^3",
-            player: "^;",
+            player: "^:",
 
-            highlight1: "^:",
+            highlight1: "^;",
             highlight2: "^2",
             highlight3: "^8",
             highlight4: "^5");

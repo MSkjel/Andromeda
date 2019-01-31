@@ -1,16 +1,25 @@
-﻿using System;
+﻿using Andromeda;
+using InfinityScript;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Linq;
 using System.Text;
-using InfinityScript;
-using System.Collections;
-using Andromeda;
-using System.Data.SQLite;
 
 namespace BaseAdmin
 {
     public static class Funcs
     {
+        private static void DelayedKick(Entity ent, string message)
+        {
+            var cmd = $"dropclient {ent.EntRef} \"{message}\"";
+            BaseScript.AfterDelay(100, delegate
+            {
+                Utilities.ExecuteCommand(cmd);
+            });
+        }
+
         public static void Ban(Entity ent, string issuer, string message = "You have been banned")
         {
             IEnumerator routine()
@@ -24,7 +33,7 @@ namespace BaseAdmin
                 cmd.Parameters.AddWithValue("@time", "permanent");
 
                 yield return Async.Detach();
-                lock(Main.Connection)
+                lock (Main.Connection)
                 {
                     cmd.ExecuteNonQuery();
                 }
@@ -39,13 +48,11 @@ namespace BaseAdmin
         }
 
         internal static void BanKick(Entity ent, string issuer, string message)
-        {
-            Utilities.ExecuteCommand($"kickclient {ent.EntRef} \"You have been permanently banned by %p{issuer}%n.\nReason: %i{message}".ColorFormat());
-        }
+            => DelayedKick(ent, $"You are permanently banned by %p{issuer}%n. Reason: %i{message}".ColorFormat());
 
         public static void Kick(Entity ent, string issuer, string message = "You have been kicked")
         {
-            Utilities.ExecuteCommand($"dropclient {ent.EntRef} \"You have been kicked by %p{issuer}%n.\nReason: %i{message}".ColorFormat());
+            DelayedKick(ent, $"Kicked by %p{issuer}%n. Reason: %i{message}\"".ColorFormat());
 
             Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^1kicked %n by %p{issuer}%n. Reason: %i{message}");
         }
@@ -81,7 +88,8 @@ namespace BaseAdmin
         internal static void TmpBanKick(Entity ent, string issuer, TimeSpan timeSpan, string message)
         {
             var spanstr = $"{timeSpan.Days}d{timeSpan.Hours}h{timeSpan.Minutes}m";
-            Utilities.ExecuteCommand($"dropclient {ent.EntRef} \"You have been temporarily banned by %p{issuer}%n for {spanstr}.\nReason: %i{message}".ColorFormat());
+
+            DelayedKick(ent, $"You are banned by %p{issuer}%n for {spanstr}. Reason: %i{message}".ColorFormat());
         }
 
         public static void Unwarn(Entity ent, string issuer, string reason = "You have been unwarned")

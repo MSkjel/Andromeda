@@ -261,7 +261,10 @@ namespace Andromeda
                     PlayerInfo found;
                     lock (Connection)
                     {
-                        found = PlayerInfo.Get(cmd.ExecuteReader());
+                        var reader = cmd.ExecuteReader();
+                        found = PlayerInfo.Get(reader);
+
+                        reader.Close();
                     }
 
                     yield return Async.Attach();
@@ -300,6 +303,8 @@ namespace Andromeda
                             }
                             else
                                 logged = false;
+
+                            reader.Close();
                         }
 
                         yield return Async.Attach();

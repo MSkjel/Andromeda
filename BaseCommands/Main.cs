@@ -18,7 +18,6 @@ namespace BaseAdmin
     public static class Main
     {
         internal static SQLiteConnection Connection;
-        internal static readonly string path = @"scripts\BaseAdmin";
 
         private const string dateFormat = "yyyy-MM-dd HH:mm:ss";
         internal static string FormatDate(DateTime dateTime)
@@ -29,13 +28,7 @@ namespace BaseAdmin
 
         static Main()
         {
-            Directory.CreateDirectory(path);
-
-            var file = Path.Combine(path, "players.sqlite");
-
-            GSCFunctions.SetDvarIfUninitialized("database.path", file);
-
-            file = GSCFunctions.GetDvar("database.path");
+            var file = GSCFunctions.GetDvar("database.path");
 
             Connection = new SQLiteConnection($"Data Source={file};Version=3;");
 
@@ -45,14 +38,16 @@ namespace BaseAdmin
 
                 using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS warnings (hwid VARCHAR(32) PRIMARY KEY NOT NULL, amount INTEGER NOT NULL);", Connection))
                 {
-                    Log.Info($"result: {prepare.ExecuteNonQuery()}");
+                    prepare.ExecuteNonQuery();
                 }
 
                 using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS bans (banid INTEGER PRIMARY KEY NOT NULL, hwid VARCHAR(32) NOT NULL, guid INTEGER NOT NULL, issuer TEXT NOT NULL, reason TEXT NOT NULL, expire TEXT NOT NULL);", Connection))
                 {
-                    Log.Info($"result: {prepare.ExecuteNonQuery()}");
+                    prepare.ExecuteNonQuery();
                 }
             }
+
+            Common.Register(Admin.Instance);
         }
 
         [EntryPoint]
@@ -250,12 +245,10 @@ namespace BaseAdmin
             {
                 IEnumerator routine()
                 {
-                    var cmd = new SQLiteCommand("SELECT * FROM bans WHERE (hwid = @hwid OR guid = @guid) AND (expire > datetime('now') OR expire = 'permanent');", Connection);
+                    var cmd = new SQLiteCommand("SELECT * FROM bans WHERE ((hwid = @hwid OR guid = @guid) AND (expire > datetime('now') OR expire = 'permanent'));", Connection);
 
                     cmd.Parameters.AddWithValue("@hwid", player.HWID);
                     cmd.Parameters.AddWithValue("@guid", player.GUID);
-
-                    yield return Async.Detach();
 
                     bool found = false;
                     TimeSpan? timeSpan = null;
@@ -275,6 +268,8 @@ namespace BaseAdmin
                             message = reader["reason"] as string;
                             issuer = reader["issuer"] as string;
                         }
+
+                        reader.Close();
                     }
 
                     yield return Async.Attach();
@@ -290,7 +285,6 @@ namespace BaseAdmin
                         Funcs.BanKick(player, issuer, message);
                         yield break;
                     }
-
                 }
 
                 Async.Start(routine());
