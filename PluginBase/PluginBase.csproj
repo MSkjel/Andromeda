@@ -36,9 +36,8 @@
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="InfinityScript, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>InfinityScript v1.5\InfinityScript.dll</HintPath>
+    <Reference Include="InfinityScript">
+      <HintPath>..\Deps\InfinityScript.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

@@ -9,13 +9,54 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Data.SQLite;
+using System.IO;
 
 namespace BaseAdmin
 {
     [Plugin]
-    public class Main
+    public static class Main
     {
+        internal static SQLiteConnection Connection;
+        internal static readonly string path = @"scripts\BaseAdmin";
+
+        private const string dateFormat = "yyyy-MM-dd HH:mm:ss";
+        internal static string FormatDate(DateTime dateTime)
+            => dateTime.ToString(dateFormat, System.Globalization.CultureInfo.InvariantCulture);
+
+        internal static DateTime ParseDate(string str)
+            => DateTime.ParseExact(str, dateFormat, System.Globalization.CultureInfo.InvariantCulture);
+
         static Main()
+        {
+            Directory.CreateDirectory(path);
+
+            var file = Path.Combine(path, "players.sqlite");
+
+            GSCFunctions.SetDvarIfUninitialized("database.path", file);
+
+            file = GSCFunctions.GetDvar("database.path");
+
+            Connection = new SQLiteConnection($"Data Source={file};Version=3;");
+
+            lock (Connection)
+            {
+                Connection.Open();
+
+                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS warnings (hwid VARCHAR(32) PRIMARY KEY NOT NULL, amount INTEGER NOT NULL);", Connection))
+                {
+                    Log.Info($"result: {prepare.ExecuteNonQuery()}");
+                }
+
+                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS bans (banid INTEGER PRIMARY KEY NOT NULL, hwid VARCHAR(32) NOT NULL, guid INTEGER NOT NULL, issuer TEXT NOT NULL, reason TEXT NOT NULL, expire TEXT NOT NULL);", Connection))
+                {
+                    Log.Info($"result: {prepare.ExecuteNonQuery()}");
+                }
+            }
+        }
+
+        [EntryPoint]
+        private static void Init()
         {
             #region Commands
             #region Map
@@ -88,24 +129,6 @@ namespace BaseAdmin
                 permission: "mode",
                 description: "Changes the mode to the mode specified"));
             #endregion
-            #endregion
-
-            // EXECUTECOMMAND
-            Command.TryRegister(SmartParse.CreateCommand(
-                name: "executecommand",
-                argTypes: new[] { SmartParse.GreedyString },
-                action: delegate (Entity sender, object[] args)
-                {
-                    var cmd = args[0] as string;
-
-                    Utilities.ExecuteCommand(cmd);
-
-                    sender.Tell("%aCommand executed.");
-                },
-                usage: "!executecommand <cmd>",
-                aliases: new[] { "exec" },
-                permission: "executecommand",
-                description: "Executes a command in the server console"));
 
             #region Admin
 
@@ -187,28 +210,91 @@ namespace BaseAdmin
                     if (args[1] is TimeSpan ts)
                     {
                         if (args[2] is string str)
-                            Funcs.TempBan(target, sender.GetFormattedName(), ts, str);
+                            Common.Admin.TempBan(target, sender.GetFormattedName(), ts, str);
                         else
-                            Funcs.TempBan(target, sender.GetFormattedName(), ts);
+                            Common.Admin.TempBan(target, sender.GetFormattedName(), ts);
                     }
                     else
                     {
                         if (args[2] is string str)
-                            Funcs.TempBan(target, sender.GetFormattedName(), str);
+                            Common.Admin.TempBan(target, sender.GetFormattedName(), str);
                         else
-                            Funcs.TempBan(target, sender.GetFormattedName());
+                            Common.Admin.TempBan(target, sender.GetFormattedName());
                     }
                 },
-                usage: "!kick <player> [reason]",
-                permission: "!kick",
-                description: "Kicks a player"));
+                usage: "!tmpban <player> [time] [reason]",
+                permission: "!tmpban",
+                description: "Temporarily bans a player"));
+
+            // EXECUTECOMMAND
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "executecommand",
+                argTypes: new[] { SmartParse.GreedyString },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var cmd = args[0] as string;
+
+                    Utilities.ExecuteCommand(cmd);
+
+                    sender.Tell("%aCommand executed.");
+                },
+                usage: "!executecommand <cmd>",
+                aliases: new[] { "exec" },
+                permission: "executecommand",
+                description: "Executes a command in the server console"));
 
             #endregion
-        }
+            #endregion
 
-        [EntryPoint]
-        private static void Init()
-        {
+            Script.PlayerConnected.Add((sender, player) =>
+            {
+                IEnumerator routine()
+                {
+                    var cmd = new SQLiteCommand("SELECT * FROM bans WHERE (hwid = @hwid OR guid = @guid) AND (expire > datetime('now') OR expire = 'permanent');", Connection);
+
+                    cmd.Parameters.AddWithValue("@hwid", player.HWID);
+                    cmd.Parameters.AddWithValue("@guid", player.GUID);
+
+                    yield return Async.Detach();
+
+                    bool found = false;
+                    TimeSpan? timeSpan = null;
+                    string message = null, issuer = null;
+                    lock(Connection)
+                    {
+                        var reader = cmd.ExecuteReader();
+                        if (reader.Read())
+                        {
+                            found = true;
+
+                            if (reader["expire"] as string == "permanent")
+                                timeSpan = null;
+                            else
+                                timeSpan = ParseDate(reader["expire"] as string) - DateTime.Now;
+
+                            message = reader["reason"] as string;
+                            issuer = reader["issuer"] as string;
+                        }
+                    }
+
+                    yield return Async.Attach();
+
+                    if(found)
+                    {
+                        if(timeSpan.HasValue)
+                        {
+                            Funcs.TmpBanKick(player, issuer, timeSpan.Value, message);
+                            yield break;
+                        }
+
+                        Funcs.BanKick(player, issuer, message);
+                        yield break;
+                    }
+
+                }
+
+                Async.Start(routine());
+            });
         }
     }
 }

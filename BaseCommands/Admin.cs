@@ -23,7 +23,7 @@ namespace BaseAdmin
             => Funcs.Kick(ent, issuer, message);
 
         public void TempBan(Entity ent, string issuer, string message = "You have been temporarily banned")
-            => Funcs.TempBan(ent, issuer, message);
+            => Funcs.TempBan(ent, issuer, TimeSpan.FromMinutes(20), message);
 
         public void TempBan(Entity ent, string issuer, TimeSpan timeSpan, string message = "You have been temporarily banned")
             => Funcs.TempBan(ent, issuer, timeSpan, message);
