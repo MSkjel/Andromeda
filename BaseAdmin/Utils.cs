@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
 using Andromeda;
 using InfinityScript;
 using static InfinityScript.BaseScript;
@@ -138,77 +133,5 @@ namespace BaseAdmin
 
         public static bool CaseInsensitiveStartsWith(string str1, string str2)
             => str1.StartsWith(str2, StringComparison.InvariantCultureIgnoreCase);
-
-        private static ProcessModule GetModule(Process process, string ModuleName)
-        {
-            foreach (ProcessModule module in process.Modules)
-                if (module.ModuleName == ModuleName)
-                    return module;
-
-            return null;
-        }
-
-        private static void WriteStringASCII(IntPtr Address, string Value)
-        {
-            byte[] asciipls = Encoding.ASCII.GetBytes(Value);
-            Marshal.Copy(asciipls, 0, Address, asciipls.Length);
-            Marshal.WriteByte(Address + asciipls.Length, 0);
-        }
-
-        internal static ServerStr ServerString
-            => ServerStr.Obj;
-
-        internal class ServerStr
-        {
-            internal static readonly ServerStr Obj = new ServerStr();
-
-            private readonly IntPtr ptr;
-
-            private ServerStr()
-            {
-                ptr = Marshal.ReadIntPtr(GetModule(Process.GetCurrentProcess(), "TeknoMW3S.dll").BaseAddress + 0x00062C9C) + 0x74 + 0x7E1;
-            }
-
-            public string this[string index]
-            {
-                get
-                {
-                    string[] str = Marshal.PtrToStringAnsi(ptr).Split(new[] { @"\" }, StringSplitOptions.None);
-
-                    for (int i = 0; i < str.Length - 1; i++)
-                    {
-                        if (str[i] == "m")
-                            return str[i + 1];
-                    }
-
-                    return null;
-                }
-
-                set
-                {
-                    string[] str = Marshal.PtrToStringAnsi(ptr).Split(new[] { @"\" }, StringSplitOptions.None);
-
-                    for (int i = 0; i < str.Length - 1; i++)
-                    {
-                        if (str[i] == "m")
-                            str[i + 1] = value;
-                    }
-
-                    WriteStringASCII(ptr, string.Join(@"\", str));
-                }
-            }
-        }
-
-        public static string ReportedMapName
-        {
-            get => ServerString["m"];
-            set => ServerString["m"] = value;
-        }
-
-        public static string ReportedGameType
-        {
-            get => ServerString["gt"];
-            set => ServerString["gt"] = value;
-        }
     }
 }
