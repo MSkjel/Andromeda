@@ -70,21 +70,6 @@ namespace ISnipe
                     });
                 }
 
-                if (AntiPlant)
-                {
-                    BaseScript.OnInterval(1000, delegate
-                    {
-                        if (!player.IsAlive)
-                            return false;
-                        if (player.CurrentWeapon.Equals("briefcase_bomb_mp"))
-                        {
-                            player.TakeWeapon("briefcase_bomb_mp");
-                            player.IPrintLnBold("^1Planting is not allowed!");
-                        }
-                        return true;
-                    });
-                }
-
                 player.GiveMaxAmmo(player.CurrentWeapon);
             }
 
@@ -99,6 +84,18 @@ namespace ISnipe
 
             foreach (var player in BaseScript.Players)
                 preparePlayer(player);
+
+            if (AntiPlant)
+                Events.WeaponChanged.Add((sender, args) =>
+                {
+                    var (player, weapon) = args;
+
+                    if (weapon.Equals("briefcase_bomb_mp"))
+                    {
+                        player.TakeWeapon("briefcase_bomb_mp");
+                        player.IPrintLnBold("^1Planting is not allowed!");
+                    }
+                });
 
             Events.PlayerSpawned.Add((sender, player) =>
             {
