@@ -134,6 +134,7 @@ namespace ISnipe
             });
 
             Log.Info("ISnipe enabled!");
+            Common.Register(ISnipe.Instance);
         }
 
         [EntryPoint]

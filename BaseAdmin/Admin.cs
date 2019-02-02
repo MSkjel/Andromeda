@@ -11,7 +11,7 @@ namespace BaseAdmin
     {
         public static IAdmin Instance = new Admin();
 
-        public string Version { get; } = "BaseAdmin v0.0.1";
+        public string Version { get; } = "BaseAdmin v1.0.0";
 
         public string[] Credits { get; } = new[]
         {

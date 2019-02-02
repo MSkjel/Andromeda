@@ -5,6 +5,7 @@ using System.Text;
 using Andromeda;
 using System.IO;
 using Newtonsoft.Json;
+using InfinityScript;
 
 namespace ServerUtils
 {
@@ -56,6 +57,10 @@ namespace ServerUtils
             Directory.CreateDirectory(@"scripts\ServerUtils");
 
             var file = Path.Combine(path, "settings.json");
+
+            GSCFunctions.SetDvarIfUninitialized("utils.path", file);
+
+            file = GSCFunctions.GetDvar("utils.path");
 
             if(!File.Exists(file))
                 File.WriteAllText(file, JsonConvert.SerializeObject(new Config(), Formatting.Indented));
