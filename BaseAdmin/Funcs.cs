@@ -28,9 +28,10 @@ namespace BaseAdmin
         {
             IEnumerator routine()
             {
-                var cmd = new SQLiteCommand("INSERT INTO bans (hwid, guid, expire, issuer, reason) VALUES (@hwid, @guid, @time, @issuer, @reason);", Main.Connection);
+                var cmd = new SQLiteCommand("INSERT INTO bans (hwid, guid, name, expire, issuer, reason) VALUES (@hwid, @guid, @name, @time, @issuer, @reason);", Main.Connection);
 
                 cmd.Parameters.AddWithValue("@hwid", ent.HWID);
+                cmd.Parameters.AddWithValue("@name", ent.Name);
                 cmd.Parameters.AddWithValue("@guid", ent.GUID);
                 cmd.Parameters.AddWithValue("@issuer", issuer);
                 cmd.Parameters.AddWithValue("@reason", message);
@@ -64,10 +65,11 @@ namespace BaseAdmin
         {
             IEnumerator routine()
             {
-                var cmd = new SQLiteCommand("INSERT INTO bans (hwid, guid, expire, issuer, reason) VALUES (@hwid, @guid, @time, @issuer, @reason);", Main.Connection);
+                var cmd = new SQLiteCommand("INSERT INTO bans (hwid, guid, name, expire, issuer, reason) VALUES (@hwid, @guid, @name, @time, @issuer, @reason);", Main.Connection);
 
                 cmd.Parameters.AddWithValue("@hwid", ent.HWID);
                 cmd.Parameters.AddWithValue("@guid", ent.GUID);
+                cmd.Parameters.AddWithValue("@name", ent.Name);
                 cmd.Parameters.AddWithValue("@issuer", issuer);
                 cmd.Parameters.AddWithValue("@reason", message);
                 cmd.Parameters.AddWithValue("@time", Main.FormatDate(DateTime.Now + timeSpan));
