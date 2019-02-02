@@ -164,6 +164,22 @@ namespace AdvancedAdmin
                usage: "!akimbo",
                permission: "akimbo",
                description: "Enables akimbo primary"));
+
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "tphere",
+               argTypes: new[] { SmartParse.Player },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+
+                   ent.SetOrigin(sender.GetOrigin());
+
+                   ent.Tell($"%nYou have been teleported to %p{sender.Name}");
+                   sender.Tell($"%p{ent.Name} %nhas been teleported to you");
+               },
+               usage: "!tphere <player>",
+               permission: "tphere",
+               description: "Teleports a player to you"));
             #endregion
         }
 
