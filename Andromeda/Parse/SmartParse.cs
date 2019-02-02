@@ -14,6 +14,7 @@ namespace Andromeda.Parse
         public static readonly IArgParse OptionalGreedyString = new OptionalGreedyStringParse();
         public static readonly IArgParse GreedyString = new GreedyStringParse();
         public static readonly IArgParse Player = new PlayerParse();
+        public static readonly IArgParse OptionalInteger = new OptionalIntegerParse();
         public static readonly IArgParse Integer = new IntegerParse();
         public static readonly IArgParse Boolean = new BooleanParse();
 
@@ -35,6 +36,16 @@ namespace Andromeda.Parse
             => new ConstraintParse(Integer, delegate (object obj, Entity ent)
             {
                 var x = (int)obj;
+
+                if (x < min || x > max)
+                    return $"Integer is not in range({min}-{max})";
+
+                return null;
+            });
+        public static IArgParse OptionalRangedIntegerWithDefault(int min, int max, int def)
+            => new ConstraintParse(OptionalInteger, delegate (object obj, Entity ent)
+            {
+                var x = obj as int? ?? def;
 
                 if (x < min || x > max)
                     return $"Integer is not in range({min}-{max})";
@@ -152,12 +163,11 @@ namespace Andromeda.Parse
         }
     }
 
-    public class PlayerParse : IArgParse
+    public class OptionalPlayerParse : IArgParse
     {
         public virtual string Parse(ref string str, out object parsed, Entity sender)
         {
-            if (SmartParse.String.Parse(ref str, out parsed, sender) is string error)
-                return "Expected player selector";
+            SmartParse.OptionalString.Parse(ref str, out parsed, sender);
 
             if (parsed is string selector)
             {
@@ -196,7 +206,21 @@ namespace Andromeda.Parse
                 return null;
             }
 
-            return "Parsed string is null?";
+            return null;
+        }
+    }
+
+    public class PlayerParse : OptionalPlayerParse
+    {
+        public override string Parse(ref string str, out object parsed, Entity sender)
+        {
+            if (base.Parse(ref str, out parsed, sender) is string error)
+                return error;
+
+            if (parsed == null)
+                return "Expected player selector";
+
+            return null;
         }
     }
 
@@ -224,20 +248,36 @@ namespace Andromeda.Parse
         }
     }
 
-    public class IntegerParse : StringParse
+    public class OptionalIntegerParse : IArgParse
     {
-        public override string Parse(ref string str, out object parsed, Entity sender)
+        public virtual string Parse(ref string str, out object parsed, Entity sender)
         {
-            if (base.Parse(ref str, out parsed, sender) is string)
-                return "Integer expected";
+            SmartParse.OptionalString.Parse(ref str, out parsed, sender);
 
-            if(int.TryParse(str, out var number))
+            if (parsed == null)
+                return null;
+
+            if (int.TryParse(parsed as string, out var number))
             {
                 parsed = number;
                 return null;
             }
 
             return $"{parsed.ToString()} is not an integer";
+        }
+    }
+
+    public class IntegerParse : OptionalIntegerParse
+    {
+        public override string Parse(ref string str, out object parsed, Entity sender)
+        {
+            if (base.Parse(ref str, out parsed, sender) is string)
+                return "Integer expected";
+
+            if (parsed == null)
+                return "Integer expected";
+
+            return null;
         }
     }
 
@@ -250,7 +290,7 @@ namespace Andromeda.Parse
 
             var option = parsed as string;
 
-            switch(option.ToLowerInvariant())
+            switch (option.ToLowerInvariant())
             {
                 case "true":
                 case "t":

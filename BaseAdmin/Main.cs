@@ -30,6 +30,10 @@ namespace BaseAdmin
         {
             var file = GSCFunctions.GetDvar("database.path");
 
+            GSCFunctions.SetDvarIfUninitialized("admindb.path", file);
+
+            file = GSCFunctions.GetDvar("admindb.path");
+
             Connection = new SQLiteConnection($"Data Source={file};Version=3;");
 
             lock (Connection)
@@ -41,7 +45,7 @@ namespace BaseAdmin
                     prepare.ExecuteNonQuery();
                 }
 
-                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS bans (banid INTEGER PRIMARY KEY NOT NULL, hwid VARCHAR(32) NOT NULL, guid BIGINT NOT NULL, issuer TEXT NOT NULL, reason TEXT NOT NULL, expire TEXT NOT NULL);", Connection))
+                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS bans (banid INTEGER PRIMARY KEY NOT NULL, hwid VARCHAR(32) NOT NULL, guid BIGINT NOT NULL, name TEXT NOT NULL, issuer TEXT NOT NULL, reason TEXT NOT NULL, expire TEXT NOT NULL);", Connection))
                 {
                     prepare.ExecuteNonQuery();
                 }
@@ -279,6 +283,172 @@ namespace BaseAdmin
                 permission: "executecommand",
                 description: "Executes a command in the server console"));
 
+            // SEARCHBANS
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "searchbans",
+                argTypes: new[] { SmartParse.GreedyString },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var filter = args[0] as string;
+
+                    IEnumerator routine()
+                    {
+                        var cmd = new SQLiteCommand("SELECT * FROM bans WHERE (name LIKE @pattern OR hwid LIKE @pattern) ORDER BY banid DESC LIMIT 10;", Connection);
+
+                        cmd.Parameters.AddWithValue("@pattern", $"%{filter}%");
+
+                        yield return Async.Detach();
+
+                        List<string> messages = new List<string>();
+                        lock (Connection)
+                        {
+                            var reader = cmd.ExecuteReader();
+
+                            while (reader.Read())
+                                messages.Add($"%h1{reader["banid"]}%n - %p{reader["name"]}%n, {reader["hwid"]}");
+
+                            reader.Close();
+                        }
+
+                        yield return Async.Attach();
+
+                        sender.Tell("%aFound ban entries:".Yield().Concat(messages));
+                    }
+
+                    Async.Start(routine());
+
+                },
+                usage: "!searchbans <filter>",
+                permission: "searchbans",
+                description: "Searches the bans table"));
+
+            // LASTBANS
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "lastbans",
+                argTypes: new[] { SmartParse.OptionalRangedIntegerWithDefault(1, 10, 4) },
+                action: delegate (Entity sender, object[] args)
+                {
+                    IEnumerator routine()
+                    {
+                        var cmd = new SQLiteCommand("SELECT * FROM bans ORDER BY banid DESC LIMIT 10;", Connection);
+
+                        yield return Async.Detach();
+
+                        List<string> messages = new List<string>();
+                        lock (Connection)
+                        {
+                            var reader = cmd.ExecuteReader();
+
+                            while (reader.Read())
+                                messages.Add($"%h1{reader["banid"]}%n - %p{reader["name"]}%n, {reader["hwid"]}");
+
+                            reader.Close();
+                        }
+
+                        yield return Async.Attach();
+
+                        sender.Tell("%aFound ban entries:".Yield().Concat(messages));
+                    }
+
+                    Async.Start(routine());
+                },
+                usage: "!lastbans <1-10>",
+                permission: "lastbans",
+                description: "Shows the last given amount of bans"));
+
+            // BANDETAILS
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "bandetails",
+                argTypes: new[] { SmartParse.Integer },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var banid = (int)args[0];
+
+                    IEnumerator routine()
+                    {
+                        var cmd = new SQLiteCommand("SELECT * FROM bans WHERE banid = @banid;");
+
+                        cmd.Parameters.AddWithValue("@banid", banid);
+
+                        yield return Async.Detach();
+
+                        string[] messages = null;
+                        lock(Connection)
+                        {
+                            var reader = cmd.ExecuteReader();
+
+                            if(reader.Read())
+                            {
+                                messages = new[]
+                                {
+                                    $"Ban ID: %h1{reader["banid"]}",
+                                    $"Name: %p{reader["name"]}",
+                                    $"HWID: %i{reader["hwid"]}",
+                                    $"GUID: %i{reader["guid"]}",
+                                    $"Issuer: %p{reader["issuer"]}",
+                                    $"Expiry: %a{reader["expire"]}",
+                                    $"Reason: %i{reader["reason"]}",
+                                };
+                            }
+
+                            reader.Close();
+                        }
+
+                        yield return Async.Attach();
+
+                        if(messages == null)
+                        {
+                            sender.Tell($"%eEntry {banid} was not found.");
+                            yield break;
+                        }
+
+                        sender.Tell(messages);
+                        yield break;
+                    }
+
+                    Async.Start(routine());
+                },
+                usage: "!bandetails <banid>",
+                permission: "bandetails",
+                description: "Shows details of a ban"));
+
+            // UNBAN
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "unban",
+                argTypes: new[] { SmartParse.Integer },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var banid = (int)args[0];
+
+                    IEnumerator routine()
+                    {
+                        var cmd = new SQLiteCommand("DELETE * FROM bans WHERE banid = @banid;");
+
+                        cmd.Parameters.AddWithValue("@banid", banid);
+
+                        yield return Async.Detach();
+
+                        int ret;
+                        lock (Connection)
+                        {
+                            ret = cmd.ExecuteNonQuery();
+                        }
+
+                        yield return Async.Attach();
+
+                        sender.Tell($"Return value: %i{ret}");
+                    }
+
+                    Async.Start(routine());
+                },
+                usage: "!unban <banid>",
+                permission: "unban",
+                description: "Removes a ban entry"));
+
+            #endregion
+
+            #region Balance
+
             // BALANCE
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "balance",
@@ -415,7 +585,7 @@ namespace BaseAdmin
 
             Script.PlayerKilled.Add((sender, args) =>
             {
-                if (GSCFunctions.GetDvarInt("autobalance") != 0)
+                if (GSCFunctions.GetDvar("autobalance") != "0")
                 {
                     Utils.CountPlayers(out int axis, out int allies, out _, out _);
 

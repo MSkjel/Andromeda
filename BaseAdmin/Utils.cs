@@ -168,30 +168,6 @@ namespace BaseAdmin
             }
         }
 
-        public static bool IsTrue(string option)
-        {
-            switch (option.ToLowerInvariant())
-            {
-                case "on":
-                case "1":
-                case "true":
-                    return true;
-
-                case "off":
-                case "0":
-                case "false":
-                default:
-                    return false;
-            }
-        }
-
-        public static bool CurrentGamemodeIsTeamBased()
-        {
-            CountPlayers(out int axis, out int allies, out int none, out int spectators);
-
-            return axis == 0 && allies == 0 && none > 0;
-        }
-
         public static bool CaseInsensitiveContains(string str1, string str2)
             => str1.IndexOf(str2, StringComparison.InvariantCultureIgnoreCase) != -1;
 
