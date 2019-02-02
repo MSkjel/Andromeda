@@ -356,9 +356,9 @@ namespace BaseAdmin
                 permission: "lastbans",
                 description: "Shows the last given amount of bans"));
 
-            // BANDETAILS
+            // BANINFO
             Command.TryRegister(SmartParse.CreateCommand(
-                name: "bandetails",
+                name: "baninfo",
                 argTypes: new[] { SmartParse.Integer },
                 action: delegate (Entity sender, object[] args)
                 {
@@ -366,7 +366,7 @@ namespace BaseAdmin
 
                     IEnumerator routine()
                     {
-                        var cmd = new SQLiteCommand("SELECT * FROM bans WHERE banid = @banid;");
+                        var cmd = new SQLiteCommand("SELECT * FROM bans WHERE banid = @banid;", Connection);
 
                         cmd.Parameters.AddWithValue("@banid", banid);
 
@@ -408,8 +408,8 @@ namespace BaseAdmin
 
                     Async.Start(routine());
                 },
-                usage: "!bandetails <banid>",
-                permission: "bandetails",
+                usage: "!baninfo <banid>",
+                permission: "baninfo",
                 description: "Shows details of a ban"));
 
             // UNBAN
@@ -422,7 +422,7 @@ namespace BaseAdmin
 
                     IEnumerator routine()
                     {
-                        var cmd = new SQLiteCommand("DELETE * FROM bans WHERE banid = @banid;");
+                        var cmd = new SQLiteCommand("DELETE * FROM bans WHERE banid = @banid;", Connection);
 
                         cmd.Parameters.AddWithValue("@banid", banid);
 
