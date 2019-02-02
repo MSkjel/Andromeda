@@ -94,7 +94,7 @@ namespace BaseAdmin
                 permission: "maps",
                 description: "Displays the available maps"));
 
-            // SETNEXTMAP (incomplete)
+            // SETNEXTMAP
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "setnextmap",
                 argTypes: new[] { Parse.GameMap.Obj },
@@ -128,6 +128,23 @@ namespace BaseAdmin
                 usage: "!mode <mode>",
                 permission: "mode",
                 description: "Changes the mode to the mode specified"));
+
+            // GAMETYPE
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "gametype",
+                argTypes: new[] { Parse.GameMap.Obj, Parse.GameMode.Obj },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var map = args[0] as GameMap;
+                    var dsr = DSR.GetFullDSRName(args[1] as string);
+
+                    DSR.SetNextMapRotation(map.RawName, dsr);
+                    Common.SayAll($"Map and mode have been changed to %h1{map.NiceName}%n, %h2{dsr} %nby %p{sender.GetFormattedName()}");
+                    Utilities.ExecuteCommand("map_rotate");
+                },
+                usage: "!gametype <map> <mode>",
+                permission: "gametype",
+                description: "Changes the map and mode to the ones specified"));
             #endregion
 
             #region Admin
@@ -300,6 +317,47 @@ namespace BaseAdmin
                 usage: "!autobalance <1/0>",
                 permission: "autobalance",
                 description: "Enables or disables autobalance"));
+
+            // AFK
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "afk",
+                argTypes: null,
+                action: delegate (Entity sender, object[] args)
+                {
+                    Utils.SetTeam(sender, "spectator");
+                },
+                usage: "!afk",
+                description: "Sets your team to spectator"));
+
+            // SETAFK
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "setafk",
+                argTypes: new[] { SmartParse.Player },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var target = args[0] as Entity;
+
+                    Utils.SetTeam(target, "spectator");
+                    target.Tell($"You have been set to spectator by %p{sender.GetFormattedName()}%n.");
+                },
+                usage: "!setafk <player>",
+                permission: "setafk",
+                description: "Sets a player's team to spectator"));
+
+            // RESTART
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "restart",
+                argTypes: null,
+                action: delegate (Entity sender, object[] args)
+                {
+                    Common.SayAll($"Map has been restarted by %p{sender.GetFormattedName()}%n.");
+
+                    Utilities.ExecuteCommand("fast_restart");
+                },
+                usage: "!restart",
+                aliases: new[] { "res" },
+                permission: "restart",
+                description: "Fast restarts the map"));
 
             #endregion
             #endregion
