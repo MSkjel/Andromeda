@@ -60,4 +60,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>del LevelPerms.plugin.dll
+ren LevelPerms.dll LevelPerms.plugin.dll</PostBuildEvent>
+  </PropertyGroup>
 </Project>

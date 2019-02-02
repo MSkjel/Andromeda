@@ -29,12 +29,12 @@ namespace ISnipe
                 {
                     player.SetField("adscycles", 0);
                     player.SetField("letmehardscope", 0);
+
                     BaseScript.OnInterval(50, delegate
                     {
-                        if (!player.IsAlive)
-                            return false;
                         float ads = player.PlayerAds();
                         int adscycles = player.GetField<int>("adscycles");
+
                         if (ads == 1f)
                             adscycles++;
                         else
@@ -47,30 +47,42 @@ namespace ISnipe
                         }
 
                         if (!player.AdsButtonPressed() && ads == 0)
-                        {
                             player.AllowAds(true);
-                        }
 
                         player.SetField("adscycles", adscycles);
-                        return true;
-                    });
-                }
-
-                if (NoMagnumAmmo)
-                {
-                    BaseScript.OnInterval(100, delegate
-                    {
-                        if (!player.IsAlive)
-                            return false;
-
-                        player.SetWeaponAmmoClip("iw5_44magnum_mp", 0);
-                        player.SetWeaponAmmoStock("iw5_44magnum_mp", 0);
 
                         return true;
                     });
                 }
 
                 player.GiveMaxAmmo(player.CurrentWeapon);
+            }
+
+            if (NoMagnumAmmo)
+            {
+                Events.ScavengerPickup.Add((sender, args) =>
+                {
+                    args.SetWeaponAmmoClip("iw5_44magnum_mp", 0);
+                    args.SetWeaponAmmoStock("iw5_44magnum_mp", 0);
+                });
+
+                Events.WeaponTaken.Add((sender, args) =>
+                {
+                    if(args.Weapon.Contains("44magnum"))
+                    {
+                        args.Player.SetWeaponAmmoClip("iw5_44magnum_mp", 0);
+                        args.Player.SetWeaponAmmoStock("iw5_44magnum_mp", 0);
+                    }
+                });
+
+                Events.WeaponChanged.Add((sender, args) =>
+                {
+                    if (args.Weapon.Contains("44magnum"))
+                    {
+                        args.Player.SetWeaponAmmoClip("iw5_44magnum_mp", 0);
+                        args.Player.SetWeaponAmmoStock("iw5_44magnum_mp", 0);
+                    }
+                });
             }
 
             if (AntiFallDamage)
@@ -81,9 +93,6 @@ namespace ISnipe
                         args.Damage = 0;
                 });
             }
-
-            foreach (var player in BaseScript.Players)
-                preparePlayer(player);
 
             if (AntiPlant)
                 Events.WeaponChanged.Add((sender, args) =>
@@ -102,10 +111,10 @@ namespace ISnipe
                 preparePlayer(player);
             });
 
-            Events.PlayerRespawned.Add((sender, player) =>
+            Events.GiveLoadout.Add((sender, player) =>
             {
-                preparePlayer(player);
-            });
+                player.GiveMaxAmmo(player.CurrentWeapon);
+            });          
 
             // GIVEAMMO
             Command.TryRegister(SmartParse.CreateCommand(
@@ -127,11 +136,6 @@ namespace ISnipe
                 aliases: new[] { "ga" },
                 description: "Gives max ammo for the current weapon"));
 
-            Script.PlayerNotified.Add((sender, args) =>
-            {
-                if (args.Notify == "giveLoadout")
-                    args.Entity.GiveMaxAmmo(args.Entity.CurrentWeapon);
-            });
 
             Log.Info("ISnipe enabled!");
             Common.Register(ISnipe.Instance);

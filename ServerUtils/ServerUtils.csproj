@@ -61,4 +61,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>del ServerUtils.plugin.dll
+ren ServerUtils.dll ServerUtils.plugin.dll</PostBuildEvent>
+  </PropertyGroup>
 </Project>
