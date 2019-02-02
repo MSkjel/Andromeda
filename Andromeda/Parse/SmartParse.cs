@@ -15,6 +15,7 @@ namespace Andromeda.Parse
         public static readonly IArgParse GreedyString = new GreedyStringParse();
         public static readonly IArgParse Player = new PlayerParse();
         public static readonly IArgParse Integer = new IntegerParse();
+        public static readonly IArgParse Boolean = new BooleanParse();
 
         public static readonly IArgParse UnimmunePlayer = new ConstraintParse(Player, delegate (object obj, Entity ent)
         {
@@ -237,6 +238,40 @@ namespace Andromeda.Parse
             }
 
             return $"{parsed.ToString()} is not an integer";
+        }
+    }
+
+    public class BooleanParse : IArgParse
+    {
+        public string Parse(ref string str, out object parsed, Entity sender)
+        {
+            if (SmartParse.String.Parse(ref str, out parsed, sender) is string)
+                return "Boolean expected";
+
+            var option = parsed as string;
+
+            switch(option.ToLowerInvariant())
+            {
+                case "true":
+                case "t":
+                case "1":
+                case "yes":
+                case "y":
+                case "enable":
+                    parsed = true;
+                    return null;
+                case "false":
+                case "f":
+                case "0":
+                case "no":
+                case "n":
+                case "disable":
+                    parsed = false;
+                    return null;
+            }
+
+            parsed = false;
+            return null;
         }
     }
 

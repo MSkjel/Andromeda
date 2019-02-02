@@ -6,11 +6,11 @@ using InfinityScript.PBase;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Data.SQLite;
-using System.IO;
 
 namespace BaseAdmin
 {
@@ -262,6 +262,45 @@ namespace BaseAdmin
                 permission: "executecommand",
                 description: "Executes a command in the server console"));
 
+            // BALANCE
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "balance",
+                argTypes: null,
+                action: delegate (Entity sender, object[] args)
+                {
+                    Utils.DeadBalance(sender.GetFormattedName());
+                },
+                usage: "!balance",
+                permission: "balance",
+                description: "Balances teams using dead players"));
+
+            // FORCEBALANCE
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "forcebalance",
+                argTypes: null,
+                action: delegate (Entity sender, object[] args)
+                {
+                    Utils.ForceBalance(sender.GetFormattedName());
+                },
+                usage: "!forcebalance",
+                permission: "forcebalance",
+                description: "Forces team balance"));
+
+            // AUTOBALANCE
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "autobalance",
+                argTypes: new[] { SmartParse.Boolean },
+                action: delegate (Entity sender, object[] args)
+                {
+                    bool state = (bool)args[0];
+                    GSCFunctions.SetDvar("autobalance", state ? 1 : 0);
+
+                    Common.SayAll($"%p{sender.GetFormattedName()} %nhas {(state ? "^2enabled" : "^1disabled")} autobalance.");
+                },
+                usage: "!autobalance <1/0>",
+                permission: "autobalance",
+                description: "Enables or disables autobalance"));
+
             #endregion
             #endregion
 
@@ -277,7 +316,7 @@ namespace BaseAdmin
                     bool found = false;
                     TimeSpan? timeSpan = null;
                     string message = null, issuer = null;
-                    lock(Connection)
+                    lock (Connection)
                     {
                         var reader = cmd.ExecuteReader();
                         if (reader.Read())
@@ -298,9 +337,9 @@ namespace BaseAdmin
 
                     yield return Async.Attach();
 
-                    if(found)
+                    if (found)
                     {
-                        if(timeSpan.HasValue)
+                        if (timeSpan.HasValue)
                         {
                             Funcs.TempBanKick(player, issuer, timeSpan.Value, message);
                             yield break;
@@ -312,6 +351,28 @@ namespace BaseAdmin
                 }
 
                 Async.Start(routine());
+            });
+
+            GSCFunctions.SetDvarIfUninitialized("autobalance", 0);
+
+            Script.PlayerKilled.Add((sender, args) =>
+            {
+                if (GSCFunctions.GetDvarInt("autobalance") != 0)
+                {
+                    Utils.CountPlayers(out int axis, out int allies, out _, out _);
+
+                    switch (args.Player.SessionTeam)
+                    {
+                        case "axis" when (axis - allies > 1):
+                            Utils.SetTeam(args.Player, "allies");
+                            Common.SayAll($"%p{args.Player.Name} %nhas been automatically balanced.");
+                            return;
+                        case "allies" when (allies - axis > 1):
+                            Common.SayAll($"%p{args.Player.Name} %nhas been automatically balanced.");
+                            Utils.SetTeam(args.Player, "axis");
+                            return;
+                    }
+                }
             });
         }
     }

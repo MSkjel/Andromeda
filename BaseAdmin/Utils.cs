@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using Andromeda;
+using System.Linq;
 using InfinityScript;
 using static InfinityScript.BaseScript;
 
 namespace BaseAdmin
 {
-    public class Utils
+    public static class Utils
     {
-        public static readonly List<GameMap> Maps = new List<GameMap>()
+        public static readonly GameMap[] Maps = new[]
         {
             #region Stock
             new GameMap("mp_seatown", "Seatown"),
@@ -71,6 +72,69 @@ namespace BaseAdmin
                         return true;
 
             return false;
+        }
+
+        public static T PopFirst<T>(this List<T> list)
+        {
+            var first = list[0];
+            list.RemoveAt(0);
+
+            return first;
+        }
+
+        public static void SetTeam(this Entity ent, string team)
+        {
+            ent.SessionTeam = team;
+
+            ent.Notify("menuresponse", "team_marinesopfor", team);
+        }
+
+        public static void DeadBalance(string issuer)
+        {
+            CountPlayers(out int axis, out int allies, out _, out _);
+
+            int difference = axis - allies;
+
+            var deadAxis = Players.Where(p => (!p.IsAlive && p.SessionTeam == "axis")).ToList();
+            var deadAllies = Players.Where(p => (!p.IsAlive && p.SessionTeam == "allies")).ToList();
+
+            while(difference > 1)
+            {
+                deadAxis.PopFirst().SetTeam("allies");
+                difference -= 2;
+            }
+
+            while(difference < 1)
+            {
+                deadAllies.PopFirst().SetTeam("axis");
+                difference += 2;
+            }
+
+            Common.SayAll($"Teams have been balanced by %p{issuer}%n.");
+        }
+
+        public static void ForceBalance(string issuer)
+        {
+            CountPlayers(out int axis, out int allies, out _, out _);
+
+            int difference = axis - allies;
+
+            var axisPlayers = Players.Where(p => p.SessionTeam == "axis").OrderBy(p => p.IsAlive).ToList();
+            var alliesPlayers = Players.Where(p => p.SessionTeam == "allies").OrderBy(p => p.IsAlive).ToList();
+
+            while (difference > 1)
+            {
+                axisPlayers.PopFirst().SetTeam("allies");
+                difference -= 2;
+            }
+
+            while (difference < 1)
+            {
+                alliesPlayers.PopFirst().SetTeam("axis");
+                difference += 2;
+            }
+
+            Common.SayAll($"Teams have been forcibly balanced by %p{issuer}%n.");
         }
 
         public static void CountPlayers(out int axis, out int allies, out int none, out int spectators)
