@@ -53,4 +53,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>del ChatOverhaul.plugin.dll
+ren ChatOverhaul.dll ChatOverhaul.plugin.dll</PostBuildEvent>
+  </PropertyGroup>
 </Project>

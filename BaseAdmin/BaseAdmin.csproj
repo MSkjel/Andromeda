@@ -56,7 +56,6 @@
     <Compile Include="Admin.cs" />
     <Compile Include="Funcs.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="EntityExtensions.cs" />
     <Compile Include="GameMap.cs" />
     <Compile Include="Parse\GameMap.cs" />
     <Compile Include="Parse\GameMode.cs" />

@@ -51,6 +51,9 @@ namespace Andromeda.Events
 
         //KillStreaks
         public static readonly Event<EarnedKillstreakArgs> EarnedKillstreak = new Event<EarnedKillstreakArgs>(ErrorHandler(nameof(EarnedKillstreak)));
+
+        //Scavenger
+        public static readonly Event<Entity> ScavengerPickup = new Event<Entity>(ErrorHandler(nameof(ScavengerPickup)));
         #endregion
 
         #region Level Events
@@ -140,6 +143,13 @@ namespace Andromeda.Events
                 var (player, _, par) = arg;
 
                 BaseScript.AfterDelay(50, () => EarnedKillstreak.Run(player, new EarnedKillstreakArgs(player, GSCFunctions.GetDvar("Last_Killstreak"))));
+            },
+
+            ["scavenger_pickup"] = (arg) =>
+            {
+                var (player, _, par) = arg;
+
+                ScavengerPickup.Run(player, arg.Entity);
             }
         };
 

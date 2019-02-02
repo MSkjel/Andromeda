@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.271
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28516.95
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{16CC7676-4FD1-4E9C-A615-963D68C394E4}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseAdmin", "BaseAdmin\BaseAdmin.csproj", "{CE1D3CB7-16F8-4459-9645-EB1D8FE4B2D5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdvancedAdmin", "AdvancedAdmin\AdvancedAdmin.csproj", "{1776C85D-142B-4E75-82AE-EC7A11F3D0B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntiKnife", "AntiKnife\AntiKnife.csproj", "{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -127,6 +129,18 @@ Global
 		{1776C85D-142B-4E75-82AE-EC7A11F3D0B2}.Release|x64.Build.0 = Release|Any CPU
 		{1776C85D-142B-4E75-82AE-EC7A11F3D0B2}.Release|x86.ActiveCfg = Release|Any CPU
 		{1776C85D-142B-4E75-82AE-EC7A11F3D0B2}.Release|x86.Build.0 = Release|Any CPU
+		{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}.Debug|x64.Build.0 = Debug|Any CPU
+		{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}.Debug|x86.Build.0 = Debug|Any CPU
+		{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}.Release|x64.ActiveCfg = Release|Any CPU
+		{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}.Release|x64.Build.0 = Release|Any CPU
+		{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}.Release|x86.ActiveCfg = Release|Any CPU
+		{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -139,6 +153,7 @@ Global
 		{715610C4-4225-4A64-9CDF-4381F4EB5F43} = {16CC7676-4FD1-4E9C-A615-963D68C394E4}
 		{CE1D3CB7-16F8-4459-9645-EB1D8FE4B2D5} = {16CC7676-4FD1-4E9C-A615-963D68C394E4}
 		{1776C85D-142B-4E75-82AE-EC7A11F3D0B2} = {16CC7676-4FD1-4E9C-A615-963D68C394E4}
+		{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8} = {16CC7676-4FD1-4E9C-A615-963D68C394E4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F9E1D8AE-CAAA-4460-B36B-D66470A085B4}
