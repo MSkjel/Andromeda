@@ -40,6 +40,8 @@ namespace GroupPerms
         {
             GSCFunctions.SetDvarIfUninitialized("perms.path", @"scripts\GroupPerms\groups.json");
 
+            System.IO.Directory.CreateDirectory(@"scripts\GroupPerms");
+
             filePath = GSCFunctions.GetDvar("perms.path");
 
             if(!System.IO.File.Exists(filePath))
@@ -68,7 +70,7 @@ namespace GroupPerms
                             }
                         }
                     }
-                }));
+                }, Formatting.Indented));
             }
 
             Config = JsonConvert.DeserializeObject<Config>(System.IO.File.ReadAllText(filePath));
