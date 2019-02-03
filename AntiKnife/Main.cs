@@ -12,22 +12,19 @@ namespace AntiKnife
     [Plugin]
     public static class Main
     {
-        private static bool parseBool(string val)
-            => val != "0";
 
         [EntryPoint]
         private static void Init()
         {
-            AntiKnife knife = new AntiKnife();
-
-            knife.SetupKnife();
-
             Events.DSRLoad.Add((sender, args) =>
             {
-                if (args.TryGetOpt("antiknife.enable", out var enabled) && parseBool(enabled))
-                    knife.DisableKnife();
+                if (args.GetBoolOrDefault("antiknife.enable", false))
+                    AntiKnife.DisableKnife();
+                else
+                    AntiKnife.EnableKnife();
             });
 
+            // SETKNIFE
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "setknife",
                 argTypes: new[] { SmartParse.Boolean },
@@ -36,14 +33,15 @@ namespace AntiKnife
                     bool state = (bool)args[0];
 
                     if (state)
-                        knife.EnableKnife();
+                        AntiKnife.EnableKnife();
                     else
-                        knife.DisableKnife();
+                        AntiKnife.DisableKnife();
 
                     sender.Tell($"%nKnife set to %i{state}");
                 },
                 usage: "!setknife <state>",
-                description: "Enables or disables knife"));
+                description: "Enables or disables knife",
+                permission: "setknife"));
         }
     }
 }

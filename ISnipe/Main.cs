@@ -17,9 +17,7 @@ namespace ISnipe
         private static bool NoMagnumAmmo = true;
         private static bool AntiPlant = true;
         private static bool AntiFallDamage = true;
-
-        private static bool parseBool(string val)
-            => val != "0";
+        private static bool InstantDeath = true;
 
         private static void Enable()
         {
@@ -94,6 +92,15 @@ namespace ISnipe
                 });
             }
 
+            if(InstantDeath)
+            {
+                Script.PlayerDamage.Add((sender, args) =>
+                {
+                    if (args.Damage != 0)
+                        args.Damage = 200; // to be sure.
+                }, 10);
+            }
+
             if (AntiPlant)
                 Events.WeaponChanged.Add((sender, args) =>
                 {
@@ -114,7 +121,7 @@ namespace ISnipe
             Events.GiveLoadout.Add((sender, player) =>
             {
                 player.GiveMaxAmmo(player.CurrentWeapon);
-            });          
+            });
 
             // GIVEAMMO
             Command.TryRegister(SmartParse.CreateCommand(
@@ -122,7 +129,7 @@ namespace ISnipe
                 argTypes: null,
                 action: delegate (Entity sender, object[] args)
                 {
-                    if (sender.GetCurrentOffhand() == sender.CurrentWeapon)
+                    if (sender.CurrentWeapon == "iw5_44magnum_mp")
                     {
                         sender.Tell("nah.");
                         return;
@@ -146,21 +153,13 @@ namespace ISnipe
         {
             Events.DSRLoad.Add((sender, args) =>
             {
-                if (args.TryGetOpt("isnipe.enable", out var enabled) && parseBool(enabled))
+                if (args.GetBoolOrDefault("isnipe.enable", false))
                 {
-                    string value;
-
-                    if (args.TryGetOpt("isnipe.antihs", out value))
-                        AntiHS = parseBool(value);
-
-                    if (args.TryGetOpt("isnipe.nomagnumammo", out value))
-                        NoMagnumAmmo = parseBool(value);
-
-                    if (args.TryGetOpt("isnipe.antiplant", out value))
-                        AntiPlant = parseBool(value);
-
-                    if (args.TryGetOpt("isnipe.antifalldamage", out value))
-                        AntiFallDamage = parseBool(value);
+                    AntiHS = args.GetBoolOrDefault("isnipe.antihs", true);
+                    NoMagnumAmmo = args.GetBoolOrDefault("isnipe.nomagnumammo", true);
+                    AntiPlant = args.GetBoolOrDefault("isnipe.antiplant", true);
+                    AntiFallDamage = args.GetBoolOrDefault("isnipe.antifalldamage", true);
+                    InstantDeath = args.GetBoolOrDefault("isnipe.instantdeath", true);
 
                     Enable();
                 }

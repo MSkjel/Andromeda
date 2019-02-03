@@ -9,40 +9,35 @@ namespace AntiKnife
 {
     public class AntiKnife
     {
-        private int ProcessID = System.Diagnostics.Process.GetCurrentProcess().Id;
+        private readonly static int ProcessID = System.Diagnostics.Process.GetCurrentProcess().Id;
 
-        string KnifeFolder;
+        private readonly static string KnifeFolder;
 
-        private int DefaultKnifeAddress;
-        private unsafe int* KnifeRange;
-        private unsafe int* ZeroAddress;
-
-        bool _knifeEnabled = true;
-        bool KnifeEnabled
+        private static int defaultKnifeAddress;
+        private readonly static unsafe int* knifeRange;
+        private readonly static unsafe int* zeroAddress;
+        public static bool KnifeEnabled
         {
-            get
-            {
-                return _knifeEnabled;
-            }
+            get => GSCFunctions.GetDvar("knife.enabled") != "0";
             set
             {
                 switch (value)
                 {
                     case true:
                         EnableKnife();
-                        _knifeEnabled = true;
+                        GSCFunctions.SetDvar("knife.enabled", "1");
                         break;
                     case false:
                         DisableKnife();
-                        _knifeEnabled = false;
+                        GSCFunctions.SetDvar("knife.enabled", "0");
                         break;
                 }
             }
         }
 
-        public unsafe void SetupKnife()
+        static unsafe AntiKnife()
         {
-            KnifeFolder = System.IO.Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), "scripts"), "AntiKnife");
+            KnifeFolder = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), "scripts"), "AntiKnife");
             Directory.CreateDirectory(KnifeFolder);
 
             try
@@ -74,9 +69,9 @@ namespace AntiKnife
                   5,
                 };
                 #endregion
-                KnifeRange = (int*)(FindMem(search1, 1, 4194304, 5242880) + search1.Length);
+                knifeRange = (int*)(FindMem(search1, 1, 4194304, 5242880) + search1.Length);
 
-                if ((int)KnifeRange == search1.Length)
+                if ((int)knifeRange == search1.Length)
                 {
                     #region search2
                     byte?[] search2 = new byte?[]
@@ -108,11 +103,11 @@ namespace AntiKnife
                         5,
                     };
                     #endregion
-                    KnifeRange = (int*)(FindMem(search2, 1, 4194304, 5242880) + search2.Length);
-                    if ((int)KnifeRange == search2.Length)
-                        KnifeRange = null;
+                    knifeRange = (int*)(FindMem(search2, 1, 4194304, 5242880) + search2.Length);
+                    if ((int)knifeRange == search2.Length)
+                        knifeRange = null;
                 }
-                DefaultKnifeAddress = *KnifeRange;
+                defaultKnifeAddress = *knifeRange;
                 #region search3
                 byte?[] search3 = new byte?[]
                 {
@@ -142,9 +137,9 @@ namespace AntiKnife
                   217,
                 };
                 #endregion
-                ZeroAddress = (int*)(FindMem(search3, 1, 4194304, 5242880) + search3.Length + 2);
+                zeroAddress = (int*)(FindMem(search3, 1, 4194304, 5242880) + search3.Length + 2);
 
-                if (!((int)KnifeRange != 0 && DefaultKnifeAddress != 0 && (int)ZeroAddress != 0))
+                if (!((int)knifeRange != 0 && defaultKnifeAddress != 0 && (int)zeroAddress != 0))
                     Log.Debug("Error finding address: NoKnife Plugin will not work");
             }
             catch (Exception ex)
@@ -153,7 +148,7 @@ namespace AntiKnife
                 Log.Debug(ex.ToString());
             }
 
-            if (DefaultKnifeAddress == (int)ZeroAddress)
+            if (defaultKnifeAddress == (int)zeroAddress)
             {
                 if (!File.Exists(KnifeFolder + @"\addr_" + ProcessID))
                 {
@@ -161,26 +156,26 @@ namespace AntiKnife
                     return;
                 }
 
-                DefaultKnifeAddress = int.Parse(File.ReadAllText(KnifeFolder + @"\addr_" + ProcessID));
+                defaultKnifeAddress = int.Parse(File.ReadAllText(KnifeFolder + @"\addr_" + ProcessID));
 
             }
             else
             {
-                File.WriteAllText(KnifeFolder + @"\addr_" + ProcessID, DefaultKnifeAddress.ToString());
+                File.WriteAllText(KnifeFolder + @"\addr_" + ProcessID, defaultKnifeAddress.ToString());
             }
         }
 
-        public unsafe void DisableKnife()
+        public static unsafe void DisableKnife()
         {
-            *KnifeRange = (int)ZeroAddress;
+            *knifeRange = (int)zeroAddress;
         }
 
-        public unsafe void EnableKnife()
+        public static unsafe void EnableKnife()
         {
-            *KnifeRange = DefaultKnifeAddress;
+            *knifeRange = defaultKnifeAddress;
         }
 
-        private unsafe int FindMem(byte?[] search, int num = 1, int start = 16777216, int end = 63963136)
+        private static unsafe int FindMem(byte?[] search, int num = 1, int start = 16777216, int end = 63963136)
         {
             try
             {
