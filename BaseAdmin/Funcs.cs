@@ -107,13 +107,13 @@ namespace BaseAdmin
 
                 yield return Async.Detach();
 
-                int amount = 0;
+                long amount = 0;
                 lock (Main.Connection)
                 {
                     var value = cmd.ExecuteScalar();
 
                     if (value != null)
-                        amount = (int)value;
+                        amount = (long)value;
                 }
 
                 yield return Async.Attach();
@@ -123,28 +123,28 @@ namespace BaseAdmin
                 if (amount <= 0)
                     amount = 0;
 
-                Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^3unwarned({amount}/3) %nby %p{issuer}%n. Reason: %i{reason}");
+                Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^2unwarned({amount}/3) %nby %p{issuer}%n. Reason: %i{reason}");
 
-                cmd.Parameters.Clear();
+                var newcmd = new SQLiteCommand(Main.Connection);
                 if (amount == 0)
                 {
-                    cmd.CommandText = "DELETE FROM warnings WHERE hwid = @hwid;";
+                    newcmd.CommandText = "DELETE FROM warnings WHERE hwid = @hwid;";
 
-                    cmd.Parameters.AddWithValue("@hwid", ent.HWID);
+                    newcmd.Parameters.AddWithValue("@hwid", ent.HWID);
                 }
                 else
                 {
-                    cmd.CommandText = "INSERT OR REPLACE INTO warnings (hwid, amount) VALUES (@hwid, @amount);";
+                    newcmd.CommandText = "INSERT OR REPLACE INTO warnings (hwid, amount) VALUES (@hwid, @amount);";
 
-                    cmd.Parameters.AddWithValue("@hwid", ent.HWID);
-                    cmd.Parameters.AddWithValue("@amount", amount);
+                    newcmd.Parameters.AddWithValue("@hwid", ent.HWID);
+                    newcmd.Parameters.AddWithValue("@amount", amount);
                 }
 
                 yield return Async.Detach();
 
                 lock (Main.Connection)
                 {
-                    cmd.ExecuteNonQuery();
+                    newcmd.ExecuteNonQuery();
                 }
             }
 
@@ -182,38 +182,43 @@ namespace BaseAdmin
 
                 yield return Async.Detach();
 
-                int amount = 0;
+                long amount = 0;
                 lock (Main.Connection)
                 {
                     var value = cmd.ExecuteScalar();
 
                     if (value != null)
-                        amount = (int)value;
+                        amount = (long)value;
                 }
 
                 yield return Async.Attach();
 
                 amount++;
 
-                Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^2warned({amount}/3) %nby %p{issuer}%n. Reason: %i{reason}");
-
                 if (amount >= MaxWarnings)
                 {
+                    Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^1warned({amount}/3) %nby %p{issuer}%n. Reason: %i{reason}");
                     Common.Admin.TempBan(ent, issuer, reason);
                     amount = 0;
                 }
+                else
+                    Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^3warned({amount}/3) %nby %p{issuer}%n. Reason: %i{reason}");
 
-                cmd.CommandText = "INSERT OR REPLACE INTO warnings (hwid, amount) VALUES (@hwid, @amount);";
+                var newcmd = new SQLiteCommand(Main.Connection);
 
-                cmd.Parameters.Clear();
-                cmd.Parameters.AddWithValue("@hwid", ent.HWID);
-                cmd.Parameters.AddWithValue("@amount", amount);
+                if (amount == 0)
+                    newcmd.CommandText = "DELETE FROM warnings WHERE hwid = @hwid;";
+                else
+                    newcmd.CommandText = "INSERT OR REPLACE INTO warnings (hwid, amount) VALUES (@hwid, @amount);";
+
+                newcmd.Parameters.AddWithValue("@hwid", ent.HWID);
+                newcmd.Parameters.AddWithValue("@amount", amount);
 
                 yield return Async.Detach();
 
                 lock (Main.Connection)
                 {
-                    cmd.ExecuteNonQuery();
+                    newcmd.ExecuteNonQuery();
                 }
             }
 
