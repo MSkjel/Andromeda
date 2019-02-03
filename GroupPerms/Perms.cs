@@ -26,6 +26,18 @@ namespace GroupPerms
             => target.RequestPermission($"immuneto.{issuer.GetGroup().Name}", out _);
 
         public bool RequestPermission(Entity entity, string permission, out string message)
-            => entity.GetGroup().CanDo(permission, out message);
+        {
+            if(entity.GetGroup().CanDo(permission, out message))
+                return true;
+
+            if (Main.Config.DefaultGroup.CanDo(permission, out message))
+            {
+                message = "Default group allows";
+                return true;
+            }
+
+            message = "Group does not allow";
+            return false;
+        }
     }
 }
