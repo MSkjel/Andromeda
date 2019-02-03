@@ -169,9 +169,10 @@ namespace Andromeda
                     var message = args[1] as string;
 
                     target.Tell($"^7{sender.Name}: ^2{message}");
+                    sender.Tell("%iPM SENT.");
 
-                    sender.SetField("pm.target", new Parameter(target));
-                    target.SetField("pm.target", new Parameter(sender));
+                    sender.SetField("pm.target", target.EntRef);
+                    target.SetField("pm.target", sender.EntRef);
                 },
                 usage: "!pm <player> <message>",
                 description: "Sends a private message to a player"));
@@ -191,7 +192,7 @@ namespace Andromeda
                         return;
                     }
 
-                    var target = sender.GetField<Entity>("pm.target");
+                    var target = Entity.GetEntity(sender.GetField<int>("pm.target"));
 
                     if(!BaseScript.Players.Contains(target))
                     {
@@ -201,6 +202,7 @@ namespace Andromeda
                     }
 
                     target.Tell($"^7{sender.Name}: ^2{message}");
+                    sender.Tell("%iREPLY SENT.");
                 },
                 usage: "!reply <message>",
                 description: "Reply to a received pm"));
