@@ -196,9 +196,9 @@ namespace BaseAdmin
                     var target = args[0] as Entity;
 
                     if (args[1] is string str)
-                        Funcs.Unwarn(target, sender.GetFormattedName(), str);
+                        Funcs.ResetWarnings(target, sender.GetFormattedName(), str);
                     else
-                        Funcs.Unwarn(target, sender.GetFormattedName());
+                        Funcs.ResetWarnings(target, sender.GetFormattedName());
                 },
                 usage: "!resetwarnings <player> [reason]",
                 permission: "!resetwarnings",
