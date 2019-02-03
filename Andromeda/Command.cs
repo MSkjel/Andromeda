@@ -168,8 +168,8 @@ namespace Andromeda
                     var target = args[0] as Entity;
                     var message = args[1] as string;
 
-                    target.Tell($"^7{sender.Name}: ^2{message}");
-                    sender.Tell("%iPM SENT.");
+                    target.Tell($"%p{sender.Name} %i-> You: %h1{message}");
+                    sender.Tell($"%iYou -> %p{target.Name}%i: %h1{message}");
 
                     sender.SetField("pm.target", target.EntRef);
                     target.SetField("pm.target", sender.EntRef);
@@ -201,8 +201,8 @@ namespace Andromeda
                         return;
                     }
 
-                    target.Tell($"^7{sender.Name}: ^2{message}");
-                    sender.Tell("%iREPLY SENT.");
+                    target.Tell($"%p{sender.Name} %i-> You: %h1{message}");
+                    sender.Tell($"%iYou -> %p{target.Name}%i: %h1{message}");
                 },
                 usage: "!reply <message>",
                 description: "Reply to a received pm"));
