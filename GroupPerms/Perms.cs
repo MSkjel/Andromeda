@@ -35,8 +35,7 @@ namespace GroupPerms
                 message = "Default group allows";
                 return true;
             }
-
-            message = "Group does not allow";
+            
             return false;
         }
     }

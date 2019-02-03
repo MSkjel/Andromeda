@@ -126,9 +126,9 @@ namespace LevelPerms
 
         static Main()
         {
-            GSCFunctions.SetDvarIfUninitialized("perms.path", @"scripts\LevelPerms\perms.json");
+            GSCFunctions.SetDvarIfUninitialized("perms_path", @"scripts\LevelPerms\perms.json");
 
-            filePath = GSCFunctions.GetDvar("perms.path");
+            filePath = GSCFunctions.GetDvar("perms_path");
 
             Common.Register(Perms.Instance);
 
