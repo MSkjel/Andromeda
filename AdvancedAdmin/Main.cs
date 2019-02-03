@@ -157,15 +157,32 @@ namespace AdvancedAdmin
                action: delegate (Entity sender, object[] args)
                {
                    AkimboPrimary(sender);
-
-                   sender.DisableWeaponSwitch();
-                   sender.DisableWeaponPickup();
-                   sender.AllowAds(false);
                    sender.Tell($"%nAkimbo primary enabled");
                },
                usage: "!akimbo",
                permission: "akimbo",
                description: "Enables akimbo primary"));
+
+            Command.TryRegister(SmartParse.CreateCommand(
+              name: "akimbomode",
+              argTypes: null,
+              action: delegate (Entity sender, object[] args)
+              {
+                  Events.PlayerSpawned.Add((sender1, args1) =>
+                  {
+                      AkimboPrimary(sender1 as Entity);
+                  });
+
+                  Events.PlayerRespawned.Add((sender1, args1) =>
+                  {
+                      AkimboPrimary(sender1 as Entity);
+                  });
+
+                  sender.Tell($"%nAkimbomode enabled");
+              },
+              usage: "!akimbomode",
+              permission: "akimbomode",
+              description: "Enables akimbomode"));
 
             Command.TryRegister(SmartParse.CreateCommand(
                name: "tphere",
@@ -270,7 +287,13 @@ namespace AdvancedAdmin
 
         private static void AkimboPrimary(Entity player)
         {
+            player.DisableWeaponSwitch();
+            player.DisableWeaponPickup();
+            player.AllowAds(false);
+
             Marshal.WriteInt32((IntPtr)0x01AC23C1, (0x38A4 * player.EntRef), 1);
+
+            player.GiveMaxAmmo(player.CurrentWeapon);
         }
 
         private static void CrashPlayer(Entity player)
