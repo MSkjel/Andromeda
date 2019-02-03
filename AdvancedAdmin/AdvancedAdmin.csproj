@@ -34,8 +34,9 @@
     <Reference Include="Andromeda.plugin">
       <HintPath>..\Andromeda\bin\Release\Andromeda.plugin.dll</HintPath>
     </Reference>
-    <Reference Include="InfinityScript">
-      <HintPath>..\Andromeda\bin\Release\InfinityScript.dll</HintPath>
+    <Reference Include="InfinityScript, Version=1.5.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\InfinityScript v1.5\InfinityScript.dll</HintPath>
     </Reference>
     <Reference Include="PluginBase.auto">
       <HintPath>..\Andromeda\bin\Release\PluginBase.auto.dll</HintPath>

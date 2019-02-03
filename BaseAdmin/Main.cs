@@ -522,11 +522,10 @@ namespace BaseAdmin
                 {
                     Common.SayAll($"Map has been restarted by %p{sender.GetFormattedName()}%n.");
 
-                    //Fuck SLVR
-                    //if((int)args[0] != 0)
-                    //    GSCFunctions.Map_Restart
-                    //GSCFunctions.noti
-                    Utilities.ExecuteCommand("fast_restart");
+                    if ((int?)args[0] == 1)
+                        GSCFunctions.Map_Restart(true);
+                    else
+                        Utilities.ExecuteCommand("fast_restart");
                 },
                 usage: "!restart",
                 aliases: new[] { "res" },

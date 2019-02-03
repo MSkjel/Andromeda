@@ -190,12 +190,12 @@ namespace Andromeda.Events
 
             ["game_ended"] = (arg) =>
             {
-                GameEnded.Run(null, arg.Parameters[0].As<string>());
+                GameEnded.Run(null, arg.Parameters[0]?.As<string>() ?? null);
             },
 
             ["game_win"] = (arg) =>
             {
-                GameWin.Run(null, arg.Parameters[0].As<string>());
+                GameWin.Run(null, arg.Parameters[0]?.As<string>() ?? null);
             },
 
             ["game_over"] = (arg) =>

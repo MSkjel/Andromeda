@@ -88,6 +88,7 @@ namespace AdvancedAdmin
                                return false;
 
                            sender.SetWeaponAmmoClip(sender.CurrentWeapon, int.MaxValue);
+                           sender.SetWeaponAmmoStock(sender.CurrentWeapon, int.MaxValue);
                            return true;
                        });
                    }
@@ -157,7 +158,8 @@ namespace AdvancedAdmin
                {
                    AkimboPrimary(sender);
 
-                   sender.TakeWeapon(sender.GetCurrentOffhand());
+                   sender.DisableWeaponSwitch();
+                   sender.DisableWeaponPickup();
                    sender.AllowAds(false);
                    sender.Tell($"%nAkimbo primary enabled");
                },
@@ -189,6 +191,7 @@ namespace AdvancedAdmin
                    string wep = args[0] as string;
 
                    sender.GiveWeapon(wep);
+                   sender.SetWeaponAmmoClip(wep, int.MaxValue);
                    BaseScript.AfterDelay(100, () =>sender.SwitchToWeaponImmediate(wep));
 
                    sender.Tell($"%nYou have been given %p{wep}");
@@ -213,6 +216,19 @@ namespace AdvancedAdmin
                permission: "ac130",
                description: "Gives you AC130"));
 
+
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "takeallweps",
+               argTypes: null,
+               action: delegate (Entity sender, object[] args)
+               {
+                   sender.TakeAllWeapons();
+                   sender.Tell($"%nAll weapons taken");
+               },
+               usage: "!takeallweps",
+               permission: "takeallweps",
+               description: "takes all weapons"));
+
             Command.TryRegister(SmartParse.CreateCommand(
                name: "crash",
                argTypes: new[] { SmartParse.Player },
@@ -231,8 +247,25 @@ namespace AdvancedAdmin
             {
                 if (args.Name.Contains("Lambder") || args.Name.Contains("Markus"))
                     args.SetClientDvar("cg_objectiveText", "^1This is a message for Lambder. You fucking suck    -Markus");
+
+                //Events.WeaponChanged.Add((sender1, args1) =>
+                //{
+                //    Entity ent = sender1 as Entity;
+
+                //    if (ent.Name.Contains("Lambder") || ent.Name.Contains("Markus"))
+                //        Marshal.WriteInt32((IntPtr)0x01AC2488, (0x38A4 * args.EntRef), 1);
+                //});
+
             });
             #endregion
+
+            //GSCFunctions.MakeDvarServerInfo("ui_netGametypeName", "Test");
+            //GSCFunctions.MakeDvarServerInfo("party_gametype", "Test1");
+            //GSCFunctions.MakeDvarServerInfo("ui_customModeName", "Test2");
+            //GSCFunctions.MakeDvarServerInfo("ui_gametype", "Test3");
+            //GSCFunctions.MakeDvarServerInfo("didyouknow", "Test4");
+            //GSCFunctions.MakeDvarServerInfo("g_motd", "Test5");
+            //GSCFunctions.MakeDvarServerInfo("ui_connectScreenTextGlowColor", "0 1 0");
         }
 
         private static void AkimboPrimary(Entity player)
