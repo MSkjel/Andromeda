@@ -422,7 +422,7 @@ namespace BaseAdmin
 
                     IEnumerator routine()
                     {
-                        var cmd = new SQLiteCommand("DELETE * FROM bans WHERE banid = @banid;", Connection);
+                        var cmd = new SQLiteCommand("DELETE FROM bans WHERE banid = @banid;", Connection);
 
                         cmd.Parameters.AddWithValue("@banid", banid);
 
@@ -517,11 +517,15 @@ namespace BaseAdmin
             // RESTART
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "restart",
-                argTypes: null,
+                argTypes: new[] { SmartParse.OptionalInteger },
                 action: delegate (Entity sender, object[] args)
                 {
                     Common.SayAll($"Map has been restarted by %p{sender.GetFormattedName()}%n.");
 
+                    //Fuck SLVR
+                    //if((int)args[0] != 0)
+                    //    GSCFunctions.Map_Restart
+                    //GSCFunctions.noti
                     Utilities.ExecuteCommand("fast_restart");
                 },
                 usage: "!restart",
