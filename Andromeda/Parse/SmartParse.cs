@@ -16,6 +16,7 @@ namespace Andromeda.Parse
         public static readonly IArgParse Player = new PlayerParse();
         public static readonly IArgParse OptionalInteger = new OptionalIntegerParse();
         public static readonly IArgParse Integer = new IntegerParse();
+        public static readonly IArgParse OptionalBoolean = new OptionalBooleanParse();
         public static readonly IArgParse Boolean = new BooleanParse();
 
         public static readonly IArgParse UnimmunePlayer = new ConstraintParse(Player, delegate (object obj, Entity ent)
@@ -281,36 +282,53 @@ namespace Andromeda.Parse
         }
     }
 
-    public class BooleanParse : IArgParse
+    public class BooleanParse : OptionalBooleanParse
     {
-        public string Parse(ref string str, out object parsed, Entity sender)
+        public override string Parse(ref string str, out object parsed, Entity sender)
         {
-            if (SmartParse.String.Parse(ref str, out parsed, sender) is string)
-                return "Boolean expected";
+            if (base.Parse(ref str, out parsed, sender) is string error)
+                return "Expected boolean";
 
-            var option = parsed as string;
+            if (parsed is bool boolean)
+                return null;
 
-            switch (option.ToLowerInvariant())
+            return "Expected boolean";
+        }
+    }
+
+    public class OptionalBooleanParse : IArgParse
+    {
+        public virtual string Parse(ref string str, out object parsed, Entity sender)
+        {
+            SmartParse.OptionalString.Parse(ref str, out parsed, sender);
+
+            if (parsed is string option)
             {
-                case "true":
-                case "t":
-                case "1":
-                case "yes":
-                case "y":
-                case "enable":
-                    parsed = true;
-                    return null;
-                case "false":
-                case "f":
-                case "0":
-                case "no":
-                case "n":
-                case "disable":
-                    parsed = false;
-                    return null;
+                switch (option.ToLowerInvariant())
+                {
+                    case "true":
+                    case "t":
+                    case "1":
+                    case "yes":
+                    case "y":
+                    case "enable":
+                        parsed = true;
+                        return null;
+                    case "false":
+                    case "f":
+                    case "0":
+                    case "no":
+                    case "n":
+                    case "disable":
+                        parsed = false;
+                        return null;
+                }
+
+                parsed = false;
+                return null;
             }
 
-            parsed = false;
+            parsed = null;
             return null;
         }
     }

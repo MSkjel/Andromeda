@@ -504,9 +504,9 @@ namespace Andromeda
 
         static PlayerDB()
         {
-            GSCFunctions.SetDvarIfUninitialized("database.path", @"scripts\Andromeda\players.sqlite");
+            GSCFunctions.SetDvarIfUninitialized("database_path", @"scripts\Andromeda\players.sqlite");
 
-            DBFile = GSCFunctions.GetDvar("database.path");
+            DBFile = GSCFunctions.GetDvar("database_path");
 
             System.IO.Directory.CreateDirectory(@"scripts\Andromeda");
 

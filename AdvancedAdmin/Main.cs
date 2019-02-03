@@ -23,7 +23,7 @@ namespace AdvancedAdmin
             });
 
             #region Commands
-            // MAPS
+            // SETFLY
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "setfly",
                 argTypes: new[] {SmartParse.Player, SmartParse.Boolean },
@@ -48,6 +48,7 @@ namespace AdvancedAdmin
                 permission: "setfly",
                 description: "Enables or disables fly for the specified player"));
 
+            // MYFLY
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "myfly",
                 argTypes: new[] { SmartParse.Boolean },
@@ -71,6 +72,7 @@ namespace AdvancedAdmin
                 permission: "myfly",
                 description: "Enables or disables fly"));
 
+            // UNLIMITEDAMMO
             Command.TryRegister(SmartParse.CreateCommand(
                name: "unlimitedammo",
                argTypes: new[] { SmartParse.Boolean },
@@ -99,6 +101,7 @@ namespace AdvancedAdmin
                permission: "unlimitedammo",
                description: "Enables or disables unlimited ammo"));
 
+            // UNLIMITEDAMMOWITHRELOAD
             Command.TryRegister(SmartParse.CreateCommand(
                name: "unlimitedammowithreload",
                argTypes: new[] { SmartParse.Boolean },
@@ -127,6 +130,7 @@ namespace AdvancedAdmin
                permission: "unlimitedammowithreload",
                description: "Enables or disables unlimited ammo with reload"));
 
+            // UNLIMITEDGRENADES
             Command.TryRegister(SmartParse.CreateCommand(
                name: "unlimitedgrenades",
                argTypes: new[] { SmartParse.Boolean },
@@ -151,6 +155,7 @@ namespace AdvancedAdmin
                permission: "unlimitedgrenades",
                description: "Enables or disables unlimited grenades"));
 
+            // AKIMBO
             Command.TryRegister(SmartParse.CreateCommand(
                name: "akimbo",
                argTypes: null,
@@ -167,6 +172,7 @@ namespace AdvancedAdmin
                permission: "akimbo",
                description: "Enables akimbo primary"));
 
+            // TPHERE
             Command.TryRegister(SmartParse.CreateCommand(
                name: "tphere",
                argTypes: new[] { SmartParse.Player },
@@ -183,6 +189,7 @@ namespace AdvancedAdmin
                permission: "tphere",
                description: "Teleports a player to you"));
 
+            // GIVEWEP
             Command.TryRegister(SmartParse.CreateCommand(
                name: "givewep",
                argTypes: new[] { SmartParse.String },
@@ -200,6 +207,7 @@ namespace AdvancedAdmin
                permission: "givewep",
                description: "Gives you the specified weapon"));
 
+            // AC130
             Command.TryRegister(SmartParse.CreateCommand(
                name: "ac130",
                argTypes: null,
@@ -216,7 +224,7 @@ namespace AdvancedAdmin
                permission: "ac130",
                description: "Gives you AC130"));
 
-
+            // TAKEALLWEPS
             Command.TryRegister(SmartParse.CreateCommand(
                name: "takeallweps",
                argTypes: null,
@@ -227,8 +235,9 @@ namespace AdvancedAdmin
                },
                usage: "!takeallweps",
                permission: "takeallweps",
-               description: "takes all weapons"));
+               description: "Takes all weapons"));
 
+            // CRASH
             Command.TryRegister(SmartParse.CreateCommand(
                name: "crash",
                argTypes: new[] { SmartParse.Player },

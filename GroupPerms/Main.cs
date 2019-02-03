@@ -38,11 +38,11 @@ namespace GroupPerms
         
         internal static void ReadConfig()
         {
-            GSCFunctions.SetDvarIfUninitialized("perms.path", @"scripts\GroupPerms\groups.json");
+            GSCFunctions.SetDvarIfUninitialized("perms_path", @"scripts\GroupPerms\groups.json");
 
             System.IO.Directory.CreateDirectory(@"scripts\GroupPerms");
 
-            filePath = GSCFunctions.GetDvar("perms.path");
+            filePath = GSCFunctions.GetDvar("perms_path");
 
             if(!System.IO.File.Exists(filePath))
             {

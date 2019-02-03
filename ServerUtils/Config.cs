@@ -58,9 +58,9 @@ namespace ServerUtils
 
             var file = Path.Combine(path, "settings.json");
 
-            GSCFunctions.SetDvarIfUninitialized("utils.path", file);
+            GSCFunctions.SetDvarIfUninitialized("utils_path", file);
 
-            file = GSCFunctions.GetDvar("utils.path");
+            file = GSCFunctions.GetDvar("utils_path");
 
             if(!File.Exists(file))
                 File.WriteAllText(file, JsonConvert.SerializeObject(new Config(), Formatting.Indented));

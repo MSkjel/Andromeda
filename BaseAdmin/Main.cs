@@ -28,11 +28,11 @@ namespace BaseAdmin
 
         static Main()
         {
-            var file = GSCFunctions.GetDvar("database.path");
+            var file = GSCFunctions.GetDvar("database_path");
 
-            GSCFunctions.SetDvarIfUninitialized("admindb.path", file);
+            GSCFunctions.SetDvarIfUninitialized("admindb_path", file);
 
-            file = GSCFunctions.GetDvar("admindb.path");
+            file = GSCFunctions.GetDvar("admindb_path");
 
             Connection = new SQLiteConnection($"Data Source={file};Version=3;");
 
@@ -517,17 +517,17 @@ namespace BaseAdmin
             // RESTART
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "restart",
-                argTypes: new[] { SmartParse.OptionalInteger },
+                argTypes: new[] { SmartParse.OptionalBoolean },
                 action: delegate (Entity sender, object[] args)
                 {
                     Common.SayAll($"Map has been restarted by %p{sender.GetFormattedName()}%n.");
 
-                    if ((int?)args[0] == 1)
-                        GSCFunctions.Map_Restart(true);
+                    if (args[0] is bool persistent)
+                        GSCFunctions.Map_Restart(persistent);
                     else
                         Utilities.ExecuteCommand("fast_restart");
                 },
-                usage: "!restart",
+                usage: "!restart <persistent>",
                 aliases: new[] { "res" },
                 permission: "restart",
                 description: "Fast restarts the map"));

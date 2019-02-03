@@ -17,9 +17,9 @@ namespace ServerUtils
         {
             IEnumerator announcer()
             {
-                GSCFunctions.SetDvarIfUninitialized("announcer.index", 0);
+                GSCFunctions.SetDvarIfUninitialized("announcer_index", 0);
 
-                var index = GSCFunctions.GetDvarInt("announcer.index");
+                var index = GSCFunctions.GetDvarInt("announcer_index");
                 
                 while(true)
                 {
