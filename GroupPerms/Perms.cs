@@ -30,7 +30,7 @@ namespace GroupPerms
             if(entity.GetGroup().CanDo(permission, out message))
                 return true;
 
-            if (Main.Config.DefaultGroup.CanDo(permission, out message))
+            if (Main.Config.DefaultGroup.CanDo(permission, out _))
             {
                 message = "Default group allows";
                 return true;

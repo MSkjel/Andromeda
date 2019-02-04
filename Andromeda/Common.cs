@@ -112,6 +112,9 @@ namespace Andromeda
                 sb.Clear();
                 sbLength = 0;
             }
+
+            yield return sb.ToString();
+            sb.Clear();
         }
 
         public static void Register(IFunctionality functionality)
