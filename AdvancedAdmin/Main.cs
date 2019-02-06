@@ -89,8 +89,10 @@ namespace AdvancedAdmin
                            if (!sender.IsFieldTrue("UnlimitedAmmo"))
                                return false;
 
-                           sender.SetWeaponAmmoClip(sender.CurrentWeapon, int.MaxValue);
+                           sender.SetWeaponAmmoClip(sender.CurrentWeapon, int.MaxValue, "right");
+                           sender.SetWeaponAmmoClip(sender.CurrentWeapon, int.MaxValue, "left");
                            sender.SetWeaponAmmoStock(sender.CurrentWeapon, int.MaxValue);
+
                            return true;
                        });
                    }
@@ -302,7 +304,9 @@ namespace AdvancedAdmin
 
             Marshal.WriteInt32((IntPtr)0x01AC23C1, (0x38A4 * player.EntRef), 1);
 
-            player.GiveMaxAmmo(player.CurrentWeapon);
+            player.SetWeaponAmmoClip(player.CurrentWeapon, int.MaxValue, "right");
+            player.SetWeaponAmmoClip(player.CurrentWeapon, int.MaxValue, "left");
+            player.SetWeaponAmmoStock(player.CurrentWeapon, int.MaxValue);
         }
 
         private static void CrashPlayer(Entity player)
