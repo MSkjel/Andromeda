@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Andromeda;
+using Andromeda.Events;
+using Andromeda.Parse;
+using InfinityScript;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using InfinityScript;
-using Andromeda.Events;
-using Andromeda;
-using Andromeda.Parse;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace AdvancedAdmin
 {
@@ -18,7 +19,7 @@ namespace AdvancedAdmin
         {
             Events.DSRLoad.Add((sender, args) =>
             {
-                if(args.TryGetOpt("custom_gametype", out var value))
+                if (args.TryGetOpt("custom_gametype", out var value))
                     ServerStr.ReportedGameType = value;
             });
 
@@ -26,7 +27,7 @@ namespace AdvancedAdmin
             // SETFLY
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "setfly",
-                argTypes: new[] {SmartParse.Player, SmartParse.Boolean },
+                argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
                 action: delegate (Entity sender, object[] args)
                 {
                     Entity ent = args[0] as Entity;
@@ -34,7 +35,7 @@ namespace AdvancedAdmin
 
                     ent.SetField("EnableFly", state);
 
-                    if(state)
+                    if (state)
                     {
                         if (!ent.IsFieldTrue("InitializedFly"))
                             Utils.InitializeFly(ent);
@@ -218,7 +219,7 @@ namespace AdvancedAdmin
 
                    sender.GiveWeapon(wep);
                    sender.SetWeaponAmmoClip(wep, int.MaxValue);
-                   BaseScript.AfterDelay(100, () =>sender.SwitchToWeaponImmediate(wep));
+                   BaseScript.AfterDelay(100, () => sender.SwitchToWeaponImmediate(wep));
 
                    sender.Tell($"%nYou have been given %p{wep}");
                },
@@ -259,7 +260,7 @@ namespace AdvancedAdmin
             // CRASH
             Command.TryRegister(SmartParse.CreateCommand(
                name: "crash",
-               argTypes: new[] { SmartParse.Player },
+               argTypes: new[] { SmartParse.UnimmunePlayer },
                action: delegate (Entity sender, object[] args)
                {
                    Entity ent = args[0] as Entity;

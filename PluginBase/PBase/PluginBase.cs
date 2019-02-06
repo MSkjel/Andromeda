@@ -30,7 +30,7 @@ namespace InfinityScript.PBase
 
                 var data = new NotifyArgs(id, str, param);
 
-                //Log.Debug($"Notify: id: {id}, str: {str}, param: {string.Join<Parameter>(", ", param)}");
+                //Log.Info($"Notify: id: {id}, str: {str}, param: {string.Join<Parameter>(", ", param)}");
 
                 if (id >= 0 && id < 18)
                     Script.PlayerNotified.Run(this, data);
