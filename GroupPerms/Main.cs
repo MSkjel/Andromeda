@@ -67,6 +67,7 @@ namespace GroupPerms
                             NameFormat = "^1Owner ^7<name>",
                             Permissions = new[]
                             {
+                                "inherit.default",
                                 "*ALL*"
                             }
                         }
@@ -116,6 +117,7 @@ namespace GroupPerms
                     var msgs = "%aOnline admins:".Yield().Concat(
                         BaseScript.Players
                             .Where(player => player.RequestPermission("perms.show", out _))
+                            .Where(player => player.GetDBFieldOr("perms.undercover", "False") == "False")
                             .Select(ent => ent.GetFormattedName())
                         .Condense());
 
@@ -123,6 +125,25 @@ namespace GroupPerms
                 },
                 usage: "!admins",
                 description: "Shows online admins"));
+
+            // UNDERCOVER
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "undercover",
+                argTypes: new[] { SmartParse.Boolean },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var state = (bool)args[0];
+
+                    if (state)
+                        sender.TrySetDBField("perms.undercover", state.ToString());
+                    else
+                        sender.TryRemoveDBField("perms.undercover");
+
+                    sender.Tell($"Undercover: %i{state}");
+                },
+                usage: "!undercover <0/1>",
+                permission: "undercover",
+                description: "Prevents you from being shown in !admins"));
         }
     }
 }
