@@ -35,7 +35,10 @@ namespace GroupPerms
                 message = "Default group allows";
                 return true;
             }
-            
+
+            if (!entity.IsLogged())
+                message = "Permission denied. Try logging in";
+
             return false;
         }
     }

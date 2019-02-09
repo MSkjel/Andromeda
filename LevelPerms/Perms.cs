@@ -46,7 +46,7 @@ namespace LevelPerms
 
             if (lvl <= 0)
             {
-                message = "Permission denied. Try logging in.";
+                message = "Permission denied. Try logging in";
                 return false;
             }
 
