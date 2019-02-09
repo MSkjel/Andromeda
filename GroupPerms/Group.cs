@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace GroupPerms
 {
@@ -22,7 +23,7 @@ namespace GroupPerms
                     return true;
                 }
 
-                if(perm == "*ALL*")
+                if (perm == "*ALL*")
                 {
                     message = "Group contains all permissions";
                     return true;
@@ -32,6 +33,15 @@ namespace GroupPerms
                 {
                     message = "Group contains negated permission";
                     return false;
+                }
+
+                var match = Regex.Match(perm, @"inherit\.(\w+)");
+
+                if (match.Success)
+                {
+                    var name = match.Groups[1].Value;
+                    if (Main.GroupLookup.TryGetValue(name, out var group) && group.CanDo(permission, out message))
+                        return true;
                 }
             }
 
