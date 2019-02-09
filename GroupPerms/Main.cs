@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using InfinityScript;
-using Newtonsoft.Json;
+using SharpYaml.Serialization;
 using Andromeda;
 using Andromeda.Parse;
 
@@ -14,6 +14,7 @@ namespace GroupPerms
     {
         internal static Config Config;
         internal static Dictionary<string, Group> GroupLookup;
+        internal static readonly Serializer YAMLSerializer = new Serializer();
 
         private static string filePath;
 
@@ -38,7 +39,7 @@ namespace GroupPerms
         
         internal static void ReadConfig()
         {
-            GSCFunctions.SetDvarIfUninitialized("perms_path", @"scripts\GroupPerms\groups.json");
+            GSCFunctions.SetDvarIfUninitialized("perms_path", @"scripts\GroupPerms\groups.yaml");
 
             System.IO.Directory.CreateDirectory(@"scripts\GroupPerms");
 
@@ -46,7 +47,7 @@ namespace GroupPerms
 
             if(!System.IO.File.Exists(filePath))
             {
-                System.IO.File.WriteAllText(filePath, JsonConvert.SerializeObject(new Config
+                System.IO.File.WriteAllText(filePath, YAMLSerializer.Serialize(new Config
                 {
                     DefaultGroup = new Group()
                     {
@@ -70,10 +71,10 @@ namespace GroupPerms
                             }
                         }
                     }
-                }, Formatting.Indented));
+                }));
             }
 
-            Config = JsonConvert.DeserializeObject<Config>(System.IO.File.ReadAllText(filePath));
+            Config = YAMLSerializer.Deserialize<Config>(System.IO.File.ReadAllText(filePath));
 
             GroupLookup = Config.Groups.ToDictionary(grp => grp.Name);
             GroupLookup["default"] = Config.DefaultGroup;
