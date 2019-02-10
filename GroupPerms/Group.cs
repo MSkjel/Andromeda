@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Andromeda;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
-using Andromeda;
 
 namespace GroupPerms
 {
@@ -66,9 +66,10 @@ namespace GroupPerms
             if (RequestPermissionRaw(nodes, negatedNodes, out message))
                 return true;
 
-            foreach (var groupName in Inherit)
-                if (Main.GroupLookup.TryGetValue(groupName, out var group) && group.RequestPermissionRaw(nodes, negatedNodes, out message))
-                    return true;
+            if (Inherit != null)
+                foreach (var groupName in Inherit)
+                    if (Main.GroupLookup.TryGetValue(groupName, out var group) && group.RequestPermissionRaw(nodes, negatedNodes, out message))
+                        return true;
 
             message = "Permission not found";
             return false;
