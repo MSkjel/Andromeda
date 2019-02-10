@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Andromeda.Parse;
+using Andromeda;
 using InfinityScript;
 
 namespace BaseAdmin.Parse
@@ -11,7 +12,7 @@ namespace BaseAdmin.Parse
     {
         public static readonly IArgParse Obj = new GameMap();
 
-        public string Parse(ref string str, out object parsed, Entity sender)
+        public string Parse(ref string str, out object parsed, IClient sender)
         {
             if (SmartParse.String.Parse(ref str, out parsed, sender) != null)
                 return "Expected map name";

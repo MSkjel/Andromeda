@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Andromeda;
 
 namespace GroupPerms.Parse
 {
@@ -11,7 +12,7 @@ namespace GroupPerms.Parse
     {
         public static Group Obj = new Group();
 
-        public string Parse(ref string str, out object parsed, Entity sender)
+        public string Parse(ref string str, out object parsed, IClient sender)
         {
             if (SmartParse.String.Parse(ref str, out parsed, sender) is string)
                 return "Expected group name";

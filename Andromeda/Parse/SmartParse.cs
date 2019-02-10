@@ -19,14 +19,15 @@ namespace Andromeda.Parse
         public static readonly IArgParse OptionalBoolean = new OptionalBooleanParse();
         public static readonly IArgParse Boolean = new BooleanParse();
 
-        public static readonly IArgParse UnimmunePlayer = new ConstraintParse(Player, delegate (object obj, Entity ent)
+        public static readonly IArgParse UnimmunePlayer = new ConstraintParse(Player, delegate (object obj, IClient chattable)
         {
-            if (Common.Perms.IsImmuneTo(obj as Entity, ent))
-                return "Player is immune";
+            if(chattable.IsEntity)
+                if (Common.Perms.IsImmuneTo(obj as Entity, chattable.Entity))
+                    return "Player is immune";
 
             return null;
         });
-        public static readonly IArgParse LoggedInPlayer = new ConstraintParse(Player, delegate (object obj, Entity ent)
+        public static readonly IArgParse LoggedInPlayer = new ConstraintParse(Player, delegate (object obj, IClient chattable)
         {
             if ((obj as Entity).IsLogged())
                 return null;
@@ -34,7 +35,7 @@ namespace Andromeda.Parse
             return "Player is not logged";
         });
         public static IArgParse RangedInteger(int min, int max)
-            => new ConstraintParse(Integer, delegate (object obj, Entity ent)
+            => new ConstraintParse(Integer, delegate (object obj, IClient chattable)
             {
                 var x = (int)obj;
 
@@ -44,7 +45,7 @@ namespace Andromeda.Parse
                 return null;
             });
         public static IArgParse OptionalRangedIntegerWithDefault(int min, int max, int def)
-            => new ConstraintParse(OptionalInteger, delegate (object obj, Entity ent)
+            => new ConstraintParse(OptionalInteger, delegate (object obj, IClient chattable)
             {
                 var x = obj as int? ?? def;
 
@@ -58,8 +59,22 @@ namespace Andromeda.Parse
 
         public static Command CreateCommand(string name, IArgParse[] argTypes, Action<Entity, object[]> action, string usage,
             string[] aliases = null, string permission = null, string description = null)
-            => new Command(name,
-                delegate (Entity sender, string message)
+            => CreateCommand(name, argTypes,
+                delegate (IClient sender, object[] args)
+                {
+                    if(!sender.IsEntity)
+                    {
+                        sender.Tell("%eYou must be a player to use this command.");
+                        return;
+                    }
+
+                    action(sender.Entity, args);
+                }, usage, aliases, permission, description);
+
+        public static Command CreateCommand(string name, IArgParse[] argTypes, Action<IClient, object[]> action, string usage,
+            string[] aliases = null, string permission = null, string description = null)
+                        => new Command(name,
+                delegate (IClient sender, string message)
                 {
                     if (argTypes != null)
                     {
@@ -95,12 +110,12 @@ namespace Andromeda.Parse
 
     public interface IArgParse
     {
-        string Parse(ref string str, out object parsed, Entity sender);
+        string Parse(ref string str, out object parsed, IClient sender);
     }
 
     public class OptionalStringParse : IArgParse
     {
-        public virtual string Parse(ref string str, out object parsed, Entity sender)
+        public virtual string Parse(ref string str, out object parsed, IClient sender)
         {
             var match = Regex.Match(str, @"(\S+)(?:\s+(.*))?");
 
@@ -123,7 +138,7 @@ namespace Andromeda.Parse
 
     public class StringParse : OptionalStringParse
     {
-        public override string Parse(ref string str, out object parsed, Entity sender)
+        public override string Parse(ref string str, out object parsed, IClient sender)
         {
             base.Parse(ref str, out parsed, sender);
 
@@ -136,7 +151,7 @@ namespace Andromeda.Parse
 
     public class OptionalGreedyStringParse : IArgParse
     {
-        public virtual string Parse(ref string str, out object parsed, Entity sender)
+        public virtual string Parse(ref string str, out object parsed, IClient sender)
         {
             if (str == string.Empty)
             {
@@ -153,7 +168,7 @@ namespace Andromeda.Parse
 
     public class GreedyStringParse : OptionalGreedyStringParse
     {
-        public override string Parse(ref string str, out object parsed, Entity sender)
+        public override string Parse(ref string str, out object parsed, IClient sender)
         {
             base.Parse(ref str, out parsed, sender);
 
@@ -166,7 +181,7 @@ namespace Andromeda.Parse
 
     public class OptionalPlayerParse : IArgParse
     {
-        public virtual string Parse(ref string str, out object parsed, Entity sender)
+        public virtual string Parse(ref string str, out object parsed, IClient sender)
         {
             SmartParse.OptionalString.Parse(ref str, out parsed, sender);
 
@@ -213,7 +228,7 @@ namespace Andromeda.Parse
 
     public class PlayerParse : OptionalPlayerParse
     {
-        public override string Parse(ref string str, out object parsed, Entity sender)
+        public override string Parse(ref string str, out object parsed, IClient sender)
         {
             if (base.Parse(ref str, out parsed, sender) is string error)
                 return error;
@@ -225,7 +240,7 @@ namespace Andromeda.Parse
         }
     }
 
-    public delegate string Constraint(object obj, Entity sender);
+    public delegate string Constraint(object obj, IClient sender);
 
     public class ConstraintParse : IArgParse
     {
@@ -237,7 +252,7 @@ namespace Andromeda.Parse
             this.constraint = constraint;
         }
 
-        public string Parse(ref string str, out object parsed, Entity sender)
+        public string Parse(ref string str, out object parsed, IClient sender)
         {
             if (parse.Parse(ref str, out parsed, sender) is string error)
                 return error;
@@ -251,7 +266,7 @@ namespace Andromeda.Parse
 
     public class OptionalIntegerParse : IArgParse
     {
-        public virtual string Parse(ref string str, out object parsed, Entity sender)
+        public virtual string Parse(ref string str, out object parsed, IClient sender)
         {
             SmartParse.OptionalString.Parse(ref str, out parsed, sender);
 
@@ -270,7 +285,7 @@ namespace Andromeda.Parse
 
     public class IntegerParse : OptionalIntegerParse
     {
-        public override string Parse(ref string str, out object parsed, Entity sender)
+        public override string Parse(ref string str, out object parsed, IClient sender)
         {
             if (base.Parse(ref str, out parsed, sender) is string)
                 return "Integer expected";
@@ -284,7 +299,7 @@ namespace Andromeda.Parse
 
     public class BooleanParse : OptionalBooleanParse
     {
-        public override string Parse(ref string str, out object parsed, Entity sender)
+        public override string Parse(ref string str, out object parsed, IClient sender)
         {
             if (base.Parse(ref str, out parsed, sender) is string error)
                 return "Expected boolean";
@@ -298,7 +313,7 @@ namespace Andromeda.Parse
 
     public class OptionalBooleanParse : IArgParse
     {
-        public virtual string Parse(ref string str, out object parsed, Entity sender)
+        public virtual string Parse(ref string str, out object parsed, IClient sender)
         {
             SmartParse.OptionalString.Parse(ref str, out parsed, sender);
 
@@ -335,7 +350,7 @@ namespace Andromeda.Parse
 
     internal class CommandNameParse : StringParse
     {
-        public override string Parse(ref string str, out object parsed, Entity sender)
+        public override string Parse(ref string str, out object parsed, IClient sender)
         {
             if (base.Parse(ref str, out parsed, sender) is string error)
                 return error;

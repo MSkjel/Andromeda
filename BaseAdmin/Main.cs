@@ -68,7 +68,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "map",
                 argTypes: new[] { Parse.GameMap.Obj },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var map = args[0] as GameMap;
 
@@ -84,7 +84,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "maps",
                 argTypes: null,
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var msgs = "%iAvailable maps:".Yield()
                         .Concat(
@@ -102,7 +102,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "setnextmap",
                 argTypes: new[] { Parse.GameMap.Obj },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var map = args[0] as GameMap;
 
@@ -120,7 +120,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "mode",
                 argTypes: new[] { Parse.GameMode.Obj },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     string dsr = DSR.GetFullDSRName(args[0] as string);
 
@@ -157,7 +157,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "warn",
                 argTypes: new[] { SmartParse.UnimmunePlayer, SmartParse.OptionalGreedyString },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var target = args[0] as Entity;
 
@@ -174,7 +174,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "unwarn",
                 argTypes: new[] { SmartParse.UnimmunePlayer, SmartParse.OptionalGreedyString },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var target = args[0] as Entity;
 
@@ -191,7 +191,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "resetwarnings",
                 argTypes: new[] { SmartParse.UnimmunePlayer, SmartParse.OptionalGreedyString },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var target = args[0] as Entity;
 
@@ -209,7 +209,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "kick",
                 argTypes: new[] { SmartParse.UnimmunePlayer, SmartParse.OptionalGreedyString },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var target = args[0] as Entity;
 
@@ -226,7 +226,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "ban",
                 argTypes: new[] { SmartParse.UnimmunePlayer, SmartParse.OptionalGreedyString },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var target = args[0] as Entity;
 
@@ -243,7 +243,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "tmpban",
                 argTypes: new[] { SmartParse.UnimmunePlayer, Parse.TimeSpan.Obj, SmartParse.OptionalGreedyString },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var target = args[0] as Entity;
 
@@ -270,7 +270,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "executecommand",
                 argTypes: new[] { SmartParse.GreedyString },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var cmd = args[0] as string;
 
@@ -287,7 +287,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "searchbans",
                 argTypes: new[] { SmartParse.GreedyString },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var filter = args[0] as string;
 
@@ -326,7 +326,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "lastbans",
                 argTypes: new[] { SmartParse.OptionalRangedIntegerWithDefault(1, 10, 4) },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     IEnumerator routine()
                     {
@@ -360,7 +360,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "baninfo",
                 argTypes: new[] { SmartParse.Integer },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var banid = (int)args[0];
 
@@ -416,7 +416,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "unban",
                 argTypes: new[] { SmartParse.Integer },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var banid = (int)args[0];
 
@@ -453,7 +453,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "balance",
                 argTypes: null,
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     Utils.DeadBalance(sender.GetFormattedName());
                 },
@@ -465,7 +465,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "forcebalance",
                 argTypes: null,
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     Utils.ForceBalance(sender.GetFormattedName());
                 },
@@ -477,7 +477,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "autobalance",
                 argTypes: new[] { SmartParse.Boolean },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     bool state = (bool)args[0];
                     GSCFunctions.SetDvar("autobalance", state ? 1 : 0);
@@ -503,7 +503,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "setafk",
                 argTypes: new[] { SmartParse.Player },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var target = args[0] as Entity;
 
@@ -518,7 +518,7 @@ namespace BaseAdmin
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "restart",
                 argTypes: new[] { SmartParse.OptionalBoolean },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     Common.SayAll($"Map has been restarted by %p{sender.GetFormattedName()}%n.");
 

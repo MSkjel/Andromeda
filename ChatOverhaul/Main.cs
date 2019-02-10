@@ -34,18 +34,21 @@ namespace ChatOverhaul
                     if (args.Player.IsAlive)
                     {
                         Utilities.RawSayAll($"{args.Player.GetDisplayName()}^7: {args.Message}");
+                        Common.SayAllChattables($"[CHAT] {args.Player.GetDisplayName()}^7: {args.Message}".Yield());
                         args.Eat();
                         return;
                     }
                     if (args.Player.SessionTeam == "spectator")
                     {
                         Utilities.RawSayAll($"(Spect) {args.Player.GetDisplayName()}^7: {args.Message}");
+                        Common.SayAllChattables($"[CHAT] (Spect) {args.Player.GetDisplayName()}^7: {args.Message}".Yield());
                         args.Eat();
                         return;
                     }
                     if (!args.Player.IsAlive)
                     {
                         Utilities.RawSayAll($"(Dead) {args.Player.GetDisplayName()}^7: {args.Message}");
+                        Common.SayAllChattables($"[CHAT] (Dead) {args.Player.GetDisplayName()}^7: {args.Message}".Yield());
                         args.Eat();
                         return;
                     }
@@ -83,7 +86,7 @@ namespace ChatOverhaul
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "setalias",
                 argTypes: new[] { SmartParse.LoggedInPlayer, SmartParse.OptionalGreedyString },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var target = args[0] as Entity;
                     if (args[1] is string alias)

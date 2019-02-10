@@ -10,7 +10,19 @@ namespace Andromeda
     public static partial class Common
     {
         public static void SayAll(IEnumerable<string> messages)
+        {
+            SayAllPlayers(messages);
+            SayAllChattables(messages);
+        }
+
+        public static void SayAllPlayers(IEnumerable<string> messages)
             => Utils.SayAll(messages.Select(msg => msg.ColorFormat()));
+
+        public static void SayAllChattables(IEnumerable<string> messages)
+        {
+            foreach (var chattable in chattables)
+                chattable.RawSay(messages);
+        }
 
         public static void SayAll(string message)
             => SayAll(message.Yield());
@@ -20,6 +32,12 @@ namespace Andromeda
 
         public static void Tell(this Entity player, string message)
             => player.Tell(message.Yield());
+
+        public static void Tell(this IClient chattable, IEnumerable<string> messages)
+            => chattable.RawTell(messages.Select(msg => msg.ColorFormat()));
+
+        public static void Tell(this IClient chattable, string message)
+            => chattable.RawTell(message.Yield());
 
         public static string GetFormattedName(this Entity player)
             => Perms.GetFormattedName(player);
@@ -41,6 +59,8 @@ namespace Andromeda
 
         public static bool RequestPermission(this Entity player, string permission, out string message)
             => Perms.RequestPermission(player, permission, out message);
+
+        internal static readonly Dictionary<string, object> Exports = new Dictionary<string, object>();
 
         public static void Export(string name, object obj)
             => Exports[name] = obj;

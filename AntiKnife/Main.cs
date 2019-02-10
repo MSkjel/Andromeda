@@ -28,7 +28,7 @@ namespace AntiKnife
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "setknife",
                 argTypes: new[] { SmartParse.Boolean },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     bool state = (bool)args[0];
 

@@ -23,7 +23,7 @@ namespace Andromeda
             return null;
         }
 
-        public static bool CanDo(Entity player, Command cmd, out string response)
+        public static bool CanDo(IClient chattable, Command cmd, out string response)
         {
             if (cmd.permission == null)
             {
@@ -31,7 +31,7 @@ namespace Andromeda
                 return true;
             }
 
-            return player.RequestPermission(cmd.permission, out response);
+            return chattable.RequestPermission(cmd.permission, out response);
         }
 
         public static bool TryRegister(Command cmd)
@@ -59,8 +59,27 @@ namespace Andromeda
             return true;
         }
 
-        public static bool TryRegister(string name, Action<Entity, string> action, string usage, string[] aliases = null, string permission = null, string description = null)
+        public static bool TryRegister(string name, Action<IClient, string> action, string usage, string[] aliases = null, string permission = null, string description = null)
             => TryRegister(new Command(name, action, usage, aliases, permission, description));
+
+        internal static void Process(IClient sender, string message)
+        {
+            if (SmartParse.CommandName.Parse(ref message, out var parse, sender) is string error)
+                sender.Tell($"%e{error}");
+            else
+            {
+                var cmdName = ((string)parse).ToLowerInvariant();
+
+                Command cmd = Lookup(cmdName);
+
+                if (cmd == null)
+                    sender.Tell($"%eNo such command: {cmdName}");
+                else if (!CanDo(sender, cmd, out var err))
+                    sender.Tell($"%e{err}");
+                else
+                    cmd.TryRun(sender, message);
+            }
+        }
 
         static Command()
         {
@@ -71,22 +90,9 @@ namespace Andromeda
                     && args.Message.StartsWith("!"))
                 {
                     var message = args.Message;
+                    var chattable = new EntityWrapper(args.Player);
 
-                    if(SmartParse.CommandName.Parse(ref message, out var parse, args.Player) is string error)
-                        args.Player.Tell($"%e{error}");
-                    else
-                    {
-                        var cmdName = ((string)parse).ToLowerInvariant();
-
-                        Command cmd = Lookup(cmdName);
-
-                        if (cmd == null)
-                            args.Player.Tell($"%eNo such command: {cmdName}");
-                        else if (!CanDo(args.Player, cmd, out var err))
-                            args.Player.Tell($"%e{err}");
-                        else
-                            cmd.TryRun(args.Player, message);
-                    }
+                    Process(chattable, message);
 
                     args.Eat();
                 }
@@ -97,7 +103,7 @@ namespace Andromeda
             TryRegister(SmartParse.CreateCommand(
                 name: "help",
                 argTypes: new[] { SmartParse.OptionalString },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     if(args[0] is string filter)
                     {
@@ -163,7 +169,7 @@ namespace Andromeda
             TryRegister(SmartParse.CreateCommand(
                 name: "pm",
                 argTypes: new[] { SmartParse.Player, SmartParse.GreedyString },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var target = args[0] as Entity;
                     var message = args[1] as string;
@@ -171,8 +177,11 @@ namespace Andromeda
                     target.Tell($"%p{sender.Name} %i-> You: %h1{message}");
                     sender.Tell($"%iYou -> %p{target.Name}%i: %h1{message}");
 
-                    sender.SetField("pm.target", target.EntRef);
-                    target.SetField("pm.target", sender.EntRef);
+                    if (sender.IsEntity)
+                    {
+                        sender.Entity.SetField("pm.target", target.EntRef);
+                        target.SetField("pm.target", sender.Entity.EntRef);
+                    }
                 },
                 usage: "!pm <player> <message>",
                 description: "Sends a private message to a player"));
@@ -211,7 +220,7 @@ namespace Andromeda
             TryRegister(SmartParse.CreateCommand(
                 name: "usage",
                 argTypes: new[] { SmartParse.String },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var alias = args[0] as string;
 
@@ -227,7 +236,7 @@ namespace Andromeda
             TryRegister(SmartParse.CreateCommand(
                 name: "status",
                 argTypes: null,
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var response = "%aOnline players:".Yield()
                     .Concat(BaseScript.Players
@@ -251,9 +260,9 @@ namespace Andromeda
 
         public readonly string Description;
 
-        protected readonly Action<Entity, string> action;
+        protected readonly Action<IClient, string> action;
 
-        public Command(string name, Action<Entity, string> action, string usage, string[] aliases = null, string permission = null, string description = null)
+        public Command(string name, Action<IClient, string> action, string usage, string[] aliases = null, string permission = null, string description = null)
         {
             Name = name;
             this.action = action;
@@ -263,7 +272,7 @@ namespace Andromeda
             Description = description;
         }
 
-        public void TryRun(Entity sender, string message)
+        public void TryRun(IClient sender, string message)
         {
             try
             {

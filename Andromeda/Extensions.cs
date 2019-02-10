@@ -12,18 +12,18 @@ namespace Andromeda
             yield return item;
         }
 
-        public static IEnumerable<T> Append<T>(this T item1, T item2)
-        {
-            yield return item1;
-            yield return item2;
-        }
-
 
         public static IEnumerable<T> Append<T>(this IEnumerable<T> enumerable, T item)
             => enumerable.Concat(item.Yield());
 
         public static IEnumerable<T> Append<T>(this T item, IEnumerable<T> enumerable)
             => item.Yield().Concat(enumerable);
+        public static IEnumerable<T> Append<T>(this T item1, T item2)
+        {
+            yield return item1;
+            yield return item2;
+        }
+
 
         public static string Format(this string str, Dictionary<string, string> format)
         {

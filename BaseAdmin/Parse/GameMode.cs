@@ -12,7 +12,7 @@ namespace BaseAdmin.Parse
     {
         public static readonly IArgParse Obj = new GameMode();
 
-        public string Parse(ref string str, out object parsed, Entity sender)
+        public string Parse(ref string str, out object parsed, IClient sender)
         {
             if (SmartParse.String.Parse(ref str, out parsed, sender) != null)
                 return "Expected dsr name";

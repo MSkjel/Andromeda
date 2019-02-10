@@ -147,7 +147,7 @@ namespace GroupPerms
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "setgroup",
                 argTypes: new[] { SmartParse.LoggedInPlayer, Parse.Group.Obj },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var target = args[0] as Entity;
                     var group = args[1] as Group;
@@ -164,7 +164,7 @@ namespace GroupPerms
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "admins",
                 argTypes: null,
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var msgs = "%aOnline admins:".Yield().Concat(
                         BaseScript.Players
@@ -201,7 +201,7 @@ namespace GroupPerms
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "createkey",
                 argTypes: new[] { Parse.Group.Obj },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var group = args[0] as Group;
                     var key = GenerateKey();
@@ -257,7 +257,7 @@ namespace GroupPerms
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "getpermission",
                 argTypes: new[] { Parse.Group.Obj, SmartParse.String },
-                action: delegate (Entity sender, object[] args)
+                action: delegate (IClient sender, object[] args)
                 {
                     var group = args[0] as Group;
                     var permission = args[1] as string;

@@ -12,7 +12,7 @@ namespace Andromeda
     [Plugin]
     public static partial class Common
     {
-        internal static readonly string Version = "Andromeda v0.9.0";
+        internal static readonly string Version = "Andromeda v0.9.1";
 
         internal static readonly string[] Credits = new[]
         {
@@ -38,8 +38,9 @@ namespace Andromeda
             => admin ?? mockAdmin;
 
         internal static readonly List<IFunctionality> functionalities = new List<IFunctionality>();
+        internal static readonly List<IClient> chattables = new List<IClient>();
 
-        internal static readonly Dictionary<string, object> Exports = new Dictionary<string, object>();
+        public static readonly IClient Console = new ConsoleWrapper();
 
         public static void PrintException(string message, string source)
             => Exception(new[]
@@ -111,10 +112,18 @@ namespace Andromeda
             functionalities.Add(functionality);
         }
 
+        public static void AddChattable(IClient chattable)
+            => chattables.Add(chattable);
+
+        public static void RemoveChattable(IClient chattable)
+            => chattables.Remove(chattable);
+
         [EntryPoint]
         private static void Init()
         {
             Log.Info("Initializing Andromeda");
+
+            AddChattable(Console);
 
             if (perms == null)
             {
@@ -150,8 +159,8 @@ namespace Andromeda
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "version",
                 aliases: new[] { "v" },
-                argTypes: new IArgParse[0],
-                action: delegate (Entity sender, object[] args)
+                argTypes: null,
+                action: delegate (IClient sender, object[] args)
                 {
                     sender.Tell(new[]
                     {
@@ -167,21 +176,18 @@ namespace Andromeda
             // CREDITS
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "credits",
-                argTypes: new IArgParse[0],
-                action: delegate (Entity sender, object[] args)
+                argTypes: null,
+                action: delegate (IClient sender, object[] args)
                 {
-                    var msg = new[]
-                    {
-                        "%iVersions:",
-                        $"%h1{Version}",
-                    }.Concat(Credits);
+                    var msg = "%iVersions:"
+                        .Append($"%h1{Version}")
+                        .Concat(Credits);
 
                     foreach (var func in functionalities)
                     {
-                        msg = msg.Concat(new[]
-                        {
-                            $"%h1{func.Version}"
-                        }.Concat(func.Credits));
+                        msg = msg
+                            .Append($"%h1{func.Version}")
+                            .Concat(func.Credits);
                     }
 
                     sender.Tell(msg);

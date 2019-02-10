@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Andromeda.Parse;
+using Andromeda;
 using InfinityScript;
 
 namespace BaseAdmin.Parse
@@ -11,7 +12,7 @@ namespace BaseAdmin.Parse
     {
         public static IArgParse Obj = new TimeSpan();
 
-        public string Parse(ref string str, out object parsed, Entity sender)
+        public string Parse(ref string str, out object parsed, IClient sender)
         {
             int parseFrom(string s)
             {
