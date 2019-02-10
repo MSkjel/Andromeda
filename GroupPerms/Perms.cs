@@ -27,7 +27,7 @@ namespace GroupPerms
 
         public bool RequestPermission(Entity entity, string permission, out string message)
         {
-            if(entity.GetGroup().CanDo(permission, out message))
+            if(entity.GetGroup().RequestPermission(permission, out message))
                 return true;
 
             if (!entity.IsLogged())

@@ -18,6 +18,20 @@ namespace GroupPerms
 
         private static string filePath;
 
+        public static IEnumerable<string> Range(this string[] array, int index, int length)
+        {
+            for (int i = 0; i < length; i++)
+                yield return array[index + length];
+        }
+
+        public static IEnumerable<T> Append<T>(this IEnumerable<T> enumerable, T item)
+        {
+            foreach (var v in enumerable)
+                yield return v;
+
+            yield return item;
+        }
+
         internal static Group GetGroup(this Entity ent)
         {
             var groupName = ent.GetDBFieldOr("perms.group", "default");
@@ -55,7 +69,9 @@ namespace GroupPerms
                         NameFormat = "<name>",
                         Permissions = new[]
                         {
-                            "examplepermission"
+                            "examplepermission",
+                            "node.example",
+                            "asterisk.example.*"
                         }
                     },
 
@@ -65,10 +81,13 @@ namespace GroupPerms
                         {
                             Name = "owner",
                             NameFormat = "^1Owner ^7<name>",
+                            Inherit = new[]
+                            {
+                                "default"
+                            },
                             Permissions = new[]
                             {
-                                "inherit.default",
-                                "*ALL*"
+                                "*"
                             }
                         }
                     }
