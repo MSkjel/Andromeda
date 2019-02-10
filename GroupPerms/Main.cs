@@ -14,7 +14,7 @@ namespace GroupPerms
     {
         internal static Config Config;
         internal static Dictionary<string, Group> GroupLookup;
-        internal static readonly Serializer YAMLSerializer = new Serializer();
+        internal static readonly Serializer YAMLSerializer;
 
         private static string filePath;
 
@@ -100,6 +100,12 @@ namespace GroupPerms
 
         static Main()
         {
+            YAMLSerializer = new Serializer(new SerializerSettings
+            {
+                EmitAlias = false,
+                EmitTags = false,
+            });
+
             ReadConfig();
 
             Common.Register(Perms.Instance);
