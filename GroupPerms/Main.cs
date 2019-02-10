@@ -19,18 +19,6 @@ namespace GroupPerms
 
         private static string filePath;
 
-        public static IEnumerable<T> Append<T>(this IEnumerable<T> enumerable, T item)
-            => enumerable.Concat(item.Yield());
-
-        public static IEnumerable<T> Append<T>(this T item1, T item2)
-        {
-            yield return item1;
-            yield return item2;
-        }
-
-        public static IEnumerable<T> Append<T>(this T item, IEnumerable<T> enumerable)
-            => item.Yield().Concat(enumerable);
-
         internal static Group GetGroup(this Entity ent)
         {
             var groupName = ent.GetDBFieldOr("perms.group", "default");

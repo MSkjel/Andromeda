@@ -58,6 +58,7 @@
     <Compile Include="Async.cs" />
     <Compile Include="DSR.cs" />
     <Compile Include="Events\EventArguments\DSRLoadArgs.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Parse\SmartParse.cs" />
     <Compile Include="ColorScheme.cs" />
     <Compile Include="Common.cs" />
