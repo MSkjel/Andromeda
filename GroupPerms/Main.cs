@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define DEBUG
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -168,6 +169,7 @@ namespace GroupPerms
                 permission: "undercover",
                 description: "Prevents you from being shown in !admins"));
 
+#if DEBUG
             // GETPERMISSION
             Command.TryRegister(SmartParse.CreateCommand(
                 name: "getpermission",
@@ -182,6 +184,7 @@ namespace GroupPerms
                     sender.Tell($"Return: {allowed}".Append(message));
                 },
                 usage: "!getpermission <group> <permission>"));
+#endif
         }
     }
 }
