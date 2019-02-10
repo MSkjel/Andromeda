@@ -532,6 +532,21 @@ namespace BaseAdmin
                 permission: "restart",
                 description: "Fast restarts the map"));
 
+            // RESTART
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "end",
+                argTypes: null,
+                action: delegate (Entity sender, object[] args)
+                {
+                    Common.SayAll($"Game has been ended by %p{sender.GetFormattedName()}%n.");
+
+                    foreach (Entity ent in BaseScript.Players)
+                        ent.Notify("menuresponse", "menu", "endround");
+                },
+                usage: "!end",
+                permission: "end",
+                description: "Ends the game"));
+
             #endregion
             #endregion
 
