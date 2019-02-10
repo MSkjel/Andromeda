@@ -231,7 +231,7 @@ namespace Andromeda
                 {
                     var response = "%aOnline players:".Yield()
                     .Concat(BaseScript.Players
-                        .Select(player => $"%h1{player.EntRef} %n- %p{player.Name}"));
+                        .Select(player => $"%h1{player.EntRef} %n- %p{player.Name} %n- %h2{player.IsLogged()}"));
 
                     sender.Tell(response);
                 },

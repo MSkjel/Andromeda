@@ -71,52 +71,6 @@ namespace Andromeda
             Log.Info("----------------------------------");
         }
 
-        public static string Format(this string str, Dictionary<string, string> format)
-        {
-            var builder = new StringBuilder(str);
-
-            foreach (var val in format)
-                builder.Replace(val.Key, val.Value);
-
-            return builder.ToString();
-        }
-
-        public static IEnumerable<string> Condense(this IEnumerable<string> strings, int condenseLevel = 40, string separator = ", ")
-        {
-            var sb = new StringBuilder();
-            int sbLength = 0;
-
-            int sepLength = separator.ColorlessLength();
-
-            foreach (var str in strings)
-            {
-                var strLength = str.ColorlessLength();
-
-                if (sbLength == 0)
-                {
-                    sb.Append(str);
-                    sbLength += strLength;
-                    continue;
-                }
-
-                if (sb.Length + sepLength + strLength <= condenseLevel)
-                {
-                    sb.Append(separator);
-                    sb.Append(str);
-
-                    sbLength += sepLength + strLength;
-                    continue;
-                }
-
-                yield return sb.ToString();
-                sb.Clear();
-                sbLength = 0;
-            }
-
-            yield return sb.ToString();
-            sb.Clear();
-        }
-
         public static void Register(IFunctionality functionality)
         {
             if (functionality is IPerms perms)

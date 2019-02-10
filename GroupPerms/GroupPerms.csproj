@@ -37,11 +37,11 @@
     <Reference Include="InfinityScript">
       <HintPath>..\Andromeda\bin\Release\InfinityScript.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="PluginBase.auto">
       <HintPath>..\Andromeda\bin\Release\PluginBase.auto.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpYaml, Version=1.6.4.0, Culture=neutral, PublicKeyToken=1ced8108e942bc02, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpYaml.1.6.4\lib\net35\SharpYaml.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

@@ -87,10 +87,10 @@ namespace BaseAdmin
                 action: delegate (Entity sender, object[] args)
                 {
                     var msgs = "%iAvailable maps:".Yield()
-                        .Concat(Common.Condense(
+                        .Concat(
                             Utils.Maps.Where(x => Utils.MapFilesExist(x.RawName))
-                            .Select(x => $"%a{x.NiceName}%n"))
-                            );
+                            .Select(x => $"%a{x.NiceName}%n")
+                            .Condense());
 
                     sender.Tell(msgs);
                 },

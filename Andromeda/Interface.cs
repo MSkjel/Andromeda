@@ -76,11 +76,6 @@ namespace Andromeda
             return false;
         }
 
-        public static IEnumerable<T> Yield<T>(this T item)
-        {
-            yield return item;
-        }
-
         #region Fields
         public static T GetFieldOrVal<T>(this Entity ent, string field, T def = default(T))
         {
