@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
+using InfinityScript;
 
 namespace GroupPerms
 {
@@ -26,7 +27,7 @@ namespace GroupPerms
             var sb = new StringBuilder(split[0]);
             yield return $"{sb.ToString()}.*";
 
-            for (int i = 1; i < split.Length; i++)
+            for (int i = 1; i < split.Length - 1; i++)
             {
                 sb.Append(".");
                 sb.Append(split[i]);
@@ -34,7 +35,7 @@ namespace GroupPerms
             }
         }
 
-        private bool RequestPermissionRaw(string[] positiveNodes, string[] negativeNodes, out string message)
+        private bool? RequestPermissionRaw(string[] positiveNodes, string[] negativeNodes, out string message)
         {
             foreach (var perm in Permissions)
             {
@@ -54,7 +55,7 @@ namespace GroupPerms
             }
 
             message = "Group does not contain permission";
-            return false;
+            return null;
         }
 
         public bool RequestPermission(string permission, out string message)
@@ -63,13 +64,13 @@ namespace GroupPerms
 
             var negatedNodes = nodes.Select(node => $"-{node}").ToArray();
 
-            if (RequestPermissionRaw(nodes, negatedNodes, out message))
-                return true;
+            if (RequestPermissionRaw(nodes, negatedNodes, out message) is bool ret)
+                return ret;
 
             if (Inherit != null)
                 foreach (var groupName in Inherit)
-                    if (Main.GroupLookup.TryGetValue(groupName, out var group) && group.RequestPermissionRaw(nodes, negatedNodes, out message))
-                        return true;
+                    if (Main.GroupLookup.TryGetValue(groupName, out var group) && group.RequestPermissionRaw(nodes, negatedNodes, out message) is bool found)
+                        return found;
 
             message = "Permission not found";
             return false;

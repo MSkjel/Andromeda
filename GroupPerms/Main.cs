@@ -18,19 +18,17 @@ namespace GroupPerms
 
         private static string filePath;
 
-        public static IEnumerable<string> Range(this string[] array, int index, int length)
-        {
-            for (int i = 0; i < length; i++)
-                yield return array[index + length];
-        }
-
         public static IEnumerable<T> Append<T>(this IEnumerable<T> enumerable, T item)
-        {
-            foreach (var v in enumerable)
-                yield return v;
+            => enumerable.Concat(item.Yield());
 
-            yield return item;
+        public static IEnumerable<T> Append<T>(this T item1, T item2)
+        {
+            yield return item1;
+            yield return item2;
         }
+
+        public static IEnumerable<T> Append<T>(this T item, IEnumerable<T> enumerable)
+            => item.Yield().Concat(enumerable);
 
         internal static Group GetGroup(this Entity ent)
         {
@@ -163,6 +161,21 @@ namespace GroupPerms
                 usage: "!undercover <0/1>",
                 permission: "undercover",
                 description: "Prevents you from being shown in !admins"));
+
+            // GETPERMISSION
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "getpermission",
+                argTypes: new[] { Parse.Group.Obj, SmartParse.String },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var group = args[0] as Group;
+                    var permission = args[1] as string;
+
+                    var allowed = group.RequestPermission(permission, out var message);
+
+                    sender.Tell($"Return: {allowed}".Append(message));
+                },
+                usage: "!getpermission <group> <permission>"));
         }
     }
 }
