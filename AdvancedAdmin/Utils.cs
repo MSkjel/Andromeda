@@ -60,7 +60,7 @@ namespace AdvancedAdmin
 
                 Vector3 Velocity = entity.GetVelocity();
 
-                Velocity.Z = 20;
+                Velocity.Z = 23;
 
                 if (entity.IsFieldTrue("Up"))
                     Velocity.Z += 300;
@@ -74,14 +74,14 @@ namespace AdvancedAdmin
                     && !entity.IsFieldTrue("Right"))
                 {
                     if (Velocity.X > 0)
-                        Velocity.X -= 5;
+                        Velocity.X -= 1;
                     else if (Velocity.X < 0)
-                        Velocity.X += 5;
+                        Velocity.X += 1;
 
                     if (Velocity.Y > 0)
-                        Velocity.Y -= 5;
+                        Velocity.Y -= 1;
                     else
-                        Velocity.Y += 5;
+                        Velocity.Y += 1;
                 }
 
                 entity.SetVelocity(Velocity);

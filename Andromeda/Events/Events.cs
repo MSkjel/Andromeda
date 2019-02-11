@@ -62,8 +62,8 @@ namespace Andromeda.Events
         public static readonly Event ShowingFinalKillcam = new Event(ErrorHandler(nameof(ShowingFinalKillcam)));
 
         //Game
-        public static readonly Event<string> GameEnded = new Event<string>(ErrorHandler(nameof(GameEnded)));
-        public static readonly Event<string> GameWin = new Event<string>(ErrorHandler(nameof(GameWin)));
+        public static readonly Event<Parameter> GameEnded = new Event<Parameter>(ErrorHandler(nameof(GameEnded)));
+        public static readonly Event<Parameter> GameWin = new Event<Parameter>(ErrorHandler(nameof(GameWin)));
         public static readonly Event GameOver = new Event(ErrorHandler(nameof(GameOver)));
         public static readonly Event PreMatchDone = new Event(ErrorHandler(nameof(PreMatchDone)));
         #endregion
@@ -190,12 +190,12 @@ namespace Andromeda.Events
 
             ["game_ended"] = (arg) =>
             {
-                GameEnded.Run(null, arg.Parameters[0]?.As<string>() ?? null);
+                GameEnded.Run(null, arg.Parameters[0]);
             },
 
             ["game_win"] = (arg) =>
             {
-                GameWin.Run(null, arg.Parameters[0]?.As<string>() ?? null);
+                GameWin.Run(null, arg.Parameters[0]);
             },
 
             ["game_over"] = (arg) =>
