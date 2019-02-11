@@ -201,9 +201,25 @@ namespace BaseAdmin
                         Funcs.ResetWarnings(target, sender.GetFormattedName());
                 },
                 usage: "!resetwarnings <player> [reason]",
-                permission: "!resetwarnings",
+                permission: "resetwarnings",
                 aliases: new[] { "resetwarns" },
                 description: "Resets a player's warnings"));
+
+            // REMOVEWARNINGS
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "removewarnings",
+                argTypes: new[] { SmartParse.OptionalGreedyString },
+                action: delegate (Entity sender, object[] args)
+                {
+                    if (args[0] is string str)
+                        Funcs.ResetWarnings(sender, sender.GetFormattedName(), str);
+                    else
+                        Funcs.ResetWarnings(sender, sender.GetFormattedName());
+                },
+                usage: "!removewarnings [reason]",
+                permission: "resetmywarnings",
+                aliases: new[] { "rmwarns" },
+                description: "Reset your own warnings"));
 
             // KICK
             Command.TryRegister(SmartParse.CreateCommand(
@@ -219,7 +235,7 @@ namespace BaseAdmin
                         Funcs.Kick(target, sender.GetFormattedName());
                 },
                 usage: "!kick <player> [reason]",
-                permission: "!kick",
+                permission: "kick",
                 description: "Kicks a player"));
 
             // BAN
@@ -236,7 +252,7 @@ namespace BaseAdmin
                         Funcs.Ban(target, sender.GetFormattedName());
                 },
                 usage: "!ban <player> [reason]",
-                permission: "!ban",
+                permission: "ban",
                 description: "Bans a player"));
 
             // TMPBAN
@@ -263,7 +279,7 @@ namespace BaseAdmin
                     }
                 },
                 usage: "!tmpban <player> [time] [reason]",
-                permission: "!tmpban",
+                permission: "tmpban",
                 description: "Temporarily bans a player"));
 
             // EXECUTECOMMAND
