@@ -13,7 +13,7 @@ namespace AntiCheat.ACModules
 {
     public class Aimbot
     {
-        int MaxAngleChange = 150;
+        int MaxAngleChange = 60;
         int MaxAngleChangeTime = 100;
 
         int MaxTagHit = 5;
@@ -33,14 +33,13 @@ namespace AntiCheat.ACModules
                 string tag = args.Hitloc;
 
                 long time = GetTimeAndRegisterNewKill(entity);
+                int change = GetChangeAndRegisterNewKill(entity);
 
-                if(time < MaxAngleChangeTime)
-                {
-                    int change = GetChangeAndRegisterNewKill(entity);
-
+                if (time < MaxAngleChangeTime)
+                {              
                     if (change > MaxAngleChange)
                     {
-                        Common.Admin.Warn(entity, "Andromeda", $"Hax? Time: {time}. Change: {change}");
+                        entity.Tell($"Hax? Time: {time}. Change: {change}");
                     }
                 }
 
@@ -63,7 +62,10 @@ namespace AntiCheat.ACModules
 
             if (entity.HasField("TagHits"))
             {
-                entity.GetField<Dictionary<string, int>>("TagHits")[tag]++;
+                if (entity.GetField<Dictionary<string, int>>("TagHits").ContainsKey(tag))
+                    entity.GetField<Dictionary<string, int>>("TagHits")[tag]++;
+                else
+                    entity.GetField<Dictionary<string, int>>("TagHits")[tag] = 1;
             }
             else
             {
@@ -83,9 +85,11 @@ namespace AntiCheat.ACModules
         private int GetLongestVectorChange(Entity entity)
         {
             if (entity.HasField("LastKillAngle"))
-            {
+            {          
                 Vector3 lastKillAngle = entity.GetField<Vector3>("LastKillAngle");
-                return (int)lastKillAngle.DistanceTo2D(entity.GetPlayerAngles());
+
+                return (int)lastKillAngle.DistanceToAngle(entity.GetPlayerAngles());
+                
             }
 
             return 0;

@@ -21,7 +21,7 @@ namespace AntiCheat.ACModules
             {
                 Entity ent = sender as Entity;
 
-                Vector3 toHit = GSCFunctions.VectorToAngles(args.Player.GetTagOrigin("j_head") - ent.GetTagOrigin("j_head"));
+                Vector3 toHit = GSCFunctions.VectorToAngles(args.Player.GetTagOrigin(args.Hitloc) - ent.GetTagOrigin("j_head"));
                 double dist = ent.GetPlayerAngles().DistanceToAngle(toHit);
 
                 if (dist > 20)

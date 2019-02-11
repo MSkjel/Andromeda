@@ -8,12 +8,13 @@ using System.Text;
 namespace AntiCheat
 {
     [Plugin]
-    public class Main
+    public static class Main
     {
         [EntryPoint]
         private static void Init()
         {
             Aimbot Aimbot = new Aimbot();
-        }
+            SilentAim silentAim = new SilentAim();
+        }      
     }
 }

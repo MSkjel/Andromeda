@@ -13,7 +13,7 @@ namespace ChatOverhaul
     {
         public static string GetDisplayName(this Entity ent)
         {
-            var field = ent.GetDBFieldOr("chat.alias", ent.Name);
+            var field = ent.GetFormattedName().Replace(ent.Name, ent.GetDBFieldOr("chat.alias", ent.Name));
 
             return field;
         }
