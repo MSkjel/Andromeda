@@ -97,7 +97,7 @@ namespace ISnipe
                 Script.PlayerDamage.Add((sender, args) =>
                 {
                     if (args.Damage != 0)
-                        args.Damage = 200; // to be sure.
+                        args.Damage = 100; // to be sure.
                 }, 10);
             }
 
