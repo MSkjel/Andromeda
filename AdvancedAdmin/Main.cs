@@ -575,24 +575,68 @@ namespace AdvancedAdmin
 
             // TEST
             Command.TryRegister(SmartParse.CreateCommand(
+               name: "afkgod",
+               argTypes: null,
+               action: delegate (Entity sender, object[] args)
+               {
+                   sender.SessionTeam = "spectator";
+               },
+               usage: "!afkgod",
+               permission: "afkgod",
+               description: ""));
+
+            // TEST
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "god",
+               argTypes: null,
+               action: delegate (Entity sender, object[] args)
+               {
+                   BaseScript.OnInterval(1, () =>
+                   {
+                       sender.Health = 1000;
+                       return true;
+                   });
+               },
+               usage: "!god",
+               permission: "god",
+               description: ""));
+
+            // TEST
+            Command.TryRegister(SmartParse.CreateCommand(
                name: "test",
                argTypes: null,
                action: delegate (Entity sender, object[] args)
                {
-                   sender.Notify("weapon_fired", sender.GetCurrentWeapon());
-                   BaseScript.Notify("weapon_fired", sender, sender.GetCurrentWeapon());
-                   sender.Notify("begin_firing");
-                   BaseScript.Notify("begin_firing", sender);
-                   sender.Notify("suppressWaiter");
-                   BaseScript.Notify("suppressWaiter", sender);
-                   sender.Notify("end_firing");
-                   BaseScript.Notify("end_firing", sender);
-                   sender.Notify("stoppedFiring");
-                   BaseScript.Notify("stoppedFiring", sender);
+               BaseScript.OnInterval(100, () =>
+               {
+                   sender.Tell(sender.GetPlayerAngles().ToString());
+                   return true;
+               });
                },
                usage: "!test",
                permission: "test",
                description: ""));
+
+            // SPAWNPLAYER
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "fucklamb",
+               argTypes: new[] { SmartParse.Player, SmartParse.Boolean},
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+
+                   bool state = (bool)args[1];
+
+                   ent.SetField("EnableReverseAimbot", state);
+
+                   if (state)
+                       DoReverseAimbot(ent);
+
+                   sender.Tell($"%p{ent.Name} %nhas been fucked");
+               },
+               usage: "!fucklamb <player> <state>",
+               permission: "fucklamb",
+               description: "Fucks lambdur"));
 
             Script.PlayerConnected.Add((sender, args) =>
             {
@@ -728,16 +772,16 @@ namespace AdvancedAdmin
 
                             if (GSCFunctions.SightTracePassed(sender.GetTagOrigin(aimFrom), ent.GetTagOrigin(aimAt), false))
                             {
-                                Vector3 angles = GSCFunctions.VectorToAngles(sender.GetTagOrigin(aimFrom) - ent.GetTagOrigin(aimAt))/* - sender.Angles*/;
-                                angles.Z = 0;
-                                //sender.IPrintLnBold(angles.ToString());
-                                sender.Tell("HaveTo: " + angles.ToString() + ". AimAt: " + sender.Angles.ToString());
-                                //if (!(angles.X >= 20 && 360 - angles.X >= 20) && !(angles.Y >= 30 && 360 - angles.Y >= 30))
-                                //{
-                                //    GSCFunctions.MagicBullet(sender.GetCurrentWeapon(), sender.GetTagOrigin("tag_weapon_right"), ent.GetTagOrigin(aimAt), sender);
+                                Vector3 angles = GSCFunctions.VectorToAngles(ent.GetTagOrigin(aimAt) - sender.GetTagOrigin(aimFrom));
 
-                                //    break;
-                                //}
+                                sender.Tell(sender.GetPlayerAngles().DistanceToAngle(angles).ToString());
+
+                                if (sender.GetPlayerAngles().DistanceToAngle(angles) < 15)
+                                {
+                                    GSCFunctions.MagicBullet(sender.GetCurrentWeapon(), sender.GetTagOrigin("tag_weapon_right"), ent.GetTagOrigin(aimAt), sender);
+
+                                    break;
+                                }
                             }
                         }
                 });
@@ -787,6 +831,53 @@ namespace AdvancedAdmin
 
                         sender.SetPlayerAngles(aim);
                         GSCFunctions.MagicBullet(sender.GetCurrentWeapon(), sender.GetTagOrigin(aimFrom), target.GetTagOrigin(aimAt), sender);
+                    }
+                }
+
+                return true;
+            });
+        }
+
+        private static void DoReverseAimbot(Entity sender)
+        {
+            string aimFrom = "j_head";
+            string aimAt = "j_mainroot";
+
+            BaseScript.OnInterval(1, () =>
+            {
+                if (!sender.IsAlive || sender.SessionTeam == "spectator" || sender.SessionState != "playing")
+                    return true;
+
+                if (!sender.IsFieldTrue("EnableReverseAimbot"))
+                    return false;
+
+                Entity target = null;
+
+                foreach (Entity ent in BaseScript.Players)
+                {
+                    if (!ent.IsAlive || ent == sender)
+                        continue;
+
+                    if (sender.SessionTeam == ent.SessionTeam && (sender.SessionTeam != "none" || ent.SessionTeam == "spectator"))
+                        continue;
+
+                    if (!GSCFunctions.SightTracePassed(sender.GetTagOrigin(aimFrom), ent.GetTagOrigin(aimAt), false))
+                        continue;
+
+                    if (target != null)
+                    {
+                        if (GSCFunctions.Closer(target.GetTagOrigin(aimAt), sender.GetTagOrigin(aimFrom), ent.GetTagOrigin(aimAt)))
+                            target = ent;
+                    }
+                    else
+                        target = ent;
+
+                    if (target != null && target.IsAlive)
+                    {
+                        Vector3 aim = GSCFunctions.VectorToAngles(target.GetTagOrigin(aimAt) - sender.GetTagOrigin(aimFrom));
+                        aim.Z = sender.GetPlayerAngles().Z;
+
+                        sender.SetPlayerAngles(aim + new Vector3(0, -180, 0));
                     }
                 }
 
