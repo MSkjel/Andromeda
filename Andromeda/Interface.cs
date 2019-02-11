@@ -56,8 +56,11 @@ namespace Andromeda
             return Regex.Replace(sb.ToString(), @"(?:\^[\d;:]( *))+(\^[\d;:])", "$1$2");
         }
 
+        public static string RemoveColors(this string message)
+            => Regex.Replace(message, @"\^[0-9;:]", "");
+
         public static int ColorlessLength(this string message)
-            => Regex.Replace(message, @"\^[0-9;:]", "").Length;
+            => message.RemoveColors().Length;
 
         public static bool RequestPermission(this Entity player, string permission, out string message)
             => Perms.RequestPermission(player, permission, out message);
@@ -67,8 +70,8 @@ namespace Andromeda
         public static void Export(string name, object obj)
             => Exports[name] = obj;
 
-        public static void ExportAs<T>(string name, object obj)
-            => Export(name, (T)obj);
+        public static void ExportAs<T>(string name, T obj)
+            => Export(name, obj);
 
         public static object Import(string name)
         {
@@ -80,13 +83,13 @@ namespace Andromeda
 
         public static T GetImportOr<T>(string name, T defaultValue = default)
         {
-            if (GetImport<T>(name, out var ret))
+            if (TryGetImport<T>(name, out var ret))
                 return ret;
 
             return defaultValue;
         }
 
-        public static bool GetImport<T>(string name, out T val)
+        public static bool TryGetImport<T>(string name, out T val)
         {
             if (Import(name) is T import)
             {

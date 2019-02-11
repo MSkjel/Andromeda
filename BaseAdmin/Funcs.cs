@@ -12,7 +12,6 @@ namespace BaseAdmin
 {
     public static class Funcs
     {
-
         internal static readonly int MaxWarnings = 3;
 
         private static void DelayedKick(Entity ent, string message)

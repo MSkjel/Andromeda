@@ -5,6 +5,7 @@ using System.Text;
 using InfinityScript;
 using Andromeda;
 using Andromeda.Parse;
+using System.Text.RegularExpressions;
 
 namespace ChatOverhaul
 {
@@ -13,7 +14,13 @@ namespace ChatOverhaul
     {
         public static string GetDisplayName(this Entity ent)
         {
-            var field = ent.GetFormattedName().Replace(ent.Name, ent.GetDBFieldOr("chat.alias", ent.Name));
+            var field = ent.GetDBFieldOr("chat.alias", "$name");
+
+            string formatted(Match match)
+                => ent.GetFormattedName().Replace(ent.Name, match.Groups[1].Value);
+
+            field = Regex.Replace(field, @"\$name", Regex.Escape(ent.Name));
+            field = Regex.Replace(field, $@"\$formatted\((.+?)\)", formatted);
 
             return field;
         }
