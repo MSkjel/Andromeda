@@ -26,7 +26,7 @@ namespace ServerUtils
             "dem bois"
         };
 
-        public void SayAll(IEnumerable<string> messages)
+        public void SayAllPlayers(IEnumerable<string> messages)
         {
             if (!messages.Any())
                 return;
@@ -50,7 +50,7 @@ namespace ServerUtils
             Async.Start(routine());
         }
 
-        public void SayTo(Entity player, IEnumerable<string> messages)
+        public void SayToPlayer(Entity player, IEnumerable<string> messages)
         {
             if (!messages.Any())
                 return;

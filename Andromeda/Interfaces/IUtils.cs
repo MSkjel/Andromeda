@@ -12,8 +12,8 @@ namespace Andromeda.Interfaces
 
         string ServerName { get; }
 
-        void SayAll(IEnumerable<string> message);
+        void SayAllPlayers(IEnumerable<string> message);
 
-        void SayTo(Entity player, IEnumerable<string> messages);
+        void SayToPlayer(Entity player, IEnumerable<string> messages);
     }
 }

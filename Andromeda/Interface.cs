@@ -16,7 +16,7 @@ namespace Andromeda
         }
 
         public static void SayAllPlayers(IEnumerable<string> messages)
-            => Utils.SayAll(messages.Select(msg => msg.ColorFormat()));
+            => Utils.SayAllPlayers(messages.Select(msg => msg.ColorFormat()));
 
         public static void SayAllChattables(IEnumerable<string> messages)
         {
@@ -28,7 +28,7 @@ namespace Andromeda
             => SayAll(message.Yield());
 
         public static void Tell(this Entity player, IEnumerable<string> messages)
-            => Utils.SayTo(player, messages.Select(msg => msg.ColorFormat()));
+            => Utils.SayToPlayer(player, messages.Select(msg => msg.ColorFormat()));
 
         public static void Tell(this Entity player, string message)
             => player.Tell(message.Yield());

@@ -29,7 +29,7 @@ namespace Andromeda.Mock
             highlight3: "^8",
             highlight4: "^5");
 
-        public void SayAll(IEnumerable<string> messages)
+        public void SayAllPlayers(IEnumerable<string> messages)
         {
             if (!messages.Any())
                 return;
@@ -53,7 +53,7 @@ namespace Andromeda.Mock
             Async.Start(routine());
         }
 
-        public void SayTo(Entity player, IEnumerable<string> messages)
+        public void SayToPlayer(Entity player, IEnumerable<string> messages)
         {
             if (!messages.Any())
                 return;
