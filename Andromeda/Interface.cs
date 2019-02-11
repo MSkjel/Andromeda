@@ -20,6 +20,8 @@ namespace Andromeda
 
         public static void SayAllClients(IEnumerable<string> messages)
         {
+            messages = messages.Select(msg => msg.ColorFormat());
+
             foreach (var client in clients)
                 client.RawSay(messages);
         }
@@ -37,7 +39,7 @@ namespace Andromeda
             => client.RawTell(messages.Select(msg => msg.ColorFormat()));
 
         public static void Tell(this IClient client, string message)
-            => client.RawTell(message.Yield());
+            => client.RawTell(message.ColorFormat().Yield());
 
         public static string GetFormattedName(this Entity player)
             => Perms.GetFormattedName(player);
