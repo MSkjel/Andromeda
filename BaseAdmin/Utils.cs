@@ -98,13 +98,13 @@ namespace BaseAdmin
             var deadAxis = Players.Where(p => (!p.IsAlive && p.SessionTeam == "axis")).ToList();
             var deadAllies = Players.Where(p => (!p.IsAlive && p.SessionTeam == "allies")).ToList();
 
-            while(difference > 1)
+            while(difference > 1 && deadAxis.Any())
             {
                 deadAxis.PopFirst().SetTeam("allies");
                 difference -= 2;
             }
 
-            while(difference < 1)
+            while(difference < 1 && deadAllies.Any())
             {
                 deadAllies.PopFirst().SetTeam("axis");
                 difference += 2;
