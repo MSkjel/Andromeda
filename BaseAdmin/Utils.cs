@@ -104,7 +104,7 @@ namespace BaseAdmin
                 difference -= 2;
             }
 
-            while(difference < 1 && deadAllies.Any())
+            while(difference < -1 && deadAllies.Any())
             {
                 deadAllies.PopFirst().SetTeam("axis");
                 difference += 2;
@@ -128,7 +128,7 @@ namespace BaseAdmin
                 difference -= 2;
             }
 
-            while (difference < 1)
+            while (difference < -1)
             {
                 alliesPlayers.PopFirst().SetTeam("axis");
                 difference += 2;
