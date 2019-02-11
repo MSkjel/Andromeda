@@ -12,16 +12,16 @@ namespace Andromeda
         public static void SayAll(IEnumerable<string> messages)
         {
             SayAllPlayers(messages);
-            SayAllChattables(messages);
+            SayAllClients(messages);
         }
 
         public static void SayAllPlayers(IEnumerable<string> messages)
             => Utils.SayAllPlayers(messages.Select(msg => msg.ColorFormat()));
 
-        public static void SayAllChattables(IEnumerable<string> messages)
+        public static void SayAllClients(IEnumerable<string> messages)
         {
-            foreach (var chattable in chattables)
-                chattable.RawSay(messages);
+            foreach (var client in clients)
+                client.RawSay(messages);
         }
 
         public static void SayAll(string message)
@@ -33,11 +33,11 @@ namespace Andromeda
         public static void Tell(this Entity player, string message)
             => player.Tell(message.Yield());
 
-        public static void Tell(this IClient chattable, IEnumerable<string> messages)
-            => chattable.RawTell(messages.Select(msg => msg.ColorFormat()));
+        public static void Tell(this IClient client, IEnumerable<string> messages)
+            => client.RawTell(messages.Select(msg => msg.ColorFormat()));
 
-        public static void Tell(this IClient chattable, string message)
-            => chattable.RawTell(message.Yield());
+        public static void Tell(this IClient client, string message)
+            => client.RawTell(message.Yield());
 
         public static string GetFormattedName(this Entity player)
             => Perms.GetFormattedName(player);

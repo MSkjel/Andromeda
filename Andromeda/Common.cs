@@ -38,7 +38,7 @@ namespace Andromeda
             => admin ?? mockAdmin;
 
         internal static readonly List<IFunctionality> functionalities = new List<IFunctionality>();
-        internal static readonly List<IClient> chattables = new List<IClient>();
+        internal static readonly List<IClient> clients = new List<IClient>();
 
         public static readonly IClient Console = new ConsoleWrapper();
 
@@ -112,18 +112,18 @@ namespace Andromeda
             functionalities.Add(functionality);
         }
 
-        public static void AddChattable(IClient chattable)
-            => chattables.Add(chattable);
+        public static void AddClient(IClient client)
+            => clients.Add(client);
 
-        public static void RemoveChattable(IClient chattable)
-            => chattables.Remove(chattable);
+        public static void RemoveClient(IClient client)
+            => clients.Remove(client);
 
         [EntryPoint]
         private static void Init()
         {
             Log.Info("Initializing Andromeda");
 
-            AddChattable(Console);
+            AddClient(Console);
 
             if (perms == null)
             {

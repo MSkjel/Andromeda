@@ -23,7 +23,7 @@ namespace Andromeda
             return null;
         }
 
-        public static bool CanDo(IClient chattable, Command cmd, out string response)
+        public static bool CanDo(IClient client, Command cmd, out string response)
         {
             if (cmd.permission == null)
             {
@@ -31,7 +31,7 @@ namespace Andromeda
                 return true;
             }
 
-            return chattable.RequestPermission(cmd.permission, out response);
+            return client.RequestPermission(cmd.permission, out response);
         }
 
         public static bool TryRegister(Command cmd)
@@ -90,9 +90,9 @@ namespace Andromeda
                     && args.Message.StartsWith("!"))
                 {
                     var message = args.Message;
-                    var chattable = new EntityWrapper(args.Player);
+                    var client = new EntityWrapper(args.Player);
 
-                    Process(chattable, message);
+                    Process(client, message);
 
                     args.Eat();
                 }

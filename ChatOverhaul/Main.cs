@@ -34,21 +34,21 @@ namespace ChatOverhaul
                     if (args.Player.IsAlive)
                     {
                         Utilities.RawSayAll($"{args.Player.GetDisplayName()}^7: {args.Message}");
-                        Common.SayAllChattables($"[CHAT] {args.Player.GetDisplayName()}^7: {args.Message}".Yield());
+                        Common.SayAllClients($"[CHAT] {args.Player.GetDisplayName()}^7: {args.Message}".Yield());
                         args.Eat();
                         return;
                     }
                     if (args.Player.SessionTeam == "spectator")
                     {
                         Utilities.RawSayAll($"(Spect) {args.Player.GetDisplayName()}^7: {args.Message}");
-                        Common.SayAllChattables($"[CHAT] (Spect) {args.Player.GetDisplayName()}^7: {args.Message}".Yield());
+                        Common.SayAllClients($"[CHAT] (Spect) {args.Player.GetDisplayName()}^7: {args.Message}".Yield());
                         args.Eat();
                         return;
                     }
                     if (!args.Player.IsAlive)
                     {
                         Utilities.RawSayAll($"(Dead) {args.Player.GetDisplayName()}^7: {args.Message}");
-                        Common.SayAllChattables($"[CHAT] (Dead) {args.Player.GetDisplayName()}^7: {args.Message}".Yield());
+                        Common.SayAllClients($"[CHAT] (Dead) {args.Player.GetDisplayName()}^7: {args.Message}".Yield());
                         args.Eat();
                         return;
                     }

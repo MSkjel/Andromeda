@@ -19,15 +19,15 @@ namespace Andromeda.Parse
         public static readonly IArgParse OptionalBoolean = new OptionalBooleanParse();
         public static readonly IArgParse Boolean = new BooleanParse();
 
-        public static readonly IArgParse UnimmunePlayer = new ConstraintParse(Player, delegate (object obj, IClient chattable)
+        public static readonly IArgParse UnimmunePlayer = new ConstraintParse(Player, delegate (object obj, IClient client)
         {
-            if(chattable.IsEntity)
-                if (Common.Perms.IsImmuneTo(obj as Entity, chattable.Entity))
+            if(client.IsEntity)
+                if (Common.Perms.IsImmuneTo(obj as Entity, client.Entity))
                     return "Player is immune";
 
             return null;
         });
-        public static readonly IArgParse LoggedInPlayer = new ConstraintParse(Player, delegate (object obj, IClient chattable)
+        public static readonly IArgParse LoggedInPlayer = new ConstraintParse(Player, delegate (object obj, IClient client)
         {
             if ((obj as Entity).IsLogged())
                 return null;
@@ -35,7 +35,7 @@ namespace Andromeda.Parse
             return "Player is not logged";
         });
         public static IArgParse RangedInteger(int min, int max)
-            => new ConstraintParse(Integer, delegate (object obj, IClient chattable)
+            => new ConstraintParse(Integer, delegate (object obj, IClient client)
             {
                 var x = (int)obj;
 
@@ -45,7 +45,7 @@ namespace Andromeda.Parse
                 return null;
             });
         public static IArgParse OptionalRangedIntegerWithDefault(int min, int max, int def)
-            => new ConstraintParse(OptionalInteger, delegate (object obj, IClient chattable)
+            => new ConstraintParse(OptionalInteger, delegate (object obj, IClient client)
             {
                 var x = obj as int? ?? def;
 
