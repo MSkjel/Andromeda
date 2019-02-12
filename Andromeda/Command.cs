@@ -62,7 +62,7 @@ namespace Andromeda
         public static bool TryRegister(string name, Action<IClient, string> action, string usage, string[] aliases = null, string permission = null, string description = null)
             => TryRegister(new Command(name, action, usage, aliases, permission, description));
 
-        internal static void Process(IClient sender, string message)
+        public static void Process(IClient sender, string message)
         {
             if (SmartParse.CommandName.Parse(ref message, out var parse, sender) is string error)
                 sender.Tell($"%e{error}");
