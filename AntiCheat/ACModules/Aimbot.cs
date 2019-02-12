@@ -11,21 +11,36 @@ using System.Text;
 
 namespace AntiCheat.ACModules
 {
-    public class Aimbot
+    //FIXME, Rewrite PLZ
+    public class Aimbot : IAntiCheatModule
     {
+        public string Name => "Anti-Aimbot";
+
+        public string Description => "Checks if a player is using Aimbot";
+
+        public bool Enabled
+        {
+            get;
+            set;
+        } = Config.Instance.AntiAimbot.Enabled;
+
+        public Action<Entity, string> TakeAction
+        {
+            get;
+            set;
+        } = new Action<Entity, string>((ent, reason) =>
+        {
+            Common.Admin.Ban(ent, "AntiCheat", reason);
+        });
+
         int MaxAngleChange = 70;
         int MaxAngleChangeTime = 150;
 
         int MaxTagHit = 5;
         int MaxTagHitTime = 10000;
 
-        public Aimbot()
-        {
-            Log.Debug("Registered Aimbot Listener");
-            RegisterEvents();
-        }
 
-        private void RegisterEvents()
+        public void RegisterEvents()
         {
             Script.PlayerDamage.Add((sender, args) =>
             {

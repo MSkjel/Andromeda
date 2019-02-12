@@ -8,14 +8,28 @@ using System.Text;
 
 namespace AntiCheat.ACModules
 {
-    public class SilentAim
+    public class SilentAim : IAntiCheatModule
     {
-        public SilentAim()
-        {
-            RegisterEvents();
-        }
+        public string Name => "Anti-SilentAim";
 
-        private void RegisterEvents()
+        public string Description => "Checks if a player has SilentAim";
+
+        public bool Enabled
+        {
+            get;
+            set;
+        } = Config.Instance.AntiSilentAim.Enabled;
+
+        public Action<Entity, string> TakeAction
+        {
+            get;
+            set;
+        } = new Action<Entity, string>((ent, reason) =>
+        {
+            Common.Admin.Ban(ent, "AntiCheat", reason);
+        });
+
+        public void RegisterEvents()
         {
             Script.PlayerDamage.Add((sender, args) =>
             {
