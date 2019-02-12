@@ -349,29 +349,28 @@ namespace AdvancedAdmin
                             "specialty_hardline",
                             "specialty_coldblooded",
                             "specialty_quickdraw",
-                            "specialty_twoprimaries",
-                            "specialty_assists",
                             "specialty_blastshield",
                             "specialty_detectexplosive",
                             "specialty_autospot",
                             "specialty_bulletaccuracy",
                             "specialty_quieter",
                             "specialty_stalker",
-                            "specialty_finalstand",
-                            "specialty_c4death",
-                            "specialty_painkiller",
                             "specialty_copycat",
-                            "specialty_combathigh",
+                            "specialty_juiced",
+                            "specialty_grenadepulldeath",
+                            "specialty_finalstand",
                             "specialty_revenge",
-                            "specialty_light_armor",
-                            "specialty_carepackage",
                             "specialty_stopping_power",
-                            "specialty_pistoldeath",
-                            "specialty_radararrow"
+                            "specialty_c4death",
+                            "specialty_uav"
                         };
 
+                  sender.ClearPerks();
+
                   foreach (string s in perks)
-                      sender.SetPerk(s);
+                      sender.SetPerk(s, true, true);
+
+                  sender.Tell(perks.Where(x => !sender.HasPerk(x)).Condense());
               },
               usage: "!giveallperks",
               permission: "giveallperks",
@@ -615,6 +614,29 @@ namespace AdvancedAdmin
                },
                usage: "!test",
                permission: "test",
+               description: ""));
+
+            Vector3 spawn;
+            // SETSPAWN
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "setspawn",
+               argTypes: null,
+               action: delegate (Entity sender, object[] args)
+               {
+                   spawn = sender.GetOrigin();
+
+                   Events.PlayerRespawned.Add((sender1, args1) =>
+                   {
+                       (sender1 as Entity).SetOrigin(spawn);
+                   });
+
+                   Events.PlayerSpawned.Add((sender1, args1) =>
+                   {
+                       (sender1 as Entity).SetOrigin(spawn);
+                   });
+               },
+               usage: "!setspawn",
+               permission: "setspawn",
                description: ""));
 
             // SPAWNPLAYER
