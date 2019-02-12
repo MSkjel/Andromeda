@@ -59,7 +59,7 @@ namespace InfinityScript.PBase
 
             if(damage > 0)
             {
-                if (damage >= player.Health + baseDamage)
+                if (damage > player.Health + baseDamage)
                     player.FinishPlayerDamage(inflictor, attacker, damage, dFlags, mod, weapon, point, dir, hitLoc, 0f);
                 else
                     player.Health += baseDamage - damage;
