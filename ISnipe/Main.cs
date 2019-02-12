@@ -97,7 +97,7 @@ namespace ISnipe
                 Script.PlayerDamage.Add((sender, args) =>
                 {
                     if (args.Damage != 0)
-                        args.Player.FinishPlayerDamage(args.Inflictor, args.Attacker, 1000, args.DFlags, args.Mod, args.Weapon, args.Point, args.Dir, args.Hitloc, 0.5f);
+                        args.Damage = 200;
                 }, 10);
             }
 

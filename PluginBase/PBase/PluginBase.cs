@@ -57,7 +57,15 @@ namespace InfinityScript.PBase
 
             data.Update(out damage);
 
-            player.Health += baseDamage - damage;
+            if(damage > 0)
+            {
+                if (damage >= player.Health + baseDamage)
+                    player.FinishPlayerDamage(inflictor, attacker, damage, dFlags, mod, weapon, point, dir, hitLoc, 0f);
+                else
+                    player.Health += baseDamage - damage;
+            }
+            else
+                player.Health += baseDamage;
         }
 
         public override void OnPlayerDisconnect(Entity player)
