@@ -21,7 +21,7 @@ namespace AntiCheat.ACModules
             {
                 Entity ent = sender as Entity;
 
-                if (!ent.IsPlayer)
+                if (args.Mod != "MOD_BULLET" || !ent.IsPlayer)
                     return;
 
                 Vector3 toHit = GSCFunctions.VectorToAngles(args.Player.GetTagOrigin("j_mainroot") - ent.GetTagOrigin("j_head"));

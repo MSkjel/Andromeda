@@ -32,7 +32,7 @@ namespace AntiCheat.ACModules
                 Entity entity = sender as Entity;
                 string tag = args.Hitloc;
 
-                if (!entity.IsPlayer)
+                if (args.Mod != "MOD_BULLET" || !entity.IsPlayer)
                     return;
 
                 long changeTime = GetChangeTimeAndRegisterNewKill(entity);
