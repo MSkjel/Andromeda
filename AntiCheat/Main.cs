@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Andromeda;
 
 namespace AntiCheat
 {
@@ -36,6 +37,8 @@ namespace AntiCheat
         static Main()
         {
             Config.Load();
+
+            Common.Register(AntiCheat.Instance);
         }
     }
 }
