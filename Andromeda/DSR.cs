@@ -60,10 +60,7 @@ namespace Andromeda
                     var match = Regex.Match(fline, @"^dsrOpt\s+(\S+)\s+""(.*)""");
 
                     if(match.Success)
-                    {
-                        Log.Debug(match.Groups[2].Value);
                         DSROptions[match.Groups[1].Value] = match.Groups[2].Value;
-                    }
                 }
             }
             catch (Exception e)
