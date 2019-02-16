@@ -57,7 +57,7 @@ namespace Andromeda
             {
                 foreach (var fline in ReadNonCommentedLines(Path.Combine(DSRFolder, $"{dsrName}.dsr")))
                 {
-                    var match = Regex.Match(fline, @"^dsrOpt\s+(\S+)\s+""(\S+)""");
+                    var match = Regex.Match(fline, @"^dsrOpt\s+(\S+)\s+""(.*)""");
 
                     if(match.Success)
                     {

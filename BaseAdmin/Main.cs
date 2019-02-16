@@ -566,6 +566,7 @@ namespace BaseAdmin
             #endregion
             #endregion
 
+            // ban checks
             Script.PlayerConnected.Add((sender, player) =>
             {
                 IEnumerator routine()
