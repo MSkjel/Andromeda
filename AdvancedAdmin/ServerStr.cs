@@ -23,11 +23,11 @@ namespace AdvancedAdmin
 
         internal static string Get(string index)
         {
-            string[] str = Marshal.PtrToStringAnsi(ptr).Split(new[] { @"\" }, StringSplitOptions.None);
+            string[] str = Marshal.PtrToStringAnsi(ptr).Split('\\');
 
             for (int i = 0; i < str.Length - 1; i++)
             {
-                if (str[i] == "m" && i % 2 == 0)
+                if (str[i] == index && i % 2 == 0)
                     return str[i + 1];
             }
 
@@ -38,12 +38,7 @@ namespace AdvancedAdmin
         {
             value = value.Replace(@"\", "");
 
-            var oldstr = Marshal.PtrToStringAnsi(ptr);
-
-            InfinityScript.Log.Info($"Setting {value} at {index}");
-            InfinityScript.Log.Info($"Old serverstr: {oldstr}");
-
-            string[] str = oldstr.Split('\\');
+            string[] str = Marshal.PtrToStringAnsi(ptr).Split('\\');
             for (int i = 0; i < str.Length - 1; i++)
             {
                 if (str[i] == index && i % 2 == 0)
@@ -51,8 +46,6 @@ namespace AdvancedAdmin
             }
 
             var newstr = string.Join(@"\", str);
-
-            InfinityScript.Log.Info($"New serverstr: {newstr}");
 
             WriteStringASCII(ptr, newstr);
         }
