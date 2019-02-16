@@ -9,9 +9,17 @@ namespace Andromeda.Events.EventArguments
     {
         private readonly Dictionary<string, string> DSROptions;
 
-        public DSRLoadArgs(Dictionary<string, string> dict)
+        public string DSR
+        {
+            get;
+
+            private set;
+        }
+
+        public DSRLoadArgs(Dictionary<string, string> dict, string dsr)
         {
             DSROptions = dict;
+            DSR = dsr;
         }
 
         public string this[string str]
