@@ -21,7 +21,11 @@ namespace AdvancedAdmin
             Events.DSRLoad.Add((sender, args) =>
             {
                 if (args.TryGetOpt("custom_gametype", out var value))
+                {
                     ServerStr.ReportedGameType = value;
+
+                    Log.Debug(value);
+                }
             });
 
             #region Commands

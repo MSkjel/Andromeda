@@ -45,7 +45,7 @@ namespace Andromeda
                     yield return BaseScript.Wait(0.1f);
 
                 ReadDSROptions(LoadedDSR);
-                Events.Events.DSRLoad.Run(null, new Events.EventArguments.DSRLoadArgs(DSROptions));
+                Events.Events.DSRLoad.Run(null, new Events.EventArguments.DSRLoadArgs(DSROptions, LoadedDSR));
             }
 
             Async.Start(routine());
@@ -61,6 +61,7 @@ namespace Andromeda
 
                     if(match.Success)
                     {
+                        Log.Debug(match.Groups[2].Value);
                         DSROptions[match.Groups[1].Value] = match.Groups[2].Value;
                     }
                 }
