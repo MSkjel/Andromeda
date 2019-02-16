@@ -36,17 +36,25 @@ namespace AdvancedAdmin
 
         internal static void Set(string index, string value)
         {
-            value = System.Text.RegularExpressions.Regex.Replace(value, @"\", "");
+            value = value.Replace(@"\", "");
 
-            string[] str = Marshal.PtrToStringAnsi(ptr).Split(new[] { @"\" }, StringSplitOptions.None);
+            var oldstr = Marshal.PtrToStringAnsi(ptr);
 
+            InfinityScript.Log.Info($"Setting {value} at {index}");
+            InfinityScript.Log.Info($"Old serverstr: {oldstr}");
+
+            string[] str = oldstr.Split('\\');
             for (int i = 0; i < str.Length - 1; i++)
             {
-                if (str[i] == "m" && i % 2 == 0)
+                if (str[i] == index && i % 2 == 0)
                     str[i + 1] = value;
             }
 
-            WriteStringASCII(ptr, string.Join(@"\", str));
+            var newstr = string.Join(@"\", str);
+
+            InfinityScript.Log.Info($"New serverstr: {newstr}");
+
+            WriteStringASCII(ptr, newstr);
         }
 
         private static ProcessModule GetModule(Process process, string ModuleName)
