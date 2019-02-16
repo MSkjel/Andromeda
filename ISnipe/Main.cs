@@ -96,8 +96,8 @@ namespace ISnipe
             {
                 Script.PlayerDamage.Add((sender, args) =>
                 {
-                    if (args.Damage != 0)
-                        args.Damage = 100; // to be sure.
+                    if (args.Damage != 0 && args.Mod == "MOD_BULLET")
+                        args.Damage = 200;
                 }, 10);
             }
 

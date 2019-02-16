@@ -11,39 +11,62 @@ using System.Text;
 
 namespace AntiCheat.ACModules
 {
-    public class Aimbot
+    //FIXME, Rewrite PLZ
+    public class Aimbot : IAntiCheatModule
     {
-        int MaxAngleChange = 60;
-        int MaxAngleChangeTime = 100;
+        public string Name => "Anti-Aimbot";
+
+        public string Description => "Checks if a player is using Aimbot";
+
+        public bool Enabled
+        {
+            get;
+            set;
+        } = Config.Instance.AntiAimbot.Enabled;
+
+        public Action<Entity, string> TakeAction
+        {
+            get;
+            set;
+        } = new Action<Entity, string>((ent, reason) =>
+        {
+            Common.Admin.Ban(ent, "AntiCheat", reason);
+        });
+
+        int MaxAngleChange = 70;
+        int MaxAngleChangeTime = 150;
 
         int MaxTagHit = 5;
-        int MaxTagHitTime = 10;
+        int MaxTagHitTime = 10000;
 
-        public Aimbot()
-        {
-            Log.Debug("Registered Aimbot Listener");
-            RegisterEvents();
-        }
 
-        private void RegisterEvents()
+        public void RegisterEvents()
         {
             Script.PlayerDamage.Add((sender, args) =>
             {
                 Entity entity = sender as Entity;
                 string tag = args.Hitloc;
 
-                long time = GetTimeAndRegisterNewKill(entity);
+                if (args.Mod != "MOD_BULLET" || !entity.IsPlayer)
+                    return;
+
+                long changeTime = GetChangeTimeAndRegisterNewKill(entity);
+                long tagTime = GetTagTimeAndRegisterNewKill(entity);
+
                 int change = GetChangeAndRegisterNewKill(entity);
+                int tagHit = GetTagHitAndRegisterNewKill(entity, tag);
 
-                if (time < MaxAngleChangeTime)
+                if (changeTime < MaxAngleChangeTime && change > MaxAngleChange)
                 {              
-                    if (change > MaxAngleChange)
-                    {
-                        entity.Tell($"Hax? Time: {time}. Change: {change}");
-                    }
+                    entity.Tell($"Hax? Time: {changeTime}. Change: {change}");
                 }
-
-                Log.Debug(GetTagHitAndRegisterNewKill(entity, tag).ToString());
+                else if(tagTime > MaxTagHitTime)
+                {
+                    if (tagHit > MaxTagHit)
+                        entity.Tell("Hax m9?");
+                    else
+                        ResetTagHitTime(entity);
+                }
             });
         }
 
@@ -79,6 +102,28 @@ namespace AntiCheat.ACModules
 
             return hits;
         }
+
+        private long GetTimeTags(Entity entity) => entity.GetFieldOrVal<Stopwatch>("TagStopwatch").ElapsedMilliseconds;
+
+        private long GetTagTimeAndRegisterNewKill(Entity entity)
+        {
+            if (entity.HasField("TagStopwatch"))
+            {
+                long last = GetTimeTags(entity);
+
+                return last;
+            }
+            else
+            {
+                entity.SetFieldT("TagStopwatch", new Stopwatch());
+
+                entity.GetField<Stopwatch>("TagStopwatch").Start();
+
+                return -1;
+            }
+        }
+
+        private void ResetTagHitTime(Entity entity) => entity.GetField<Stopwatch>("TagStopwatch").Restart();
         #endregion
 
         #region Angle
@@ -106,7 +151,7 @@ namespace AntiCheat.ACModules
 
         private long GetTimeSinceLastKill(Entity entity) => entity.GetFieldOrVal<Stopwatch>("AngleStopwatch").ElapsedMilliseconds;
 
-        private long GetTimeAndRegisterNewKill(Entity entity)
+        private long GetChangeTimeAndRegisterNewKill(Entity entity)
         {
             if (entity.HasField("AngleStopwatch"))
             {
