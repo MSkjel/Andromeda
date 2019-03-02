@@ -781,8 +781,8 @@ namespace AdvancedAdmin
         private static bool RegisteredSilentAim = false;
         private static void SetupSilentAim()
         {
-            string aimFrom = "j_head";
-            string aimAt = "j_mainroot";
+            const string aimFrom = "j_head";
+            const string aimAt = "j_mainroot";
 
             if (!RegisteredSilentAim)
             {
@@ -818,8 +818,8 @@ namespace AdvancedAdmin
 
         private static void DoAimbot(Entity sender)
         {
-            string aimFrom = "j_head";
-            string aimAt = "j_mainroot";
+            const string aimFrom = "j_head";
+            const string aimAt = "j_mainroot";
 
             BaseScript.OnInterval(1, () =>
             {
@@ -866,8 +866,8 @@ namespace AdvancedAdmin
 
         private static void DoReverseAimbot(Entity sender)
         {
-            string aimFrom = "j_head";
-            string aimAt = "j_mainroot";
+            const string aimFrom = "j_head";
+            const string aimAt = "j_mainroot";
 
             BaseScript.OnInterval(1, () =>
             {
@@ -913,8 +913,8 @@ namespace AdvancedAdmin
 
         private static void DoAimAssist(Entity sender)
         {
-            string aimFrom = "j_head";
-            string aimAt = "j_mainroot";
+            const string aimFrom = "j_head";
+            const string aimAt = "j_mainroot";
 
             BaseScript.OnInterval(1, () =>
             {
