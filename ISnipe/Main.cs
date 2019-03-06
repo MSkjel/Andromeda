@@ -33,12 +33,12 @@ namespace ISnipe
                         float ads = player.PlayerAds();
                         int adscycles = player.GetField<int>("adscycles");
 
-                        if (ads == 1f)
+                        if (ads == 1f && player.IsAlive)
                             adscycles++;
                         else
                             adscycles = 0;
 
-                        if (adscycles > 5)
+                        if (adscycles > 8)
                         {
                             player.AllowAds(false);
                             player.IPrintLnBold("^1Hardscoping is not allowed!");

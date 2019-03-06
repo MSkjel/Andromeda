@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Andromeda;
+using Andromeda.Parse;
 
 namespace AntiCheat
 {
@@ -33,7 +34,7 @@ namespace AntiCheat
                 }
             }
         }
-        
+
         static Main()
         {
             Config.Load();

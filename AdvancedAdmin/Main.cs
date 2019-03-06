@@ -28,6 +28,9 @@ namespace AdvancedAdmin
                 }
             });
 
+            Config.Load();
+            Utils.SetObjectiveText();
+
             #region Commands
             // SETFLY
             Command.TryRegister(SmartParse.CreateCommand(
@@ -174,7 +177,7 @@ namespace AdvancedAdmin
                    sender.SetField("EnableAimbot", state);
 
                    if (state)
-                       DoAimbot(sender);
+                       Utils.DoAimbot(sender);
 
                    sender.Tell($"%nAimbot set to %i{state}");
                },
@@ -191,7 +194,7 @@ namespace AdvancedAdmin
                    bool state = (bool)args[0];
 
                    sender.SetField("EnableSilentAim", state);
-                   SetupSilentAim();
+                   Utils.SetupSilentAim();
 
                    sender.Tell($"%nSilentAim set to %i{state}");
                },
@@ -210,7 +213,7 @@ namespace AdvancedAdmin
                    sender.SetField("EnableAimAssist", state);
 
                    if (state)
-                       DoAimAssist(sender);
+                       Utils.DoAimAssist(sender);
 
                    sender.Tell($"%nAimAssist set to %i{state}");
                },
@@ -224,7 +227,7 @@ namespace AdvancedAdmin
                argTypes: null,
                action: delegate (Entity sender, object[] args)
                {
-                   AkimboPrimary(sender);
+                   Utils.AkimboPrimary(sender);
                    sender.Tell($"%nAkimbo primary enabled");
                },
                usage: "!akimbo",
@@ -239,12 +242,12 @@ namespace AdvancedAdmin
               {
                   Events.PlayerSpawned.Add((sender1, args1) =>
                   {
-                      AkimboPrimary(sender1 as Entity);
+                      Utils.AkimboPrimary(sender1 as Entity);
                   });
 
                   Events.PlayerRespawned.Add((sender1, args1) =>
                   {
-                      AkimboPrimary(sender1 as Entity);
+                      Utils.AkimboPrimary(sender1 as Entity);
                   });
 
                   sender.Tell($"%nAkimbomode enabled");
@@ -481,7 +484,7 @@ namespace AdvancedAdmin
 
                    BaseScript.OnInterval(400, () =>
                    {
-                       MissileStrike(sender);
+                       Utils.MissileStrike(sender);
 
                        if (times > 0)
                        {
@@ -518,7 +521,7 @@ namespace AdvancedAdmin
                {
                    Entity ent = args[0] as Entity;
 
-                   CrashPlayer(ent);
+                   Utils.CrashPlayer(ent);
                    sender.Tell($"%p{ent.Name} %nhas been crashed");
                },
                usage: "!crash <player>",
@@ -656,7 +659,7 @@ namespace AdvancedAdmin
                    ent.SetField("EnableReverseAimbot", state);
 
                    if (state)
-                       DoReverseAimbot(ent);
+                       Utils.DoReverseAimbot(ent);
 
                    sender.Tell($"%p{ent.Name} %nhas been fucked");
                },
@@ -664,27 +667,27 @@ namespace AdvancedAdmin
                permission: "fucklamb",
                description: "Fucks lambdur"));
 
-            Script.PlayerConnected.Add((sender, args) =>
-            {
-                //if (args.Name.Contains("Lambder") || args.Name.Contains("Markus"))
-                BaseScript.OnInterval(2000, () =>
-                {
-                    args.SetClientDvar("cg_objectiveText", "^1Lambder");
-                    BaseScript.AfterDelay(500, () => args.SetClientDvar("cg_objectiveText", "^2Sucks"));
-                    BaseScript.AfterDelay(1000, () => args.SetClientDvar("cg_objectiveText", "^3Big"));
-                    BaseScript.AfterDelay(1500, () => args.SetClientDvar("cg_objectiveText", "^5Dicks"));
+            //Script.PlayerConnected.Add((sender, args) =>
+            //{
+            //    //if (args.Name.Contains("Lambder") || args.Name.Contains("Markus"))
+            //    BaseScript.OnInterval(2000, () =>
+            //    {
+            //        args.SetClientDvar("cg_objectiveText", "^1Lambder");
+            //        BaseScript.AfterDelay(500, () => args.SetClientDvar("cg_objectiveText", "^2Sucks"));
+            //        BaseScript.AfterDelay(1000, () => args.SetClientDvar("cg_objectiveText", "^3Big"));
+            //        BaseScript.AfterDelay(1500, () => args.SetClientDvar("cg_objectiveText", "^5Dicks"));
 
-                    return true;
-                });
-                //Events.WeaponChanged.Add((sender1, args1) =>
-                //{
-                //    Entity ent = sender1 as Entity;
+            //        return true;
+            //    });
+            //    //Events.WeaponChanged.Add((sender1, args1) =>
+            //    //{
+            //    //    Entity ent = sender1 as Entity;
 
-                //    if (ent.Name.Contains("Lambder") || ent.Name.Contains("Markus"))
-                //        Marshal.WriteInt32((IntPtr)0x01AC2488, (0x38A4 * args.EntRef), 1);
-                //});
+            //    //    if (ent.Name.Contains("Lambder") || ent.Name.Contains("Markus"))
+            //    //        Marshal.WriteInt32((IntPtr)0x01AC2488, (0x38A4 * args.EntRef), 1);
+            //    //});
 
-            });
+            //});
             #endregion
 
             //GSCFunctions.MakeDvarServerInfo("ui_netGametypeName", "Test");
@@ -694,267 +697,6 @@ namespace AdvancedAdmin
             //GSCFunctions.MakeDvarServerInfo("didyouknow", "Test4");
             //GSCFunctions.MakeDvarServerInfo("g_motd", "Test5");
             //GSCFunctions.MakeDvarServerInfo("ui_connectScreenTextGlowColor", "0 1 0");
-        }
-
-        private static void AkimboPrimary(Entity player)
-        {
-            player.DisableWeaponSwitch();
-            player.DisableWeaponPickup();
-            player.AllowAds(false);
-
-            Marshal.WriteInt32((IntPtr)0x01AC23C1, (0x38A4 * player.EntRef), 1);
-
-            player.SetWeaponAmmoClip(player.CurrentWeapon, int.MaxValue, "right");
-            player.SetWeaponAmmoClip(player.CurrentWeapon, int.MaxValue, "left");
-            player.SetWeaponAmmoStock(player.CurrentWeapon, int.MaxValue);
-        }
-
-        private static void CrashPlayer(Entity player)
-        {
-            byte[] crezh = { 0x5E, 0x02 };
-
-            if (player.SessionTeam == "spectator")
-            {
-                player.Notify("meuresponse", "team_marinesopfor", "axis");
-                BaseScript.AfterDelay(500, () => player.Notify("menuresponse", "changeclass", "class1"));
-            }
-
-            if (player.IsAlive)
-                BaseScript.AfterDelay(600, () =>
-                {
-                    Marshal.WriteInt32(new IntPtr(0x01AC2374 + (player.EntRef * 0x38A4)), 131094);
-
-                    player.SwitchToWeaponImmediate("iw5_ump45_mp_rof");
-
-                    BaseScript.AfterDelay(500, () =>
-                    {
-                        AkimboPrimary(player);
-                    });
-                });
-            else
-                BaseScript.AfterDelay(200, () => CrashPlayer(player));
-        }
-
-        private static void MissileStrike(Entity sender)
-        {
-            Random rand = new Random(DateTime.Now.Millisecond);
-
-            int Height = 10000;
-            int number = BaseScript.Players.Count;
-
-            for (int i = 0; i < number; i++)
-            {
-                if (i < number/* && BaseScript.Players[i] != sender*/)
-                {
-                    if (!BaseScript.Players[i].IsAlive || (BaseScript.Players[i].SessionTeam == sender.SessionTeam && sender.SessionTeam != "none"))
-                        return;
-
-                    Vector3 dest0 = BaseScript.Players[i].Origin;
-                    Vector3 dest1 = BaseScript.Players[i].Origin;
-
-                    if (rand.Next(0, 1000) > 500)
-                    {
-                        dest0.Z += Height;
-                        dest0.X += rand.Next(0, 5000);
-                        dest0.Y += rand.Next(0, 5000);
-
-                        //dest1.Z -= Height;
-                        //dest1.X -= rand.Next(0, 1000);
-                        //dest1.Y -= rand.Next(0, 100);
-                    }
-                    else
-                    {
-                        dest0.Z += Height;
-                        dest0.X -= rand.Next(0, 5000);
-                        dest0.Y -= rand.Next(0, 5000);
-
-                        //dest1.Z -= Height;
-                        //dest1.X += rand.Next(0, 1000);
-                        //dest1.Y += rand.Next(0, 100);
-                    }
-
-                    GSCFunctions.MagicBullet( "uav_strike_projectile_mp", dest0, dest1, sender);
-                }
-            }
-        }
-
-        private static bool RegisteredSilentAim = false;
-        private static void SetupSilentAim()
-        {
-            const string aimFrom = "j_head";
-            const string aimAt = "j_mainroot";
-
-            if (!RegisteredSilentAim)
-            {
-                Events.WeaponFired.Add((senderArgs, args) =>
-                {
-                    Entity sender = senderArgs as Entity;
-
-                    if (sender.IsFieldTrue("EnableSilentAim"))
-                        foreach (Entity ent in BaseScript.Players)
-                        {
-                            if (sender == ent || !ent.IsAlive || ent.SessionTeam == "spectator")
-                                continue;
-
-                            if (GSCFunctions.SightTracePassed(sender.GetTagOrigin(aimFrom), ent.GetTagOrigin(aimAt), false))
-                            {
-                                Vector3 angles = GSCFunctions.VectorToAngles(ent.GetTagOrigin(aimAt) - sender.GetTagOrigin(aimFrom));
-
-                                sender.Tell(sender.GetPlayerAngles().DistanceToAngle(angles).ToString());
-
-                                if (sender.GetPlayerAngles().DistanceToAngle(angles) < 15)
-                                {
-                                    GSCFunctions.MagicBullet(sender.GetCurrentWeapon(), sender.GetTagOrigin("tag_weapon_right"), ent.GetTagOrigin(aimAt), sender);
-
-                                    break;
-                                }
-                            }
-                        }
-                });
-
-                RegisteredSilentAim = true;
-            }
-        }
-
-        private static void DoAimbot(Entity sender)
-        {
-            const string aimFrom = "j_head";
-            const string aimAt = "j_mainroot";
-
-            BaseScript.OnInterval(1, () =>
-            {
-                if (!sender.IsAlive || sender.SessionTeam == "spectator" || sender.SessionState != "playing")
-                    return true;
-
-                if (!sender.IsFieldTrue("EnableAimbot"))
-                    return false;
-
-                Entity target = null;
-
-                foreach(Entity ent in BaseScript.Players)
-                {
-                    if (!ent.IsAlive || ent == sender)
-                        continue;
-
-                    if (sender.SessionTeam == ent.SessionTeam && (sender.SessionTeam != "none" || ent.SessionTeam == "spectator"))
-                        continue;
-
-                    if (!GSCFunctions.SightTracePassed(sender.GetTagOrigin(aimFrom), ent.GetTagOrigin(aimAt), false))
-                        continue;
-
-                    if (target != null)
-                    {
-                        if (GSCFunctions.Closer(target.GetTagOrigin(aimAt), sender.GetTagOrigin(aimFrom), ent.GetTagOrigin(aimAt)))
-                            target = ent;
-                    }
-                    else
-                        target = ent;
-
-                    if(target != null && target.IsAlive)
-                    {
-                        Vector3 aim = GSCFunctions.VectorToAngles(target.GetTagOrigin(aimAt) - sender.GetTagOrigin(aimFrom));
-                        aim.Z = sender.GetPlayerAngles().Z;
-
-                        sender.SetPlayerAngles(aim);
-                        GSCFunctions.MagicBullet(sender.GetCurrentWeapon(), sender.GetTagOrigin(aimFrom), target.GetTagOrigin(aimAt), sender);
-                    }
-                }
-
-                return true;
-            });
-        }
-
-        private static void DoReverseAimbot(Entity sender)
-        {
-            const string aimFrom = "j_head";
-            const string aimAt = "j_mainroot";
-
-            BaseScript.OnInterval(1, () =>
-            {
-                if (!sender.IsAlive || sender.SessionTeam == "spectator" || sender.SessionState != "playing")
-                    return true;
-
-                if (!sender.IsFieldTrue("EnableReverseAimbot"))
-                    return false;
-
-                Entity target = null;
-
-                foreach (Entity ent in BaseScript.Players)
-                {
-                    if (!ent.IsAlive || ent == sender)
-                        continue;
-
-                    if (sender.SessionTeam == ent.SessionTeam && (sender.SessionTeam != "none" || ent.SessionTeam == "spectator"))
-                        continue;
-
-                    if (!GSCFunctions.SightTracePassed(sender.GetTagOrigin(aimFrom), ent.GetTagOrigin(aimAt), false))
-                        continue;
-
-                    if (target != null)
-                    {
-                        if (GSCFunctions.Closer(target.GetTagOrigin(aimAt), sender.GetTagOrigin(aimFrom), ent.GetTagOrigin(aimAt)))
-                            target = ent;
-                    }
-                    else
-                        target = ent;
-
-                    if (target != null && target.IsAlive)
-                    {
-                        Vector3 aim = GSCFunctions.VectorToAngles(target.GetTagOrigin(aimAt) - sender.GetTagOrigin(aimFrom));
-                        aim.Z = sender.GetPlayerAngles().Z;
-
-                        sender.SetPlayerAngles(aim + new Vector3(0, -180, 0));
-                    }
-                }
-
-                return true;
-            });
-        }
-
-        private static void DoAimAssist(Entity sender)
-        {
-            const string aimFrom = "j_head";
-            const string aimAt = "j_mainroot";
-
-            BaseScript.OnInterval(1, () =>
-            {
-                if (!sender.IsAlive || sender.SessionTeam == "spectator" || sender.SessionState != "playing")
-                    return true;
-
-                if (!sender.IsFieldTrue("EnableAimAssist"))
-                    return false;
-
-                Entity target = null;
-
-                foreach (Entity ent in BaseScript.Players)
-                {
-                    if (!ent.IsAlive || ent == sender)
-                        continue;
-
-                    if (sender.SessionTeam == ent.SessionTeam && (sender.SessionTeam != "none" || ent.SessionTeam == "spectator"))
-                        continue;
-
-                    if (!GSCFunctions.SightTracePassed(sender.GetTagOrigin(aimFrom), ent.GetTagOrigin(aimAt), false))
-                        continue;
-
-                    if (target != null)
-                    {
-                        if (GSCFunctions.Closer(target.GetTagOrigin(aimAt), sender.GetTagOrigin(aimFrom), ent.GetTagOrigin(aimAt)))
-                            target = ent;
-                    }
-                    else
-                        target = ent;
-
-                    if (target != null && target.IsAlive && sender.AdsButtonPressed())
-                    {
-                        Vector3 aim = GSCFunctions.VectorToAngles(target.GetTagOrigin(aimAt) - sender.GetTagOrigin(aimFrom));
-
-                        sender.SetPlayerAngles(aim);
-                    }
-                }
-
-                return true;
-            });
-        }
+        }       
     }
 }

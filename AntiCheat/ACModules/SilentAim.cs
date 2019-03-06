@@ -26,7 +26,7 @@ namespace AntiCheat.ACModules
             set;
         } = new Action<Entity, string>((ent, reason) =>
         {
-            Common.Admin.Ban(ent, "AntiCheat", reason);
+            Common.Admin.TempBan(ent, "AntiCheat", reason);
         });
 
         public void RegisterEvents()
@@ -35,14 +35,21 @@ namespace AntiCheat.ACModules
             {
                 Entity ent = sender as Entity;
 
-                if (args.Mod != "MOD_BULLET" || !ent.IsPlayer)
+                if (!(args.Mod.Contains("BULLET") || args.Mod.Contains("HEADSHOT")) || !ent.IsPlayer)
                     return;
 
                 Vector3 toHit = GSCFunctions.VectorToAngles(args.Player.GetTagOrigin("j_mainroot") - ent.GetTagOrigin("j_head"));
                 double dist = ent.GetPlayerAngles().DistanceToAngle(toHit);
 
-                if (dist > 20)
-                    ent.Tell($"Hax m8??? Hit: {args.Hitloc}. Anglez: {dist}");
+                if (dist > Config.Instance.AntiSilentAim.MaxOffsetAngle && ent.Origin.DistanceTo2D(args.Player.Origin) > 220)
+                {
+                    ent.IncrementField("AntiSilentAim", 1);
+
+                    if (ent.IsFieldHigherOrEqual("AntiSilentAim", Config.Instance.AntiSilentAim.MaxActionLimit))
+                        TakeAction(ent, "Silent-Aim detected");
+                    else if (ent.IsFieldHigherOrEqual("AntiSilentAim", (Config.Instance.AntiSilentAim.MaxActionLimit / 2) + 1))
+                        Utils.WarnAdminsWithPerm(ent, "anticheat.warn.silentaim", $"%eYou might want to take a look at %p{ent.Name}%e. Silent-Aim suspected");
+                }
             });
         }
     }

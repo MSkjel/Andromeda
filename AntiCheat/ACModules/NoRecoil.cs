@@ -39,17 +39,14 @@ namespace AntiCheat.ACModules
                 {
                     ent.IncrementField("NoRecoil", 1);
 
-                    int limit = Config.Instance.AntiNoRecoil.MaxActionLimit * (ent.Ping > 150 ? ent.Ping / 150 : 1);
+                    int limit = (int)Math.Ceiling(Config.Instance.AntiNoRecoil.MaxActionLimit * (ent.Ping > 150 ? ((float)ent.Ping) / 150 : 1f));
 
                     if (ent.IsFieldEqual("NoRecoil", limit))
                     {
                         TakeAction(ent, $"^1No-Recoil detected. Weapon: ^7{ent.CurrentWeapon}");
                     }
-                    else if (ent.IsFieldEqual("NoRecoil", limit / 2))
-                    {
-                        foreach (Entity admin in Utils.OnlineAdminsWithPerms("anticheat.warn.norecoil"))
-                            admin.Tell($"%eYou might want to take a look at %p{ent.Name}%e. No-Recoil suspected. Using weapon: %h1{ent.CurrentWeapon}");
-                    }
+                    else if (ent.IsFieldEqual("NoRecoil", (limit / 2) + 1))
+                        Utils.WarnAdminsWithPerm(ent, "anticheat.warn.norecoil", $"%eYou might want to take a look at %p{ent.Name}%e. No-Recoil suspected. Using weapon: %h1{ent.CurrentWeapon}");
                 }
                 else
                     ent.SetField("NoRecoil", 0);
