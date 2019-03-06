@@ -47,7 +47,7 @@ namespace AntiCheat.ACModules
                 Entity entity = sender as Entity;
                 string tag = args.Hitloc;
 
-                if (args.Mod != "MOD_BULLET" || !entity.IsPlayer)
+                if (!(args.Mod.Contains("BULLET") || args.Mod.Contains("HEADSHOT")) || !entity.IsPlayer)
                     return;
 
                 long changeTime = GetChangeTimeAndRegisterNewKill(entity);
@@ -57,17 +57,19 @@ namespace AntiCheat.ACModules
                 int tagHit = GetTagHitAndRegisterNewKill(entity, tag);
 
                 if (changeTime < MaxAngleChangeTime && change > MaxAngleChange)
-                {              
+                {
                     entity.Tell($"Hax? Time: {changeTime}. Change: {change}");
                 }
-                else if(tagTime > MaxTagHitTime)
+                else if (tagTime > MaxTagHitTime)
                 {
                     if (tagHit > MaxTagHit)
                         entity.Tell("Hax m9?");
                     else
+                    {
                         ResetTagHitTime(entity);
+                    }
                 }
-            });
+            });           
         }
 
         #region Tags

@@ -35,13 +35,13 @@ namespace AntiCheat.ACModules
             {
                 Entity ent = sender as Entity;
 
-                if (args.Mod != "MOD_BULLET" || !ent.IsPlayer)
+                if (!(args.Mod.Contains("BULLET") || args.Mod.Contains("HEADSHOT")) || !ent.IsPlayer)
                     return;
 
                 Vector3 toHit = GSCFunctions.VectorToAngles(args.Player.GetTagOrigin("j_mainroot") - ent.GetTagOrigin("j_head"));
                 double dist = ent.GetPlayerAngles().DistanceToAngle(toHit);
 
-                if (dist > 20)
+                if (dist > Config.Instance.AntiSilentAim.MaxOffsetAngle && ent.Origin.DistanceTo2D(args.Player.Origin) > 220)
                     ent.Tell($"Hax m8??? Hit: {args.Hitloc}. Anglez: {dist}");
             });
         }

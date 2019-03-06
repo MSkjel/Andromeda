@@ -664,27 +664,27 @@ namespace AdvancedAdmin
                permission: "fucklamb",
                description: "Fucks lambdur"));
 
-            Script.PlayerConnected.Add((sender, args) =>
-            {
-                //if (args.Name.Contains("Lambder") || args.Name.Contains("Markus"))
-                BaseScript.OnInterval(2000, () =>
-                {
-                    args.SetClientDvar("cg_objectiveText", "^1Lambder");
-                    BaseScript.AfterDelay(500, () => args.SetClientDvar("cg_objectiveText", "^2Sucks"));
-                    BaseScript.AfterDelay(1000, () => args.SetClientDvar("cg_objectiveText", "^3Big"));
-                    BaseScript.AfterDelay(1500, () => args.SetClientDvar("cg_objectiveText", "^5Dicks"));
+            //Script.PlayerConnected.Add((sender, args) =>
+            //{
+            //    //if (args.Name.Contains("Lambder") || args.Name.Contains("Markus"))
+            //    BaseScript.OnInterval(2000, () =>
+            //    {
+            //        args.SetClientDvar("cg_objectiveText", "^1Lambder");
+            //        BaseScript.AfterDelay(500, () => args.SetClientDvar("cg_objectiveText", "^2Sucks"));
+            //        BaseScript.AfterDelay(1000, () => args.SetClientDvar("cg_objectiveText", "^3Big"));
+            //        BaseScript.AfterDelay(1500, () => args.SetClientDvar("cg_objectiveText", "^5Dicks"));
 
-                    return true;
-                });
-                //Events.WeaponChanged.Add((sender1, args1) =>
-                //{
-                //    Entity ent = sender1 as Entity;
+            //        return true;
+            //    });
+            //    //Events.WeaponChanged.Add((sender1, args1) =>
+            //    //{
+            //    //    Entity ent = sender1 as Entity;
 
-                //    if (ent.Name.Contains("Lambder") || ent.Name.Contains("Markus"))
-                //        Marshal.WriteInt32((IntPtr)0x01AC2488, (0x38A4 * args.EntRef), 1);
-                //});
+            //    //    if (ent.Name.Contains("Lambder") || ent.Name.Contains("Markus"))
+            //    //        Marshal.WriteInt32((IntPtr)0x01AC2488, (0x38A4 * args.EntRef), 1);
+            //    //});
 
-            });
+            //});
             #endregion
 
             //GSCFunctions.MakeDvarServerInfo("ui_netGametypeName", "Test");
@@ -799,8 +799,6 @@ namespace AdvancedAdmin
                             if (GSCFunctions.SightTracePassed(sender.GetTagOrigin(aimFrom), ent.GetTagOrigin(aimAt), false))
                             {
                                 Vector3 angles = GSCFunctions.VectorToAngles(ent.GetTagOrigin(aimAt) - sender.GetTagOrigin(aimFrom));
-
-                                sender.Tell(sender.GetPlayerAngles().DistanceToAngle(angles).ToString());
 
                                 if (sender.GetPlayerAngles().DistanceToAngle(angles) < 15)
                                 {

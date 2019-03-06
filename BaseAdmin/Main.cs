@@ -57,6 +57,8 @@ namespace BaseAdmin
             }
 
             Common.Register(Admin.Instance);
+
+            Config.Load();
         }
 
         [EntryPoint]

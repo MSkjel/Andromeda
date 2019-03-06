@@ -11,5 +11,7 @@ namespace AntiCheat
     public static class Utils
     {
         public static IEnumerable<Entity> OnlineAdminsWithPerms(string perm) => BaseScript.Players.Where(x => Common.Perms.RequestPermission(x, perm, out string message));
+
+        public static void WarnAdminsWithPerm(string perm) => OnlineAdminsWithPerms(perm);
     }
 }

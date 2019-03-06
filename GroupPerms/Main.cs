@@ -141,7 +141,7 @@ namespace GroupPerms
         }
 
         [EntryPoint]
-        static void Init()
+        private static void Init()
         {
             // SETGROUP
             Command.TryRegister(SmartParse.CreateCommand(

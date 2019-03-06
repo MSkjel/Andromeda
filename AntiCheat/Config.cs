@@ -72,7 +72,7 @@ namespace AntiCheat
 
             PingMultiplier = true,
 
-            MaxActionLimit = 20
+            MaxActionLimit = 30
         };
 
         public static void Load()

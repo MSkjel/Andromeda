@@ -33,7 +33,7 @@ namespace ISnipe
                         float ads = player.PlayerAds();
                         int adscycles = player.GetField<int>("adscycles");
 
-                        if (ads == 1f)
+                        if (ads == 1f && player.IsAlive)
                             adscycles++;
                         else
                             adscycles = 0;
