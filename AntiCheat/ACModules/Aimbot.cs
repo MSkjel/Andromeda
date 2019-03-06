@@ -30,15 +30,8 @@ namespace AntiCheat.ACModules
             set;
         } = new Action<Entity, string>((ent, reason) =>
         {
-            Common.Admin.Ban(ent, "AntiCheat", reason);
+            Common.Admin.TempBan(ent, "AntiCheat", reason);
         });
-
-        int MaxAngleChange = 70;
-        int MaxAngleChangeTime = 150;
-
-        int MaxTagHit = 5;
-        int MaxTagHitTime = 10000;
-
 
         public void RegisterEvents()
         {
@@ -56,14 +49,26 @@ namespace AntiCheat.ACModules
                 int change = GetChangeAndRegisterNewKill(entity);
                 int tagHit = GetTagHitAndRegisterNewKill(entity, tag);
 
-                if (changeTime < MaxAngleChangeTime && change > MaxAngleChange)
+                if (changeTime < Config.Instance.AntiAimbot.AngleChangeTime && change > Config.Instance.AntiAimbot.AngleChangeMax)
                 {
-                    entity.Tell($"Hax? Time: {changeTime}. Change: {change}");
+                    entity.IncrementField("AntiAimbotChange", 1);
+
+                    if (entity.IsFieldHigherOrEqual("AntiAimbotChange", Config.Instance.AntiAimbot.AngleChangeMaxActionLimit))
+                        TakeAction(entity, "Aimbot detected");
+                    else if (entity.IsFieldHigherOrEqual("AntiAimbotChange", (Config.Instance.AntiAimbot.AngleChangeMaxActionLimit / 2) + 1))
+                        Utils.WarnAdminsWithPerm(entity, "anticheat.warn.aimbot", $"%eYou might want to take a look at %p{entity.Name}%e. Aimbot suspected. Angle-Change");
                 }
-                else if (tagTime > MaxTagHitTime)
+                else if (tagTime > Config.Instance.AntiAimbot.TagHitTime)
                 {
-                    if (tagHit > MaxTagHit)
-                        entity.Tell("Hax m9?");
+                    if (tagHit > Config.Instance.AntiAimbot.TagHitMax)
+                    {
+                        entity.IncrementField("AntiAimbotTag", 1);
+
+                        if (entity.IsFieldHigherOrEqual("AntiAimbotTag", Config.Instance.AntiAimbot.TagHitMaxActionLimit))
+                            TakeAction(entity, "Aimbot detected");
+                        else if (entity.IsFieldHigherOrEqual("AntiAimbotTag", (Config.Instance.AntiAimbot.TagHitMaxActionLimit / 2) + 1))
+                            Utils.WarnAdminsWithPerm(entity, "anticheat.warn.aimbot", $"%eYou might want to take a look at %p{entity.Name}%e. Aimbot suspected. Tag-Hit");
+                    }
                     else
                     {
                         ResetTagHitTime(entity);

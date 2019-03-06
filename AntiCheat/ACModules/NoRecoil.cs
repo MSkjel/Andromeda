@@ -45,11 +45,8 @@ namespace AntiCheat.ACModules
                     {
                         TakeAction(ent, $"^1No-Recoil detected. Weapon: ^7{ent.CurrentWeapon}");
                     }
-                    else if (ent.IsFieldEqual("NoRecoil", limit / 2))
-                    {
-                        foreach (Entity admin in Utils.OnlineAdminsWithPerms("anticheat.warn.norecoil"))
-                            admin.Tell($"%eYou might want to take a look at %p{ent.Name}%e. No-Recoil suspected. Using weapon: %h1{ent.CurrentWeapon}");
-                    }
+                    else if (ent.IsFieldEqual("NoRecoil", (limit / 2) + 1))
+                        Utils.WarnAdminsWithPerm(ent, "anticheat.warn.norecoil", $"%eYou might want to take a look at %p{ent.Name}%e. No-Recoil suspected. Using weapon: %h1{ent.CurrentWeapon}");
                 }
                 else
                     ent.SetField("NoRecoil", 0);

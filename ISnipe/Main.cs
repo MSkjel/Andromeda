@@ -38,7 +38,7 @@ namespace ISnipe
                         else
                             adscycles = 0;
 
-                        if (adscycles > 5)
+                        if (adscycles > 8)
                         {
                             player.AllowAds(false);
                             player.IPrintLnBold("^1Hardscoping is not allowed!");

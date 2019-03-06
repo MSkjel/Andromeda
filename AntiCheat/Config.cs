@@ -44,17 +44,24 @@ namespace AntiCheat
             public int MaxActionLimit;
         }
 
+        public struct AntiSpinBotStruct
+        {
+            public bool Enabled;
+
+            public int MaxAngle;
+        }
+
         public AntiAimbotStruct AntiAimbot = new AntiAimbotStruct()
         {
             Enabled = true,
 
             AngleChangeTime = 100,
             AngleChangeMax = 70,
-            AngleChangeMaxActionLimit = 5,
+            AngleChangeMaxActionLimit = 10,
 
-            TagHitTime = 100,
-            TagHitMax = 5,
-            TagHitMaxActionLimit = 5
+            TagHitTime = 5000,
+            TagHitMax = 10,
+            TagHitMaxActionLimit = 15
         };
 
         public AntiSilentAimStruct AntiSilentAim = new AntiSilentAimStruct()
@@ -73,6 +80,13 @@ namespace AntiCheat
             PingMultiplier = true,
 
             MaxActionLimit = 30
+        };
+
+        public AntiSpinBotStruct AntiSpinBot = new AntiSpinBotStruct()
+        {
+            Enabled = true,
+
+            MaxAngle = 20
         };
 
         public static void Load()

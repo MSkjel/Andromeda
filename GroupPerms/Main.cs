@@ -122,6 +122,7 @@ namespace GroupPerms
             var deserializer = new Deserializer();
 
             Config = deserializer.Deserialize<Config>(System.IO.File.ReadAllText(filePath));
+
             if (System.IO.File.Exists(keysPath))
                 Keys = deserializer.Deserialize<Dictionary<string, string>>(System.IO.File.ReadAllText(keysPath));
 
