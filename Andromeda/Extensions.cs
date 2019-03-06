@@ -67,7 +67,9 @@ namespace Andromeda
                 sbLength = 0;
             }
 
-            yield return sb.ToString();
+            if(sbLength != 0)
+                yield return sb.ToString();
+
             sb.Clear();
         }
     }

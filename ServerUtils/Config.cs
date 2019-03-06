@@ -4,27 +4,25 @@ using System.Linq;
 using System.Text;
 using Andromeda;
 using System.IO;
-using Newtonsoft.Json;
 using InfinityScript;
 
 namespace ServerUtils
 {
     internal class Config
     {
-        public static Config Instance;
-        private const string path = @"scripts\ServerUtils";
+        public Dictionary<string, string> Colors = new Dictionary<string, string>()
+        {
+            ["normal"] = "^7",
+            ["info"] = "^6",
+            ["error"] = "^1",
+            ["admin"] = "^3",
+            ["player"] = "^:",
 
-        public ColorScheme ColorScheme = new ColorScheme(
-            normal: "^7",
-            info: "^6",
-            error: "^1",
-            admin: "^3",
-            player: "^:",
-
-            highlight1: "^;",
-            highlight2: "^2",
-            highlight3: "^8",
-            highlight4: "^5");
+            ["highlight1"] = "^;",
+            ["highlight2"] = "^2",
+            ["highlight3"] = "^8",
+            ["highlight4"] = "^5",
+        };
 
         public string ServerDisplayName = "^;Server";
 
@@ -51,21 +49,5 @@ namespace ServerUtils
                 "Example rule #2",
             }
         };
-
-        public static void Load()
-        {
-            Directory.CreateDirectory(@"scripts\ServerUtils");
-
-            var file = Path.Combine(path, "settings.json");
-
-            GSCFunctions.SetDvarIfUninitialized("utils_path", file);
-
-            file = GSCFunctions.GetDvar("utils_path");
-
-            if(!File.Exists(file))
-                File.WriteAllText(file, JsonConvert.SerializeObject(new Config(), Formatting.Indented));
-
-            Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(file));
-        }
     }
 }
