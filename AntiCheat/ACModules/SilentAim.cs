@@ -45,9 +45,9 @@ namespace AntiCheat.ACModules
                 {
                     ent.IncrementField("AntiSilentAim", 1);
 
-                    if (ent.IsFieldHigherOrEqual("AntiSilentAim", Config.Instance.AntiSilentAim.MaxActionLimit))
+                    if (ent.IsFieldEqual("AntiSilentAim", Config.Instance.AntiSilentAim.MaxActionLimit))
                         TakeAction(ent, "Silent-Aim detected");
-                    else if (ent.IsFieldHigherOrEqual("AntiSilentAim", (Config.Instance.AntiSilentAim.MaxActionLimit / 2) + 1))
+                    else if (ent.IsFieldEqual("AntiSilentAim", (Config.Instance.AntiSilentAim.MaxActionLimit / 2) + 1))
                         Utils.WarnAdminsWithPerm(ent, "anticheat.warn.silentaim", $"%eYou might want to take a look at %p{ent.Name}%e. Silent-Aim suspected");
                 }
             });

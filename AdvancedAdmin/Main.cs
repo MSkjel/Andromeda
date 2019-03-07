@@ -447,6 +447,8 @@ namespace AdvancedAdmin
 
                    sender.GiveWeapon(wep);
                    sender.SetWeaponAmmoClip(wep, int.MaxValue);
+                   sender.SetField("Allow_Weapon_Name", wep);
+                   sender.SetField("Allow_Grenade_Name", wep);
                    BaseScript.AfterDelay(100, () => sender.SwitchToWeaponImmediate(wep));
 
                    sender.Tell($"%nYou have been given %p{wep}");

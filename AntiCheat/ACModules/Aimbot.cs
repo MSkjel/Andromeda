@@ -53,9 +53,9 @@ namespace AntiCheat.ACModules
                 {
                     entity.IncrementField("AntiAimbotChange", 1);
 
-                    if (entity.IsFieldHigherOrEqual("AntiAimbotChange", Config.Instance.AntiAimbot.AngleChangeMaxActionLimit))
+                    if (entity.IsFieldEqual("AntiAimbotChange", Config.Instance.AntiAimbot.AngleChangeMaxActionLimit))
                         TakeAction(entity, "Aimbot detected");
-                    else if (entity.IsFieldHigherOrEqual("AntiAimbotChange", (Config.Instance.AntiAimbot.AngleChangeMaxActionLimit / 2) + 1))
+                    else if (entity.IsFieldEqual("AntiAimbotChange", (Config.Instance.AntiAimbot.AngleChangeMaxActionLimit / 2) + 1))
                         Utils.WarnAdminsWithPerm(entity, "anticheat.warn.aimbot", $"%eYou might want to take a look at %p{entity.Name}%e. Aimbot suspected. Angle-Change");
                 }
                 else if (tagTime > Config.Instance.AntiAimbot.TagHitTime)
@@ -64,9 +64,9 @@ namespace AntiCheat.ACModules
                     {
                         entity.IncrementField("AntiAimbotTag", 1);
 
-                        if (entity.IsFieldHigherOrEqual("AntiAimbotTag", Config.Instance.AntiAimbot.TagHitMaxActionLimit))
+                        if (entity.IsFieldEqual("AntiAimbotTag", Config.Instance.AntiAimbot.TagHitMaxActionLimit))
                             TakeAction(entity, "Aimbot detected");
-                        else if (entity.IsFieldHigherOrEqual("AntiAimbotTag", (Config.Instance.AntiAimbot.TagHitMaxActionLimit / 2) + 1))
+                        else if (entity.IsFieldEqual("AntiAimbotTag", (Config.Instance.AntiAimbot.TagHitMaxActionLimit / 2) + 1))
                             Utils.WarnAdminsWithPerm(entity, "anticheat.warn.aimbot", $"%eYou might want to take a look at %p{entity.Name}%e. Aimbot suspected. Tag-Hit");
                     }
                     else
@@ -130,7 +130,14 @@ namespace AntiCheat.ACModules
             }
         }
 
-        private void ResetTagHitTime(Entity entity) => entity.GetField<Stopwatch>("TagStopwatch").Restart();
+        private void ResetTagHitTime(Entity entity)
+        {
+            entity.GetField<Stopwatch>("TagStopwatch").Restart();
+
+            if (entity.HasField("TagHits"))
+                entity.GetField<Dictionary<string, int>>("TagHits").Clear();
+        }
+
         #endregion
 
         #region Angle

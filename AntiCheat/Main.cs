@@ -22,7 +22,9 @@ namespace AntiCheat
             {
                 new Aimbot(),
                 new SilentAim(),
-                new NoRecoil()
+                new NoRecoil(),
+                new SpinBot(),
+                new ForceClass()
             });
 
             foreach (IAntiCheatModule module in AntiCheatModules)

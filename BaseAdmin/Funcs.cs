@@ -12,11 +12,12 @@ namespace BaseAdmin
 {
     public static class Funcs
     {
-        internal static readonly int MaxWarnings = 3;
+        private static Config Config => Config.Instance;
 
         private static void DelayedKick(Entity ent, string message)
         {
             var cmd = $"dropclient {ent.EntRef} \"{message}\"";
+
             BaseScript.AfterDelay(150, delegate
             {
                 Utilities.ExecuteCommand(cmd);
@@ -38,7 +39,7 @@ namespace BaseAdmin
 
                 BanKick(ent, issuer, message);
 
-                Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^1banned %nby %p{issuer}%n. Reason: %i{message}");
+                Common.SayAll(Config.BanMessages.BanMessageServer.FormatServerMessage(ent, issuer, message));
 
                 yield return Async.Detach();
                 lock (Main.Connection)
@@ -51,13 +52,12 @@ namespace BaseAdmin
         }
 
         internal static void BanKick(Entity ent, string issuer, string message)
-            => DelayedKick(ent, $"You are permanently banned by %p{issuer}%n. Reason: %i{message}".ColorFormat());
+            => DelayedKick(ent, Config.BanMessages.BanMessagePlayer.FormatServerMessage(ent, issuer, message).ColorFormat());
 
         public static void Kick(Entity ent, string issuer, string message = "You have been kicked")
         {
-            DelayedKick(ent, $"Kicked by %p{issuer}%n. Reason: %i{message}\"".ColorFormat());
-
-            Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^1kicked %nby %p{issuer}%n. Reason: %i{message}");
+            DelayedKick(ent, Config.KickMessages.KickMessagePlayer.FormatServerMessage(ent, issuer, message).ColorFormat());
+            Common.SayAll(Config.KickMessages.KickMessagePlayer.FormatServerMessage(ent, issuer, message));
         }
 
         public static void TempBan(Entity ent, string issuer, TimeSpan timeSpan, string message = "You have been temporarily banned")
@@ -73,10 +73,11 @@ namespace BaseAdmin
                 cmd.Parameters.AddWithValue("@reason", message);
                 cmd.Parameters.AddWithValue("@time", Main.FormatDate(DateTime.Now + timeSpan));
 
-                BanKick(ent, issuer, message);
+                TempBanKick(ent, issuer, timeSpan, message);
 
                 var spanstr = $"{timeSpan.Days}d{timeSpan.Hours}h{timeSpan.Minutes}m";
-                Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^1tempbanned %nby %p{issuer}%n for {spanstr}. Reason: %i{message}");
+
+                Common.SayAll(Config.TempBanMessages.TempBanMessagePlayer.FormatServerMessage(ent, issuer, message, spanstr));
 
                 yield return Async.Detach();
 
@@ -93,7 +94,7 @@ namespace BaseAdmin
         {
             var spanstr = $"{timeSpan.Days}d{timeSpan.Hours}h{timeSpan.Minutes}m";
 
-            DelayedKick(ent, $"You are banned by %p{issuer}%n for {spanstr}. Reason: %i{message}".ColorFormat());
+            DelayedKick(ent, Config.TempBanMessages.TempBanMessagePlayer.FormatServerMessage(ent, issuer, message, spanstr).ColorFormat());
         }
 
         public static void Unwarn(Entity ent, string issuer, string reason = "You have been unwarned")
@@ -122,7 +123,8 @@ namespace BaseAdmin
                 if (amount <= 0)
                     amount = 0;
 
-                Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^2unwarned({amount}/3) %nby %p{issuer}%n. Reason: %i{reason}");
+                Common.SayAll(Config.Warns.UnwarnMessageServer.FormatServerMessage(ent, issuer, reason));
+                ent.IPrintLnBold(Config.Warns.UnwarnMessagePlayer.FormatServerMessage(ent, issuer, reason).ColorFormat());
 
                 var newcmd = new SQLiteCommand(Main.Connection);
                 if (amount == 0)
@@ -194,14 +196,18 @@ namespace BaseAdmin
 
                 amount++;
 
-                if (amount >= MaxWarnings)
+                if (amount >= Config.Warns.MaxWarns)
                 {
-                    Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^1warned({amount}/3) %nby %p{issuer}%n. Reason: %i{reason}");
+                    Common.SayAll(Config.Warns.WarnMessageServer.FormatServerMessage(ent, issuer, reason, "", (int)amount, Config.Warns.MaxWarns));
                     Common.Admin.TempBan(ent, issuer, reason);
+
                     amount = 0;
                 }
                 else
-                    Common.SayAll($"%p{ent.GetFormattedName()} %nhas been ^3warned({amount}/3) %nby %p{issuer}%n. Reason: %i{reason}");
+                {
+                    Common.SayAll(Config.Warns.WarnMessageServer.FormatServerMessage(ent, issuer, reason, "", (int)amount, Config.Warns.MaxWarns));
+                    ent.IPrintLnBold(Config.Warns.WarnMessagePlayer.FormatServerMessage(ent, issuer, reason, "", (int)amount, Config.Warns.MaxWarns).ColorFormat());
+                }
 
                 var newcmd = new SQLiteCommand(Main.Connection);
 

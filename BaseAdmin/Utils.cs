@@ -177,16 +177,16 @@ namespace BaseAdmin
         public static string FormatServerMessage(this string message, Entity player, string issuer = "", string reason = "", string duration = "", int warns = 0, int maxwarns = 0)
         {
             return message
-                .Replace("<player>", player.Name)
-                .Replace("<guid>", player.GUID.ToString())
-                .Replace("<hwid>", player.HWID.ToString())
-                .Replace("<ip>", player.IP.ToString())
-                .Replace("<ping>", player.Ping.ToString())
-                .Replace("<issuer>", issuer)
-                .Replace("<reason>", reason)
-                .Replace("<duration>", duration)
-                .Replace("<warnamount>", warns.ToString())
-                .Replace("<maxwarns>", maxwarns.ToString());
+                .Replace("$player", player.Name)
+                .Replace("$guid", player.GUID.ToString())
+                .Replace("$hwid", player.HWID.ToString())
+                .Replace("$ip", player.IP.ToString())
+                .Replace("$ping", player.Ping.ToString())
+                .Replace("$issuer", issuer)
+                .Replace("$reason", reason)
+                .Replace("$duration", duration)
+                .Replace("$warnamount", warns.ToString())
+                .Replace("$maxwarns", maxwarns.ToString());
         }
     }
 }
