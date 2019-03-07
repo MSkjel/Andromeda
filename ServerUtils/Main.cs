@@ -38,7 +38,7 @@ namespace ServerUtils
                 }
             }
 
-            if (Config.Announcements.Length > 0)
+            if (Config.Announcements != null)
                 Async.Start(announcer());
 
             foreach (var cmd in Config.InfoCommands)
