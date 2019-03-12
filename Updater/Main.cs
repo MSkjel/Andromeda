@@ -61,7 +61,7 @@ namespace Updater
 
                     if(bytes == null)
                     {
-                        Log.Info($"Failed updating \"{name}\"");
+                        Log.Info($"Failed updating {name}");
                         Log.Info("Failed downloading new file");
 
                         continue;
@@ -69,7 +69,7 @@ namespace Updater
 
                     if (md5.ComputeHash(versionBytes) != update.Md5Hash)
                     {
-                        Log.Info($"Failed updating \"{name}\"");
+                        Log.Info($"Failed updating {name}");
                         Log.Info("Mismatching md5 hash");
 
                         continue;
