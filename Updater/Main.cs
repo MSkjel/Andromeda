@@ -22,7 +22,7 @@ namespace Updater
 
         [EntryPoint]
         private static void Init()
-            => Update();
+            => Async.Start(Update());
 
         private static IEnumerator Update()
         {
