@@ -23,11 +23,11 @@ namespace AdvancedAdmin
 
         internal static string Get(string index)
         {
-            string[] str = Marshal.PtrToStringAnsi(ptr).Split(new[] { @"\" }, StringSplitOptions.None);
+            string[] str = Marshal.PtrToStringAnsi(ptr).Split('\\');
 
             for (int i = 0; i < str.Length - 1; i++)
             {
-                if (str[i] == "m" && i % 2 == 0)
+                if (str[i] == index && i % 2 == 0)
                     return str[i + 1];
             }
 
@@ -36,17 +36,18 @@ namespace AdvancedAdmin
 
         internal static void Set(string index, string value)
         {
-            value = System.Text.RegularExpressions.Regex.Replace(value, @"\", "");
+            value = value.Replace(@"\", "");
 
-            string[] str = Marshal.PtrToStringAnsi(ptr).Split(new[] { @"\" }, StringSplitOptions.None);
-
+            string[] str = Marshal.PtrToStringAnsi(ptr).Split('\\');
             for (int i = 0; i < str.Length - 1; i++)
             {
-                if (str[i] == "m" && i % 2 == 0)
+                if (str[i] == index && i % 2 == 0)
                     str[i + 1] = value;
             }
 
-            WriteStringASCII(ptr, string.Join(@"\", str));
+            var newstr = string.Join(@"\", str);
+
+            WriteStringASCII(ptr, newstr);
         }
 
         private static ProcessModule GetModule(Process process, string ModuleName)

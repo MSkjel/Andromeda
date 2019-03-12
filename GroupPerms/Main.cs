@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using InfinityScript;
-using SharpYaml.Serialization;
+using YamlDotNet.Serialization;
 using Andromeda;
 using Andromeda.Parse;
 
@@ -16,7 +16,7 @@ namespace GroupPerms
         internal static Config Config;
         internal static Dictionary<string, string> Keys = new Dictionary<string, string>();
         internal static Dictionary<string, Group> GroupLookup;
-        internal static readonly Serializer YAMLSerializer;
+        internal static ISerializer YAMLSerializer = new SerializerBuilder().DisableAliases().Build();
 
         private static string filePath;
         private static string keysPath;
@@ -119,9 +119,12 @@ namespace GroupPerms
                 }));
             }
 
-            Config = YAMLSerializer.Deserialize<Config>(System.IO.File.ReadAllText(filePath));
+            var deserializer = new Deserializer();
+
+            Config = deserializer.Deserialize<Config>(System.IO.File.ReadAllText(filePath));
+
             if (System.IO.File.Exists(keysPath))
-                Keys = YAMLSerializer.Deserialize<Dictionary<string, string>>(System.IO.File.ReadAllText(keysPath));
+                Keys = deserializer.Deserialize<Dictionary<string, string>>(System.IO.File.ReadAllText(keysPath));
 
             GroupLookup = Config.Groups.ToDictionary(grp => grp.Name);
             GroupLookup["default"] = Config.DefaultGroup;
@@ -129,19 +132,13 @@ namespace GroupPerms
 
         static Main()
         {
-            YAMLSerializer = new Serializer(new SerializerSettings
-            {
-                EmitAlias = false,
-                EmitTags = false,
-            });
-
             ReadConfig();
 
             Common.Register(Perms.Instance);
         }
 
         [EntryPoint]
-        static void Init()
+        private static void Init()
         {
             // SETGROUP
             Command.TryRegister(SmartParse.CreateCommand(

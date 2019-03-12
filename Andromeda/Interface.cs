@@ -97,12 +97,12 @@ namespace Andromeda
                 return true;
             }
 
-            val = default(T);
+            val = default;
             return false;
         }
 
         #region Fields
-        public static T GetFieldOrVal<T>(this Entity ent, string field, T def = default(T))
+        public static T GetFieldOrVal<T>(this Entity ent, string field, T def = default)
         {
             try
             {

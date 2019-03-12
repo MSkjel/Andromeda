@@ -11,13 +11,22 @@ namespace ServerUtils
 {
     public class Utils : IUtils
     {
-        public static IUtils Instance = new Utils();
+        public static IUtils Instance;
 
-        public ColorScheme ColorScheme
-            => Config.Instance.ColorScheme;
+        public ColorScheme ColorScheme { get; } = new ColorScheme(
+            normal: Main.Config.Colors["normal"],
+            info: Main.Config.Colors["info"],
+            error: Main.Config.Colors["error"],
+            admin: Main.Config.Colors["admin"],
+            player: Main.Config.Colors["player"],
+
+            highlight1: Main.Config.Colors["highlight1"],
+            highlight2: Main.Config.Colors["highlight2"],
+            highlight3: Main.Config.Colors["highlight3"],
+            highlight4: Main.Config.Colors["highlight4"]);
 
         public string ServerName
-            => Config.Instance.ServerDisplayName;
+            => Main.Config.ServerDisplayName;
 
         public string Version { get; } = "ServerUtils v1.0.0";
 
@@ -36,13 +45,13 @@ namespace ServerUtils
                 using (var e = messages.GetEnumerator())
                 {
                     if (e.MoveNext())
-                        Utilities.RawSayAll($"{Config.Instance.PublicPrefix}{e.Current}");
+                        Utilities.RawSayAll($"{Main.Config.PublicPrefix}{e.Current}");
 
                     while (e.MoveNext())
                     {
-                        yield return BaseScript.Wait(Config.Instance.MessageTrailDelay);
+                        yield return BaseScript.Wait(Main.Config.MessageTrailDelay);
 
-                        Utilities.RawSayAll($"{Config.Instance.PublicTrail}{e.Current}");
+                        Utilities.RawSayAll($"{Main.Config.PublicTrail}{e.Current}");
                     }
                 }
             }
@@ -60,13 +69,13 @@ namespace ServerUtils
                 using (var e = messages.GetEnumerator())
                 {
                     if (e.MoveNext())
-                        Utilities.RawSayTo(player, $"{Config.Instance.PrivatePrefix}{e.Current}");
+                        Utilities.RawSayTo(player, $"{Main.Config.PrivatePrefix}{e.Current}");
 
                     while (e.MoveNext())
                     {
-                        yield return BaseScript.Wait(Config.Instance.MessageTrailDelay);
+                        yield return BaseScript.Wait(Main.Config.MessageTrailDelay);
 
-                        Utilities.RawSayTo(player, $"{Config.Instance.PrivateTrail}{e.Current}");
+                        Utilities.RawSayTo(player, $"{Main.Config.PrivateTrail}{e.Current}");
                     }
                 }
             }

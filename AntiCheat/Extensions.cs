@@ -24,5 +24,23 @@ namespace AntiCheat
         {
             return Math.Sqrt(Math.Pow(Difference(angle1.X, angle2.X), 2) + Math.Pow(Difference(angle1.Y, angle2.Y), 2));
         }
+
+        public static int GetNthIndexWeapon(this string s, char t, int n)
+        {
+            int count = 0;
+
+            for (int i = 0; i < s.Length; i++)
+            {
+                if (s[i] == t)
+                {
+                    count++;
+
+                    if (count == n)
+                        return i;
+                }
+            }
+
+            return s.Length;
+        }
     }
 }

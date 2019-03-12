@@ -19,7 +19,7 @@ namespace ChatOverhaul
             string formatted(Match match)
                 => ent.GetFormattedName().Replace(ent.Name, match.Groups[1].Value);
 
-            field = Regex.Replace(field, @"\$name", Regex.Escape(ent.Name));
+            field = Regex.Replace(field, @"\$name", m => ent.Name);
             field = Regex.Replace(field, $@"\$formatted\((.+?)\)", formatted);
 
             return field;

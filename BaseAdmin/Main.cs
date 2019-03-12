@@ -57,6 +57,8 @@ namespace BaseAdmin
             }
 
             Common.Register(Admin.Instance);
+
+            Config.Load();
         }
 
         [EntryPoint]
@@ -511,6 +513,7 @@ namespace BaseAdmin
                 action: delegate (Entity sender, object[] args)
                 {
                     Utils.SetTeam(sender, "spectator");
+                    sender.Tell($"You have been set to spectator.");
                 },
                 usage: "!afk",
                 description: "Sets your team to spectator"));
@@ -566,6 +569,7 @@ namespace BaseAdmin
             #endregion
             #endregion
 
+            // ban checks
             Script.PlayerConnected.Add((sender, player) =>
             {
                 IEnumerator routine()

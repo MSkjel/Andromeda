@@ -1,16 +1,19 @@
 ﻿using InfinityScript;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using YamlDotNet.Serialization;
 
 namespace AntiCheat
 {
     public class Config
     {
         internal static Config Instance;
+
+        internal static ISerializer YAMLSerializer = new SerializerBuilder().DisableAliases().Build();
+
         private const string path = @"scripts\AntiCheat";
 
         public struct AntiAimbotStruct
@@ -44,17 +47,29 @@ namespace AntiCheat
             public int MaxActionLimit;
         }
 
+        public struct AntiSpinBotStruct
+        {
+            public bool Enabled;
+
+            public int MaxAngle;
+        }
+
+        public struct AntiForceClassStruct
+        {
+            public bool Enabled;
+        }
+
         public AntiAimbotStruct AntiAimbot = new AntiAimbotStruct()
         {
             Enabled = true,
 
             AngleChangeTime = 100,
             AngleChangeMax = 70,
-            AngleChangeMaxActionLimit = 5,
+            AngleChangeMaxActionLimit = 10,
 
-            TagHitTime = 100,
-            TagHitMax = 5,
-            TagHitMaxActionLimit = 5
+            TagHitTime = 10000,
+            TagHitMax = 15,
+            TagHitMaxActionLimit = 15
         };
 
         public AntiSilentAimStruct AntiSilentAim = new AntiSilentAimStruct()
@@ -72,19 +87,33 @@ namespace AntiCheat
 
             PingMultiplier = true,
 
-            MaxActionLimit = 20
+            MaxActionLimit = 30
+        };
+
+        public AntiSpinBotStruct AntiSpinBot = new AntiSpinBotStruct()
+        {
+            Enabled = true,
+
+            MaxAngle = 20
+        };
+
+        public AntiForceClassStruct AntiForceClass = new AntiForceClassStruct()
+        {
+            Enabled = true
         };
 
         public static void Load()
         {
             Directory.CreateDirectory(path);
 
-            var file = Path.Combine(path, "settings.json");
+            var file = Path.Combine(path, "settings.yaml");
 
             if (!File.Exists(file))
-                File.WriteAllText(file, JsonConvert.SerializeObject(new Config(), Formatting.Indented));
+                File.WriteAllText(file, YAMLSerializer.Serialize(new Config()));
 
-            Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(file));
+            var deserializer = new Deserializer();
+
+            Instance = deserializer.Deserialize<Config>(File.ReadAllText(file));
         }
     }
 }

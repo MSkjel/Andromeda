@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Andromeda;
+using Andromeda.Parse;
 
 namespace AntiCheat
 {
@@ -21,7 +22,9 @@ namespace AntiCheat
             {
                 new Aimbot(),
                 new SilentAim(),
-                new NoRecoil()
+                new NoRecoil(),
+                new SpinBot(),
+                new ForceClass()
             });
 
             foreach (IAntiCheatModule module in AntiCheatModules)
@@ -33,7 +36,7 @@ namespace AntiCheat
                 }
             }
         }
-        
+
         static Main()
         {
             Config.Load();

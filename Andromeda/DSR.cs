@@ -45,7 +45,7 @@ namespace Andromeda
                     yield return BaseScript.Wait(0.1f);
 
                 ReadDSROptions(LoadedDSR);
-                Events.Events.DSRLoad.Run(null, new Events.EventArguments.DSRLoadArgs(DSROptions));
+                Events.Events.DSRLoad.Run(null, new Events.EventArguments.DSRLoadArgs(DSROptions, LoadedDSR));
             }
 
             Async.Start(routine());
@@ -57,12 +57,10 @@ namespace Andromeda
             {
                 foreach (var fline in ReadNonCommentedLines(Path.Combine(DSRFolder, $"{dsrName}.dsr")))
                 {
-                    var match = Regex.Match(fline, @"^dsrOpt\s+(\S+)\s+""(\S+)""");
+                    var match = Regex.Match(fline, @"^dsrOpt\s+(\S+)\s+""(.*)""");
 
                     if(match.Success)
-                    {
                         DSROptions[match.Groups[1].Value] = match.Groups[2].Value;
-                    }
                 }
             }
             catch (Exception e)
