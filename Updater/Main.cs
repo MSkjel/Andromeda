@@ -17,7 +17,7 @@ namespace Updater
 
         private static byte[] downloadBytes(string url)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         [EntryPoint]
@@ -31,6 +31,12 @@ namespace Updater
             yield return Async.Detach();
 
             var versionBytes = downloadBytes(versionsStringUrl);
+
+            if(versionBytes == null)
+            {
+                Log.Info("Failed downloading versions file");
+                yield break;
+            }
 
             var versions = JsonConvert.DeserializeObject<VersionInfo[]>(Encoding.UTF8.GetString(versionBytes));
 
@@ -48,14 +54,23 @@ namespace Updater
                 Log.Info("Updates found:");
                 foreach (var update in versions)
                 {
-                    Log.Info($"Updating {System.IO.Path.GetFileNameWithoutExtension(update.FilePath)}.");
+                    var name = System.IO.Path.GetFileNameWithoutExtension(update.FilePath);
+                    Log.Info($"Updating {name}");
 
                     var bytes = downloadBytes(update.DownloadUrl);
 
+                    if(bytes == null)
+                    {
+                        Log.Info($"Failed updating \"{name}\"");
+                        Log.Info("Failed downloading new file");
+
+                        continue;
+                    }
+
                     if (md5.ComputeHash(versionBytes) != update.Md5Hash)
                     {
-                        Log.Info($"Failed updating \"{update.FilePath}\"");
-                        Log.Info($"Mismatching md5 hash");
+                        Log.Info($"Failed updating \"{name}\"");
+                        Log.Info("Mismatching md5 hash");
 
                         continue;
                     }
@@ -68,6 +83,8 @@ namespace Updater
                     System.IO.File.Move(update.FilePath, oldFilePath);
 
                     System.IO.File.WriteAllBytes(update.FilePath, downloadBytes(update.DownloadUrl));
+
+                    Log.Info($"Updated {name}");
                 }
             }
             else
