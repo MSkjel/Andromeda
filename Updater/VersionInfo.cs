@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 
 namespace Updater
 {
-    internal class VersionInfo
+    internal struct VersionInfo
     {
         public string FilePath;
 

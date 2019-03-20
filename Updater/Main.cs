@@ -17,7 +17,22 @@ namespace Updater
 
         private static byte[] downloadBytes(string url)
         {
-            return null;
+            try
+            {
+                var stream = WebRequest.Create(url).GetResponse().GetResponseStream();
+
+                byte[] buf = new byte[stream.Length];
+                int i = 0;
+                int x;
+                while ((x = stream.ReadByte()) != -1)
+                    buf[i++] = (byte)x;
+
+                return buf;
+            }
+            catch(Exception)
+            {
+                return null;
+            }
         }
 
         [EntryPoint]
