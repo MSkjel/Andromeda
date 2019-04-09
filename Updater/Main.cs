@@ -37,7 +37,14 @@ namespace Updater
 
         [EntryPoint]
         private static void Init()
-            => Async.Start(Update());
+        {
+            GSCFunctions.SetDvarIfUninitialized("andromeda_updates", 1);
+
+            if (GSCFunctions.GetDvarInt("andromeda_updates") == 1)
+                Async.Start(Update());
+            else
+                Log.Info("Andromeda update checks disabled");
+        }
 
         private static IEnumerator Update()
         {
@@ -69,14 +76,14 @@ namespace Updater
                 Log.Info("Updates found:");
                 foreach (var update in versions)
                 {
-                    var name = System.IO.Path.GetFileNameWithoutExtension(update.FilePath);
-                    Log.Info($"Updating {name}");
+                    var name = update.Name;
+                    Log.Info($"Updating to {name}");
 
                     var bytes = downloadBytes(update.DownloadUrl);
 
                     if(bytes == null)
                     {
-                        Log.Info($"Failed updating {name}");
+                        Log.Info($"Failed updating to {name}");
                         Log.Info("Failed downloading new file");
 
                         continue;
@@ -84,7 +91,7 @@ namespace Updater
 
                     if (md5.ComputeHash(versionBytes) != update.Md5Hash)
                     {
-                        Log.Info($"Failed updating {name}");
+                        Log.Info($"Failed updating to {name}");
                         Log.Info("Mismatching md5 hash");
 
                         continue;

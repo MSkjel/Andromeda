@@ -8,6 +8,8 @@ namespace Updater
 {
     internal struct VersionInfo
     {
+        public string Name;
+
         public string FilePath;
 
         public byte[] Md5Hash;
