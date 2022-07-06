@@ -121,6 +121,7 @@ namespace Andromeda
                     lock (Connection)
                     {
                         cmd.ExecuteNonQuery();
+                        cmd.Dispose();
                     }
                 }
 
@@ -137,6 +138,7 @@ namespace Andromeda
                 lock(Connection)
                 {
                     cmd.ExecuteNonQuery();
+                    cmd.Dispose();
                 }
             }
 
@@ -202,6 +204,7 @@ namespace Andromeda
                     lock (Connection)
                     {
                         command.ExecuteNonQuery();
+                        command.Dispose();
                     }
 
                     yield return Async.Attach();
@@ -232,7 +235,7 @@ namespace Andromeda
         {
             var updateLogged = new SQLiteCommand("INSERT OR REPLACE INTO loggedin (hash, time) VALUES (@hash, @time);", Connection);
 
-            updateLogged.Parameters.AddWithValue("@time", FormatDate(DateTime.Now + TimeSpan.FromHours(6)));
+            updateLogged.Parameters.AddWithValue("@time", FormatDate(DateTime.Now + TimeSpan.FromHours(24)));
             updateLogged.Parameters.AddWithValue("@hash", hash);
 
             yield return Async.Detach();
@@ -240,6 +243,7 @@ namespace Andromeda
             lock (Connection)
             {
                 updateLogged.ExecuteNonQuery();
+                updateLogged.Dispose();
             }
         }
 

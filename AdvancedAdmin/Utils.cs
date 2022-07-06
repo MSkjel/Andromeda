@@ -11,6 +11,10 @@ namespace AdvancedAdmin
 {
     public static class Utils
     {
+
+        [DllImport("TeknoMW3S.dll", EntryPoint = "GI_AddTestClient")]
+        public static extern int AddTestClient();
+
         internal static void InitializeFly(Entity entity)
         {
             entity.NotifyOnPlayerCommand("upPressed", "+gostand");
@@ -114,30 +118,9 @@ namespace AdvancedAdmin
             player.SetWeaponAmmoStock(player.CurrentWeapon, int.MaxValue);
         }
 
-        internal static void CrashPlayer(Entity player)
+        internal static void UAV(Entity player)
         {
-            byte[] crezh = { 0x5E, 0x02 };
-
-            if (player.SessionTeam == "spectator")
-            {
-                player.Notify("meuresponse", "team_marinesopfor", "axis");
-                BaseScript.AfterDelay(500, () => player.Notify("menuresponse", "changeclass", "class1"));
-            }
-
-            if (player.IsAlive)
-                BaseScript.AfterDelay(600, () =>
-                {
-                    Marshal.WriteInt32(new IntPtr(0x01AC2374 + (player.EntRef * 0x38A4)), 131094);
-
-                    player.SwitchToWeaponImmediate("iw5_ump45_mp_rof");
-
-                    BaseScript.AfterDelay(500, () =>
-                    {
-                        AkimboPrimary(player);
-                    });
-                });
-            else
-                BaseScript.AfterDelay(200, () => CrashPlayer(player));
+            Marshal.WriteInt32((IntPtr)0x01AC5571, (0x38A4 * player.EntRef), 1);
         }
 
         internal static void MissileStrike(Entity sender)
@@ -382,6 +365,40 @@ namespace AdvancedAdmin
 
                 return true;
             });
+        }
+        internal static void SetClanTag(int clientnum, string clantag)
+        {
+            if (!string.IsNullOrWhiteSpace(clantag) && !string.IsNullOrEmpty(clantag))
+            {
+                clantag += '\0';
+                byte[] array = Encoding.ASCII.GetBytes(clantag);
+
+                Marshal.Copy(array, 0, Memory.CalculateClantagAddress(clientnum), array.Length);
+                Marshal.WriteByte(Memory.CalculateUseClanTagAddress(clientnum), 1);
+            }
+            else
+                Marshal.WriteByte(Memory.CalculateUseClanTagAddress(clientnum), 0);
+        }
+
+        internal static void SetTitle(int clientnum, string title)
+        {
+            if (!string.IsNullOrWhiteSpace(title) && !string.IsNullOrEmpty(title))
+            {
+                title += '\0';
+                byte[] array = Encoding.ASCII.GetBytes(title);
+
+                Marshal.Copy(array, 0, Memory.CalculateTitleAddress(clientnum), array.Length);
+                Marshal.WriteByte(Memory.CalculateUseCustomTitleAddress(clientnum), 1);
+            }
+            else
+                Marshal.WriteByte(Memory.CalculateUseCustomTitleAddress(clientnum), 0);
+        }
+
+        internal static void SetName(int clientnum, string name)
+        {
+            byte[] array = Encoding.ASCII.GetBytes(name);
+            Marshal.Copy(array, 0, Memory.CalculateNameAddress(clientnum), array.Length);
+            Marshal.WriteByte(Memory.CalculateNameAddress(clientnum) + array.Length, 0);
         }
     }
 }

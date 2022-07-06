@@ -18,10 +18,20 @@ namespace AntiKnife
         {
             Events.DSRLoad.Add((sender, args) =>
             {
+                Log.Debug("Starting AntiKnife");
+
                 if (args.GetBoolOrDefault("antiknife.enable", false))
+                {
+                    Log.Debug("Knife Disabled");
                     AntiKnife.DisableKnife();
+                }
                 else
+                {
+                    Log.Debug("Knife Enabled");
                     AntiKnife.EnableKnife();
+                }
+
+                Log.Debug("Finished AntiKnife");
             });
 
             // SETKNIFE

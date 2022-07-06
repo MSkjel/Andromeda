@@ -59,6 +59,14 @@ namespace AntiCheat
             public bool Enabled;
         }
 
+        public struct AntiWallhackStruct
+        {
+            public bool Enabled;
+            public float MaxHitPercentage;
+            public int MinHitTimes;
+            public int HitResetTime;
+        }
+
         public AntiAimbotStruct AntiAimbot = new AntiAimbotStruct()
         {
             Enabled = true,
@@ -100,6 +108,17 @@ namespace AntiCheat
         public AntiForceClassStruct AntiForceClass = new AntiForceClassStruct()
         {
             Enabled = true
+        };
+
+        public AntiWallhackStruct AntiWallhack = new AntiWallhackStruct()
+        {
+            Enabled = true,
+
+            MaxHitPercentage = 0.6f,
+
+            MinHitTimes = 5,
+
+            HitResetTime = 60
         };
 
         public static void Load()

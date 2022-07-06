@@ -70,7 +70,7 @@ namespace AdvancedAdmin
 
         static ServerStr()
         {
-            ptr = Marshal.ReadIntPtr(GetModule(Process.GetCurrentProcess(), "TeknoMW3S.dll").BaseAddress + 0x00062C9C) + 0x74 + 0x7E1;
+            ptr = Marshal.ReadIntPtr(GetModule(Process.GetCurrentProcess(), "TeknoMW3S.dll").BaseAddress + 0x0007037C) + 0x854 + 0x1;
         }
     }
 }

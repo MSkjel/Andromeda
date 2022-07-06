@@ -8,7 +8,7 @@ using InfinityScript;
 
 namespace AntiCheat.ACModules
 {
-    public class SpinBot : IAntiCheatModule
+    internal class SpinBot : IAntiCheatModule
     {
         public string Name => "Anti-SpinBot";
 
@@ -34,6 +34,9 @@ namespace AntiCheat.ACModules
             Events.WeaponFired.Add((sender, args) =>
             {
                 Entity ent = sender as Entity;
+
+                if (ent.RequestPermission("anticheat.immune.spinbot", out _))
+                    return;
 
                 if (ent.GetPlayerAngles().Z > Config.Instance.AntiSpinBot.MaxAngle || ent.GetPlayerAngles().Z < -Config.Instance.AntiSpinBot.MaxAngle)
                     TakeAction(ent, "Spinbot detected");

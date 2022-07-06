@@ -1,5 +1,6 @@
 ﻿using Andromeda;
 using Andromeda.Events;
+using Andromeda.Events.EventArguments;
 using Andromeda.Parse;
 using InfinityScript;
 using InfinityScript.PBase;
@@ -64,6 +65,21 @@ namespace BaseAdmin
         [EntryPoint]
         private static void Init()
         {
+            #region Spy
+            Events.CommandRun.Add((sender, args) =>
+            {
+                IClient client = args.Sender;
+
+                if (client.IsEntity)
+                {
+                    if (!args.Fail)
+                        Utils.WarnAdminsWithField(null, "perms.spy", $"^7(%h1S^7)%p{client.Name}^7: %i!{args.Command.Name} {args.Arguments}");
+                    else
+                        Utils.WarnAdminsWithField(null, "perms.spy", $"^7(%h1F^7)%p{client.Name}^7: %i!{args.Command.Name} {args.Arguments}");
+                }
+            });
+
+            #endregion
             #region Commands
             #region Map
             // MAP
@@ -76,7 +92,10 @@ namespace BaseAdmin
 
                     Common.SayAll($"Map has been changed to %h1{map.NiceName} %nby %p{sender.GetFormattedName()}");
 
-                    Utilities.ExecuteCommand($"map {map.RawName}");
+                    BaseScript.AfterDelay(5, () =>
+                    {
+                        Utilities.ExecuteCommand($"map {map.RawName}");
+                    });
                 },
                 usage: "!map <map>",
                 permission: "map",
@@ -128,7 +147,11 @@ namespace BaseAdmin
 
                     DSR.SetNextMode(dsr);
                     Common.SayAll($"Mode has been changed to %h1{dsr} %nby %p{sender.GetFormattedName()}");
-                    Utilities.ExecuteCommand("map_rotate");
+
+                    BaseScript.AfterDelay(5, () =>
+                    {
+                        Utilities.ExecuteCommand("map_rotate");
+                    });
 
                 },
                 usage: "!mode <mode>",
@@ -146,7 +169,11 @@ namespace BaseAdmin
 
                     DSR.SetNextMapRotation(map.RawName, dsr);
                     Common.SayAll($"Map and mode have been changed to %h1{map.NiceName}%n, %h2{dsr} %nby %p{sender.GetFormattedName()}");
-                    Utilities.ExecuteCommand("map_rotate");
+
+                    BaseScript.AfterDelay(1, () =>
+                    {
+                        Utilities.ExecuteCommand("map_rotate");
+                    });
                 },
                 usage: "!gametype <map> <mode>",
                 permission: "gametype",
@@ -463,6 +490,25 @@ namespace BaseAdmin
                 permission: "unban",
                 description: "Removes a ban entry"));
 
+            // SPY
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "spy",
+                argTypes: new[] { SmartParse.Boolean },
+                action: delegate (Entity sender, object[] args)
+                {
+                    var state = (bool)args[0];
+
+                    if (state)
+                        sender.TrySetDBField("perms.spy", state.ToString());
+                    else
+                        sender.TryRemoveDBField("perms.spy");
+
+                    sender.Tell($"Spy: %i{state}");
+                },
+                usage: "!spy <0/1>",
+                permission: "spy",
+                description: "Shows you commands other people execute"));
+
             #endregion
 
             #region Balance
@@ -541,10 +587,13 @@ namespace BaseAdmin
                 {
                     Common.SayAll($"Map has been restarted by %p{sender.GetFormattedName()}%n.");
 
-                    if (args[0] is bool persistent)
-                        GSCFunctions.Map_Restart(persistent);
-                    else
-                        Utilities.ExecuteCommand("fast_restart");
+                    BaseScript.AfterDelay(1, () =>
+                    {
+                        if (args[0] is bool persistent)
+                            GSCFunctions.Map_Restart(persistent);
+                        else
+                            Utilities.ExecuteCommand("fast_restart");
+                    });
                 },
                 usage: "!restart <persistent>",
                 aliases: new[] { "res" },

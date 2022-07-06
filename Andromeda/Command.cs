@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Andromeda.Parse;
+using Andromeda.Events.EventArguments;
 
 namespace Andromeda
 {
@@ -73,9 +74,15 @@ namespace Andromeda
                 Command cmd = Lookup(cmdName);
 
                 if (cmd == null)
+                {
                     sender.Tell($"%eNo such command: {cmdName}");
+                    Events.Events.CommandRun.Run(sender, new CommandRunArgs(sender, new Command(cmdName, (s, m) => { }, ""), true, message));
+                }
                 else if (!CanDo(sender, cmd, out var err))
+                {
                     sender.Tell($"%e{err}");
+                    Events.Events.CommandRun.Run(sender, new CommandRunArgs(sender, cmd, true, message));
+                }
                 else
                     cmd.TryRun(sender, message);
             }
@@ -288,7 +295,10 @@ namespace Andromeda
 
                 sender.Tell(response);
                 Common.PrintException(ex, $"Command {Name}");
+                Events.Events.CommandRun.Run(sender, new CommandRunArgs(sender, this, true, message));
             }
+
+            Events.Events.CommandRun.Run(sender, new CommandRunArgs(sender, this, false, message));
         }
     }
 }

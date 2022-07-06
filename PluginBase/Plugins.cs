@@ -83,31 +83,39 @@ namespace InfinityScript
 
             foreach (Type type in Assembly.GetExportedTypes())
             {
-                if (type.GetCustomAttributes(typeof(PluginAttribute), false).FirstOrDefault() is PluginAttribute attr)
+                try
                 {
-                    try
+                    if (type.GetCustomAttributes(typeof(PluginAttribute), false).FirstOrDefault() is PluginAttribute attr)
                     {
-                        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(type.TypeHandle);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error($"Error running {type.FullName}'s static constructor:");
-                        Log.Error(ex);
-                    }
-
-                    foreach (var method in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public))
-                    {
-                        if (method.GetCustomAttributes(typeof(EntryPointAttribute), false).FirstOrDefault() != null)
+                        try
                         {
-                            EntryPoint += Delegate.CreateDelegate(typeof(Action), method) as Action;
-                            EntryPointCount++;
+                            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error($"Error running {type.FullName}'s static constructor:");
+                            Log.Error(ex);
                         }
 
-                        if (method.GetCustomAttributes(typeof(CleanupAttribute), false).FirstOrDefault() != null)
+                        foreach (var method in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public))
                         {
-                            Cleanups += Delegate.CreateDelegate(typeof(Action), method) as Action;
+                            if (method.GetCustomAttributes(typeof(EntryPointAttribute), false).FirstOrDefault() != null)
+                            {
+                                EntryPoint += Delegate.CreateDelegate(typeof(Action), method) as Action;
+                                EntryPointCount++;
+                            }
+
+                            if (method.GetCustomAttributes(typeof(CleanupAttribute), false).FirstOrDefault() != null)
+                            {
+                                Cleanups += Delegate.CreateDelegate(typeof(Action), method) as Action;
+                            }
                         }
                     }
+                }
+                catch(Exception ex)
+                {
+                    //Log.Info(ex.ToString());
+                    break;
                 }
             }
         }

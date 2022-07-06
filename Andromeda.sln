@@ -1,33 +1,57 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.28516.95
+VisualStudioVersion = 16.0.32428.217
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{16CC7676-4FD1-4E9C-A615-963D68C394E4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginBase", "PluginBase\PluginBase.csproj", "{8C46D1E6-CBD8-4297-A101-6106CC410832}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Andromeda", "Andromeda\Andromeda.csproj", "{3839CED4-C199-4417-93D3-576E91BDD2E0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8C46D1E6-CBD8-4297-A101-6106CC410832} = {8C46D1E6-CBD8-4297-A101-6106CC410832}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LevelPerms", "LevelPerms\LevelPerms.csproj", "{9711C8F1-8073-4BFF-8249-E437E6E35802}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatOverhaul", "ChatOverhaul\ChatOverhaul.csproj", "{DE56457B-7E1F-4D44-B6F8-EACB7D36F76E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3839CED4-C199-4417-93D3-576E91BDD2E0} = {3839CED4-C199-4417-93D3-576E91BDD2E0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerUtils", "ServerUtils\ServerUtils.csproj", "{10C8E3F1-E328-4384-8EAD-31188628E790}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ISnipe", "ISnipe\ISnipe.csproj", "{715610C4-4225-4A64-9CDF-4381F4EB5F43}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseAdmin", "BaseAdmin\BaseAdmin.csproj", "{CE1D3CB7-16F8-4459-9645-EB1D8FE4B2D5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3839CED4-C199-4417-93D3-576E91BDD2E0} = {3839CED4-C199-4417-93D3-576E91BDD2E0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdvancedAdmin", "AdvancedAdmin\AdvancedAdmin.csproj", "{1776C85D-142B-4E75-82AE-EC7A11F3D0B2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3839CED4-C199-4417-93D3-576E91BDD2E0} = {3839CED4-C199-4417-93D3-576E91BDD2E0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntiKnife", "AntiKnife\AntiKnife.csproj", "{ACA51EF7-3688-4507-A43E-BAF3E5CFC5E8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3839CED4-C199-4417-93D3-576E91BDD2E0} = {3839CED4-C199-4417-93D3-576E91BDD2E0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroupPerms", "GroupPerms\GroupPerms.csproj", "{347B4DDF-799B-4162-88D9-970CBA7A45D7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3839CED4-C199-4417-93D3-576E91BDD2E0} = {3839CED4-C199-4417-93D3-576E91BDD2E0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntiCheat", "AntiCheat\AntiCheat.csproj", "{5788C753-97BC-403B-8551-94C9AED836D4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1776C85D-142B-4E75-82AE-EC7A11F3D0B2} = {1776C85D-142B-4E75-82AE-EC7A11F3D0B2}
+		{3839CED4-C199-4417-93D3-576E91BDD2E0} = {3839CED4-C199-4417-93D3-576E91BDD2E0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "Updater\Updater.csproj", "{1A86D30F-EE6F-40C8-9878-8473233337C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordBot", "DiscordBot\DiscordBot.csproj", "{06F7092F-159E-41AA-812B-4E12D3268048}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -183,6 +207,18 @@ Global
 		{1A86D30F-EE6F-40C8-9878-8473233337C1}.Release|x64.Build.0 = Release|Any CPU
 		{1A86D30F-EE6F-40C8-9878-8473233337C1}.Release|x86.ActiveCfg = Release|Any CPU
 		{1A86D30F-EE6F-40C8-9878-8473233337C1}.Release|x86.Build.0 = Release|Any CPU
+		{06F7092F-159E-41AA-812B-4E12D3268048}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06F7092F-159E-41AA-812B-4E12D3268048}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06F7092F-159E-41AA-812B-4E12D3268048}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{06F7092F-159E-41AA-812B-4E12D3268048}.Debug|x64.Build.0 = Debug|Any CPU
+		{06F7092F-159E-41AA-812B-4E12D3268048}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{06F7092F-159E-41AA-812B-4E12D3268048}.Debug|x86.Build.0 = Debug|Any CPU
+		{06F7092F-159E-41AA-812B-4E12D3268048}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06F7092F-159E-41AA-812B-4E12D3268048}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06F7092F-159E-41AA-812B-4E12D3268048}.Release|x64.ActiveCfg = Release|Any CPU
+		{06F7092F-159E-41AA-812B-4E12D3268048}.Release|x64.Build.0 = Release|Any CPU
+		{06F7092F-159E-41AA-812B-4E12D3268048}.Release|x86.ActiveCfg = Release|Any CPU
+		{06F7092F-159E-41AA-812B-4E12D3268048}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

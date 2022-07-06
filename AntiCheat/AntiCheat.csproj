@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Andromeda.plugin">
@@ -58,6 +61,7 @@
     <Compile Include="ACModules\NoRecoil.cs" />
     <Compile Include="ACModules\SilentAim.cs" />
     <Compile Include="ACModules\SpinBot.cs" />
+    <Compile Include="ACModules\Wallhack.cs" />
     <Compile Include="AntiCheat.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Extensions.cs" />
@@ -70,7 +74,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>del AntiCheat.plugin.dll
-ren AntiCheat.dll AntiCheat.plugin.dll</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetName).dll" "$(SolutionDir)output\$(TargetName).plugin.dll"
+del "$(TargetName).plugin.dll"
+ren "$(TargetName).dll" "$(TargetName).plugin.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -36,8 +36,9 @@
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="InfinityScript">
-      <HintPath>..\Deps\InfinityScript.dll</HintPath>
+    <Reference Include="InfinityScript, Version=1.5.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\InfinityScript v1.5\InfinityScript.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -64,7 +65,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>del PluginBase.auto.dll
-ren PluginBase.dll PluginBase.auto.dll</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetName).dll" "$(SolutionDir)output\$(TargetName).auto.dll"
+del "$(TargetName).auto.dll"
+ren "$(TargetName).dll" "$(TargetName).auto.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>

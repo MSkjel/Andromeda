@@ -24,7 +24,7 @@ namespace AdvancedAdmin
                 {
                     ServerStr.ReportedGameType = value;
 
-                    Log.Debug(value);
+                    Log.Info("Gametype set to: " + value);
                 }
             });
 
@@ -515,21 +515,6 @@ namespace AdvancedAdmin
                permission: "takeallweps",
                description: "Takes all weapons"));
 
-            // CRASH
-            Command.TryRegister(SmartParse.CreateCommand(
-               name: "crash",
-               argTypes: new[] { SmartParse.UnimmunePlayer },
-               action: delegate (Entity sender, object[] args)
-               {
-                   Entity ent = args[0] as Entity;
-
-                   Utils.CrashPlayer(ent);
-                   sender.Tell($"%p{ent.Name} %nhas been crashed");
-               },
-               usage: "!crash <player>",
-               permission: "crash",
-               description: "Crashes the players client"));
-
             // SPAWNPLAYER
             Command.TryRegister(SmartParse.CreateCommand(
                name: "spawnplayer",
@@ -593,7 +578,7 @@ namespace AdvancedAdmin
                permission: "afkgod",
                description: ""));
 
-            // TEST
+            // God
             Command.TryRegister(SmartParse.CreateCommand(
                name: "god",
                argTypes: null,
@@ -615,11 +600,25 @@ namespace AdvancedAdmin
                argTypes: null,
                action: delegate (Entity sender, object[] args)
                {
-               BaseScript.OnInterval(100, () =>
-               {
-                   sender.Tell(sender.GetPlayerAngles().ToString());
-                   return true;
-               });
+                   //Events.ChangedClass.Add((cl, arg) =>
+                   //{
+                   //    sender.Tell($"{arg.Player.Name}: {arg.ClassName}");
+                   //});
+                   Entity bot = GSCFunctions.Spawn("script_model", sender.Origin);
+                   bot.Angles = sender.Origin;
+                   bot.EnableLinkTo();
+                   bot.SetModel("mp_body_russian_military_assault_a");
+
+                   Entity botHead = GSCFunctions.Spawn("script_model", bot.Origin);
+                   botHead.SetModel("head_russian_military_aa");
+                   botHead.LinkTo(bot, "j_spine4", Vector3.Zero, Vector3.Zero);
+                   bot.SetField("head", botHead);
+
+                   bot.SetField("isAlive", true);
+                   bot.SetCanDamage(true);
+                   bot.SetCanRadiusDamage(true);
+                   bot.SetField("currentHealt", 100);
+                   
                },
                usage: "!test",
                permission: "test",
@@ -669,25 +668,145 @@ namespace AdvancedAdmin
                permission: "fucklamb",
                description: "Fucks lambdur"));
 
+            // SetTitle
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "settitle",
+               argTypes: new[] { SmartParse.Player, SmartParse.OptionalString},
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+
+                   if (args.Length > 1)
+                   {
+                       string title = (string)args[1];
+
+                       Utils.SetTitle(ent.EntRef, title);
+                       sender.Tell($"%p{ent.Name}'s %ntitle has been set to %i{title}");
+
+                   }
+                   else
+                   {
+                       Utils.SetTitle(ent.EntRef, "");
+                       sender.Tell($"%p{ent.Name}'s %ntitle has been reset");
+                   }
+                   
+               },
+               usage: "!settitle <player> <title>",
+               permission: "settitle",
+               description: "Sets a players title to the specified title"));
+
+            // SetTitle
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "setclantag",
+               argTypes: new[] { SmartParse.Player, SmartParse.OptionalString },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+
+                   if (args.Length > 1)
+                   {
+                       string clantag = (string)args[1];
+
+                       Utils.SetClanTag(ent.EntRef, clantag);
+                       sender.Tell($"%p{ent.Name}'s %nclantag has been set to %i{clantag}");
+
+                   }
+                   else
+                   {
+                       Utils.SetClanTag(ent.EntRef, "");
+                       sender.Tell($"%p{ent.Name}'s %nclantag has been reset");
+                   }
+
+               },
+               usage: "!setclantag <player> <clantag>",
+               permission: "setclantag",
+               description: "Sets a players clantag to the specified clantag"));
+
+
+            // SetTitle
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "setname",
+               argTypes: new[] { SmartParse.Player, SmartParse.OptionalString },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+
+                   if (args.Length > 1)
+                   {
+                       string name = (string)args[1];
+
+                       Utils.SetName(ent.EntRef, name);
+                       sender.Tell($"%p{ent.Name}'s %nname has been set to %i{name}");
+
+                   }
+                   else
+                   {
+                       Utils.SetName(ent.EntRef, "");
+                       sender.Tell($"%p{ent.Name}'s %nname has been reset");
+                   }
+
+               },
+               usage: "!setname <player> <name>",
+               permission: "setname",
+               description: "Sets a players name to the specified name"));
+
+
+            // UNWOT
+            Command.TryRegister(SmartParse.CreateCommand(
+              name: "unwot",
+              argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
+              action: delegate (Entity sender, object[] args)
+              {
+                  Entity client = args[0] as Entity;
+
+                  bool state = (bool)args[1];
+
+                  Events.WeaponFired.Add((sender2, fArgs) =>
+                  {
+                      if (fArgs.Player != client)
+                          return;
+
+                      Vector3 playerforward = client.GetTagOrigin("tag_weapon_left") + GSCFunctions.AnglesToForward(client.Angles) * 7000;
+                      Entity refobject = GSCFunctions.Spawn("script_model", client.GetTagOrigin("tag_weapon_left"));
+
+                      refobject.SetModel("vehicle_apache_mp");
+                      refobject.SetField("angles", client.Angles);
+                      refobject.Angles = client.Angles;
+                      refobject.MoveTo(playerforward, 10);
+
+                      BaseScript.AfterDelay(15000, () =>
+                      {
+                          refobject.Hide();
+                          refobject.Notify("death");
+                      });
+                  });
+
+                  sender.Tell($"%p{client.Name} %nhas been fucked");
+              },
+              usage: "!fucklamb <player> <state>",
+              permission: "fucklamb",
+              description: "Fucks lambdur"));
+           
+
             //Script.PlayerConnected.Add((sender, args) =>
             //{
-            //    //if (args.Name.Contains("Lambder") || args.Name.Contains("Markus"))
-            //    BaseScript.OnInterval(2000, () =>
-            //    {
-            //        args.SetClientDvar("cg_objectiveText", "^1Lambder");
-            //        BaseScript.AfterDelay(500, () => args.SetClientDvar("cg_objectiveText", "^2Sucks"));
-            //        BaseScript.AfterDelay(1000, () => args.SetClientDvar("cg_objectiveText", "^3Big"));
-            //        BaseScript.AfterDelay(1500, () => args.SetClientDvar("cg_objectiveText", "^5Dicks"));
+            //    if (args.Name.Contains("Lambder") || args.Name.Contains("Markus"))
+            //        BaseScript.OnInterval(2000, () =>
+            //        {
+            //            args.SetClientDvar("cg_objectiveText", "^1Lambder");
+            //            BaseScript.AfterDelay(500, () => args.SetClientDvar("cg_objectiveText", "^2Sucks"));
+            //            BaseScript.AfterDelay(1000, () => args.SetClientDvar("cg_objectiveText", "^3Big"));
+            //            BaseScript.AfterDelay(1500, () => args.SetClientDvar("cg_objectiveText", "^5Dicks"));
 
-            //        return true;
-            //    });
-            //    //Events.WeaponChanged.Add((sender1, args1) =>
-            //    //{
-            //    //    Entity ent = sender1 as Entity;
+            //            return true;
+            //        });
+            //        Events.WeaponChanged.Add((sender1, args1) =>
+            //        {
+            //            Entity ent = sender1 as Entity;
 
-            //    //    if (ent.Name.Contains("Lambder") || ent.Name.Contains("Markus"))
-            //    //        Marshal.WriteInt32((IntPtr)0x01AC2488, (0x38A4 * args.EntRef), 1);
-            //    //});
+            //            if (ent.Name.Contains("Lambder") || ent.Name.Contains("Markus"))
+            //                Marshal.WriteInt32((IntPtr)0x01AC2488, (0x38A4 * args.EntRef), 1);
+            //        });
 
             //});
             #endregion

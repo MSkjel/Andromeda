@@ -8,7 +8,7 @@ using System.Text;
 
 namespace AntiCheat.ACModules
 {
-    public class NoRecoil : IAntiCheatModule
+    internal class NoRecoil : IAntiCheatModule
     {
         public string Name => "Anti-NoRecoil";
 
@@ -34,6 +34,9 @@ namespace AntiCheat.ACModules
             Events.WeaponFired.Add((sender, args) =>
             {
                 Entity ent = sender as Entity;
+
+                if (ent.RequestPermission("anticheat.immune.norecoil", out _))
+                    return;
 
                 if (ent.GetPlayerAngles().Z == 0 && !ent.CurrentWeapon.Contains("ac130"))
                 {

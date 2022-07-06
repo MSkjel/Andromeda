@@ -8,7 +8,7 @@ using System.Text;
 
 namespace AntiCheat.ACModules
 {
-    public class SilentAim : IAntiCheatModule
+    internal class SilentAim : IAntiCheatModule
     {
         public string Name => "Anti-SilentAim";
 
@@ -35,7 +35,10 @@ namespace AntiCheat.ACModules
             {
                 Entity ent = sender as Entity;
 
-                if (!(args.Mod.Contains("BULLET") || args.Mod.Contains("HEADSHOT")) || !ent.IsPlayer)
+                if (ent.RequestPermission("anticheat.immune.silentaim", out _))
+                    return;
+
+                if (!(args.Mod.Contains("BULLET") || args.Mod.Contains("HEADSHOT")) || !ent.IsPlayer || args.Inflictor != ent)
                     return;
 
                 Vector3 toHit = GSCFunctions.VectorToAngles(args.Player.GetTagOrigin("j_mainroot") - ent.GetTagOrigin("j_head"));

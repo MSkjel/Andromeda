@@ -24,6 +24,8 @@ namespace Andromeda.Events
         #region Andromeda
         //DSROptions
         public static readonly Event<DSRLoadArgs> DSRLoad = new Event<DSRLoadArgs>(ErrorHandler(nameof(DSRLoad)));
+        //Command
+        public static readonly Event<CommandRunArgs> CommandRun = new Event<CommandRunArgs>(ErrorHandler(nameof(CommandRun)));
         #endregion
 
         #region Entity Events

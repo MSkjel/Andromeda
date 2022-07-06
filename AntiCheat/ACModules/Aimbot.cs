@@ -12,7 +12,7 @@ using System.Text;
 namespace AntiCheat.ACModules
 {
     //FIXME, Rewrite PLZ
-    public class Aimbot : IAntiCheatModule
+    internal class Aimbot : IAntiCheatModule
     {
         public string Name => "Anti-Aimbot";
 
@@ -39,6 +39,9 @@ namespace AntiCheat.ACModules
             {
                 Entity entity = sender as Entity;
                 string tag = args.Hitloc;
+
+                if (entity.RequestPermission("anticheat.immune.aimbot", out _))
+                    return;
 
                 if (!(args.Mod.Contains("BULLET") || args.Mod.Contains("HEADSHOT")) || !entity.IsPlayer)
                     return;

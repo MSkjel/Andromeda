@@ -82,6 +82,15 @@ namespace BaseAdmin
             return first;
         }
 
+        public static IEnumerable<Entity> OnlineAdminsWithDBField(string field) => Players.Where(x => x.GetDBFieldOr(field, "False") == "True");
+
+        public static void WarnAdminsWithField(Entity sender, string field, string message)
+        {
+            foreach (Entity admin in OnlineAdminsWithDBField(field))
+                if (sender != admin)
+                    admin.Tell(message);
+        }
+
         public static void SetTeam(this Entity ent, string team)
         {
             ent.SessionTeam = team;

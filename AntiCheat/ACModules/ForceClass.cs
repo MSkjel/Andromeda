@@ -8,8 +8,8 @@ using Andromeda.Events;
 using InfinityScript;
 
 namespace AntiCheat.ACModules
-{
-    public class ForceClass : IAntiCheatModule
+{   
+    internal class ForceClass : IAntiCheatModule
     {
         public string Name => "Anti-Forceclass";
 
@@ -78,6 +78,9 @@ namespace AntiCheat.ACModules
 
             Events.WeaponFired.Add((sender, args) =>
             {
+                if (args.Player.RequestPermission("anticheat.immune.forceclass", out _))
+                    return;
+
                 if (!args.Player.HasField("Allow_Weapon_Name") || args.Player.CurrentWeapon != args.Player.GetField<string>("Allow_Weapon_Name"))
                 {
                     if (CheckIfBadWeapon(args.Weapon))
@@ -89,6 +92,9 @@ namespace AntiCheat.ACModules
 
             Events.GrenadePullback.Add((sender, args) =>
             {
+                if (args.Player.RequestPermission("anticheat.immune.forceclass", out _))
+                    return;
+
                 if (!args.Player.HasField("Allow_Grenade_Name") || args.Player.CurrentWeapon != args.Player.GetField<string>("Allow_Grenade_Name"))
                 {
                     if (CheckIfBadGrenade(args.Grenade))
@@ -98,6 +104,9 @@ namespace AntiCheat.ACModules
 
             Events.EarnedKillstreak.Add((sender, args) =>
             {
+                if (args.Player.RequestPermission("anticheat.immune.forceclass", out _))
+                    return;
+
                 if (CheckIfBadKillStreak(args.Killstreak))
                 {
                     args.Player.IncrementField("Bad_Killstreak", 1);
