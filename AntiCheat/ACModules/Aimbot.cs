@@ -40,10 +40,10 @@ namespace AntiCheat.ACModules
                 Entity entity = sender as Entity;
                 string tag = args.Hitloc;
 
-                if (entity.RequestPermission("anticheat.immune.aimbot", out _))
+                if (!(args.Mod.Contains("BULLET") || args.Mod.Contains("HEADSHOT")) || !entity.IsPlayer || args.Player.CurrentWeapon.Contains("shield"))
                     return;
 
-                if (!(args.Mod.Contains("BULLET") || args.Mod.Contains("HEADSHOT")) || !entity.IsPlayer)
+                if (entity.RequestPermission("anticheat.immune.aimbot", out _))
                     return;
 
                 long changeTime = GetChangeTimeAndRegisterNewKill(entity);

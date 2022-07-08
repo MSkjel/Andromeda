@@ -35,10 +35,10 @@ namespace AntiCheat.ACModules
             {
                 Entity ent = sender as Entity;
 
-                if (ent.RequestPermission("anticheat.immune.silentaim", out _))
+                if (!(args.Mod.Contains("BULLET") || args.Mod.Contains("HEADSHOT")) || !ent.IsPlayer || args.Inflictor != ent)
                     return;
 
-                if (!(args.Mod.Contains("BULLET") || args.Mod.Contains("HEADSHOT")) || !ent.IsPlayer || args.Inflictor != ent)
+                if (ent.RequestPermission("anticheat.immune.silentaim", out _))
                     return;
 
                 Vector3 toHit = GSCFunctions.VectorToAngles(args.Player.GetTagOrigin("j_mainroot") - ent.GetTagOrigin("j_head"));

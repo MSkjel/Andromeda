@@ -30,41 +30,41 @@ namespace Andromeda
 
         public static void Start(IEnumerator func)
         {
-            IEnumerator wrap(IEnumerator routine)
-            {
-                bool next = routine.MoveNext();
-                IEnumerator waitAround = null;
+        //    IEnumerator wrap(IEnumerator routine)
+        //    {
+        //        bool next = routine.MoveNext();
+        //        IEnumerator waitAround = null;
 
-                while(next)
-                {
-                    switch(routine.Current)
-                    {
-                        case DetachedState ds:
-                            waitAround = ds.WaitAround;
-                            break;
-                        case object obj when (obj == attach):
-                            waitAround = null;
-                            break;
-                        default:
-                            yield return routine.Current;
-                            break;
-                    }
+        //        while(next)
+        //        {
+        //            switch(routine.Current)
+        //            {
+        //                case DetachedState ds:
+        //                    waitAround = ds.WaitAround;
+        //                    break;
+        //                case object obj when (obj == attach):
+        //                    waitAround = null;
+        //                    break;
+        //                default:
+        //                    yield return routine.Current;
+        //                    break;
+        //            }
 
-                    if(waitAround == null)
-                        next = routine.MoveNext();
-                    else
-                    {
-                        var task = Task.Factory.StartNew(routine.MoveNext);
+        //            if(waitAround == null)
+        //                next = routine.MoveNext();
+        //            else
+        //            {
+        //                var task = Task.Factory.StartNew(routine.MoveNext);
 
-                        while (!task.IsCompleted)
-                            yield return waitAround;
+        //                while (!task.IsCompleted)
+        //                    yield return waitAround;
 
-                        next = task.Result;
-                    }
-                }
-            }
+        //                next = task.Result;
+        //            }
+        //        }
+        //    }
 
-            BaseScript.StartAsync(wrap(func));
+            BaseScript.StartAsync(/*wrap(*/func/*)*/);
         }
     }
 }

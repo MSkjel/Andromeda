@@ -17,7 +17,7 @@ namespace DiscordBot
     public class Main
     {
         private const string path = @"scripts\DiscordBot";
-        private static string file = Path.Combine(path, "settings.yaml");
+        private static string file = Path.Combine(path, "dontwelcome");
 
         static Api api;
         public static void Setup()
@@ -38,19 +38,17 @@ namespace DiscordBot
 
             Script.PlayerConnected.Add((sender, ent) =>
             {
-                if (!File.Exists(path))
-                {
+                if (!File.Exists(file))
                     SendMessage($"{ent.Name}: has connected.");
-                    SendMessage($"Current Players: {BaseScript.Players.Count}");
-                }
             });
 
             Script.PlayerDisconnecting.Add((sender, ent) =>
             {
                 SendMessage($"{ent.Name}: has disconnected");
+                SendMessage($"Current Players: {BaseScript.Players.Count}");
             });
 
-            Script.OnStartGametype.Add((sender, args) =>
+            Events.PreMatchDone.Add((sender, args) =>
             {
                 File.Delete(file);
             });

@@ -41,12 +41,12 @@ namespace BaseAdmin
             {
                 Connection.Open();
 
-                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS warnings (hwid VARCHAR(32) PRIMARY KEY NOT NULL, amount INTEGER NOT NULL);", Connection))
+                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS warnings (hwid TEXT PRIMARY KEY NOT NULL, amount INTEGER NOT NULL);", Connection))
                 {
                     prepare.ExecuteNonQuery();
                 }
 
-                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS bans (banid INTEGER PRIMARY KEY NOT NULL, hwid VARCHAR(32) NOT NULL, guid BIGINT NOT NULL, name TEXT NOT NULL, issuer TEXT NOT NULL, reason TEXT NOT NULL, expire TEXT NOT NULL);", Connection))
+                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS bans (banid INTEGER PRIMARY KEY NOT NULL, hwid TEXT NOT NULL, guid INTEGER NOT NULL, ip INTEGER, name TEXT NOT NULL, issuer TEXT NOT NULL, reason TEXT NOT NULL, expire TEXT NOT NULL);", Connection))
                 {
                     prepare.ExecuteNonQuery();
                 }
@@ -157,6 +157,23 @@ namespace BaseAdmin
                 usage: "!mode <mode>",
                 permission: "mode",
                 description: "Changes the mode to the mode specified"));
+
+            // MODES
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "modes",
+                argTypes: null,
+                action: delegate (IClient sender, object[] args)
+                {
+                    var msgs = "%iAvailable modes:".Yield()
+                        .Concat(
+                            DSR.GetAllDSRFiles().Select(x => $"{x}({DSR.ReadDSRGameData(x)["gametype"]})")
+                            .Condense());
+
+                    sender.Tell(msgs);
+                },
+                usage: "!modes",
+                permission: "modes",
+                description: "Displays the available modes"));
 
             // GAMETYPE
             Command.TryRegister(SmartParse.CreateCommand(
@@ -623,10 +640,11 @@ namespace BaseAdmin
             {
                 IEnumerator routine()
                 {
-                    var cmd = new SQLiteCommand("SELECT * FROM bans WHERE ((hwid = @hwid OR guid = @guid) AND (datetime(expire) > datetime('now', 'localtime') OR expire = 'permanent'));", Connection);
+                    var cmd = new SQLiteCommand("SELECT * FROM bans WHERE ((hwid = @hwid OR guid = @guid OR ip = @ip) AND (datetime(expire) > datetime('now', 'localtime') OR expire = 'permanent'));", Connection);
 
                     cmd.Parameters.AddWithValue("@hwid", player.HWID);
                     cmd.Parameters.AddWithValue("@guid", player.GUID);
+                    cmd.Parameters.AddWithValue("@ip", Funcs.IpToInt(player.IP.Address));
 
                     bool found = false;
                     TimeSpan? timeSpan = null;

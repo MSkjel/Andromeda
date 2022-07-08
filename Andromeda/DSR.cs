@@ -69,6 +69,29 @@ namespace Andromeda
             }
         }
 
+        public static Dictionary<string, string> ReadDSRGameData(string dsrName)
+        {
+            try
+            {
+                Dictionary<string, string> data = new Dictionary<string, string>();
+
+                foreach (var fline in ReadNonCommentedLines(Path.Combine(DSRFolder, $"{dsrName}.dsr")))
+                {
+                    var match = Regex.Match(fline, @"^gameOpt\s+(\S+)\s+""(.*)""");
+
+                    if (match.Success)
+                        data[match.Groups[1].Value] = match.Groups[2].Value;
+                }
+
+                return data;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+                return null;
+            }
+        }
+
         public static void SetNextMapRotation(string map, string dsr)
         {
             if (DSRExists(dsr))

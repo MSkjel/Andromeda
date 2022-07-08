@@ -42,7 +42,7 @@ namespace AntiCheat.ACModules
                 {
                     ent.IncrementField("NoRecoil", 1);
 
-                    int limit = (int)Math.Ceiling(Config.Instance.AntiNoRecoil.MaxActionLimit * (ent.Ping > 150 ? ((float)ent.Ping) / 150 : 1f));
+                    int limit = (int)Math.Ceiling(Config.Instance.AntiNoRecoil.MaxActionLimit * (ent.Ping > 120 ? ((float)ent.Ping) / 120 : 1f));
 
                     if (ent.IsFieldEqual("NoRecoil", limit))
                     {

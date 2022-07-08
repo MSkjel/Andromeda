@@ -168,6 +168,27 @@ namespace AdvancedAdmin
 
             // AIMBOT
             Command.TryRegister(SmartParse.CreateCommand(
+               name: "setaimbot",
+               argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+                   bool state = (bool)args[1];
+
+                   ent.SetField("EnableAimbot", state);
+
+                   if (state)
+                       Utils.DoAimbot(ent);
+
+                   sender.Tell($"%p{ent.Name}'s %naimbot set to %i{state}");
+               },
+               usage: "!setaimbot <player> <state>",
+               permission: "setaimbot",
+               description: "Enables or disables aimbot for specified player"));
+
+
+            // MyAIMBOT
+            Command.TryRegister(SmartParse.CreateCommand(
                name: "myaimbot",
                argTypes: new[] { SmartParse.Boolean },
                action: delegate (Entity sender, object[] args)
@@ -604,20 +625,21 @@ namespace AdvancedAdmin
                    //{
                    //    sender.Tell($"{arg.Player.Name}: {arg.ClassName}");
                    //});
-                   Entity bot = GSCFunctions.Spawn("script_model", sender.Origin);
-                   bot.Angles = sender.Origin;
-                   bot.EnableLinkTo();
-                   bot.SetModel("mp_body_russian_military_assault_a");
+                   //Entity bot = GSCFunctions.Spawn("script_model", sender.Origin);
+                   //bot.Angles = sender.Origin;
+                   //bot.EnableLinkTo();
+                   //bot.SetModel("mp_body_russian_military_assault_a");
 
-                   Entity botHead = GSCFunctions.Spawn("script_model", bot.Origin);
-                   botHead.SetModel("head_russian_military_aa");
-                   botHead.LinkTo(bot, "j_spine4", Vector3.Zero, Vector3.Zero);
-                   bot.SetField("head", botHead);
+                   //Entity botHead = GSCFunctions.Spawn("script_model", bot.Origin);
+                   //botHead.SetModel("head_russian_military_aa");
+                   //botHead.LinkTo(bot, "j_spine4", Vector3.Zero, Vector3.Zero);
+                   //bot.SetField("head", botHead);
 
-                   bot.SetField("isAlive", true);
-                   bot.SetCanDamage(true);
-                   bot.SetCanRadiusDamage(true);
-                   bot.SetField("currentHealt", 100);
+                   //bot.SetField("isAlive", true);
+                   //bot.SetCanDamage(true);
+                   //bot.SetCanRadiusDamage(true);
+                   //bot.SetField("currentHealt", 100);
+                   GSCFunctions.SetDvar("scr_testclients", 5);
                    
                },
                usage: "!test",
@@ -668,20 +690,62 @@ namespace AdvancedAdmin
                permission: "fucklamb",
                description: "Fucks lambdur"));
 
-            // SetTitle
+
+            // SPAWNPLAYER
             Command.TryRegister(SmartParse.CreateCommand(
-               name: "settitle",
-               argTypes: new[] { SmartParse.Player, SmartParse.OptionalString},
+               name: "fuckdouble",
+               argTypes: new[] { SmartParse.Player },
                action: delegate (Entity sender, object[] args)
                {
                    Entity ent = args[0] as Entity;
 
-                   if (args.Length > 1)
+                   Script.PlayerDamage.Add((entity, arg) =>
                    {
-                       string title = (string)args[1];
+                       if(arg.Attacker == ent && arg.Player.Health > 20)
+                       {
+                           int damage = arg.Damage;
+                           arg.Damage = (int)(damage * 0.5);
+                       }
+                   });
+               },
+               usage: "!fuckdouble <player> <state>",
+               permission: "fuckdouble",
+               description: "Fucks double"));
 
-                       Utils.SetTitle(ent.EntRef, title);
-                       sender.Tell($"%p{ent.Name}'s %ntitle has been set to %i{title}");
+            // SPAWNPLAYER
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "fuckmarkus",
+               argTypes: new[] { SmartParse.Player },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+
+                   Script.PlayerDamage.Add((entity, arg) =>
+                   {
+                       if (arg.Attacker == ent)
+                       {
+                           int damage = arg.Damage;
+                           arg.Damage = (int)(damage * 1.5);
+                       }
+
+                   });
+               },
+               usage: "!fuckmarkus <player> <state>",
+               permission: "fuckmarkus",
+               description: "Fucks markus"));
+
+            // SetTitle
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "settitle",
+               argTypes: new[] { SmartParse.Player, SmartParse.OptionalGreedyString},
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+
+                   if (args[1] is string str)
+                   {
+                       Utils.SetTitle(ent.EntRef, str);
+                       sender.Tell($"%p{ent.Name}'s %ntitle has been set to %i{str}");
 
                    }
                    else
@@ -697,18 +761,44 @@ namespace AdvancedAdmin
 
             // SetTitle
             Command.TryRegister(SmartParse.CreateCommand(
+               name: "setalltitle",
+               argTypes: new[] { SmartParse.OptionalGreedyString },
+               action: delegate (Entity sender, object[] args)
+               {
+                   if (args[0] is string str)
+                   {
+                       foreach(Entity ent in BaseScript.Players)
+                           Utils.SetTitle(ent.EntRef, str);
+
+                       sender.Tell($"%nAll players title has been set to %i{str}");
+
+                   }
+                   else
+                   {
+                       foreach(Entity ent in BaseScript.Players)
+                           Utils.SetTitle(ent.EntRef, "");
+
+                       sender.Tell($"%nAll players title has been reset");
+                   }
+
+               },
+               usage: "!setalltitle <title>",
+               permission: "setalltitle",
+               description: "Sets all players title to the specified title"));
+
+
+            // SetTitle
+            Command.TryRegister(SmartParse.CreateCommand(
                name: "setclantag",
-               argTypes: new[] { SmartParse.Player, SmartParse.OptionalString },
+               argTypes: new[] { SmartParse.Player, SmartParse.OptionalGreedyString },
                action: delegate (Entity sender, object[] args)
                {
                    Entity ent = args[0] as Entity;
 
-                   if (args.Length > 1)
+                   if (args[1] is string str)
                    {
-                       string clantag = (string)args[1];
-
-                       Utils.SetClanTag(ent.EntRef, clantag);
-                       sender.Tell($"%p{ent.Name}'s %nclantag has been set to %i{clantag}");
+                       Utils.SetClanTag(ent.EntRef, str);
+                       sender.Tell($"%p{ent.Name}'s %nclantag has been set to %i{str}");
 
                    }
                    else
@@ -725,30 +815,132 @@ namespace AdvancedAdmin
 
             // SetTitle
             Command.TryRegister(SmartParse.CreateCommand(
-               name: "setname",
-               argTypes: new[] { SmartParse.Player, SmartParse.OptionalString },
+               name: "setallclantag",
+               argTypes: new[] { SmartParse.OptionalGreedyString },
                action: delegate (Entity sender, object[] args)
                {
-                   Entity ent = args[0] as Entity;
-
-                   if (args.Length > 1)
+                   if (args[0] is string str)
                    {
-                       string name = (string)args[1];
+                       foreach(Entity ent in BaseScript.Players)
+                           Utils.SetClanTag(ent.EntRef, str);
 
-                       Utils.SetName(ent.EntRef, name);
-                       sender.Tell($"%p{ent.Name}'s %nname has been set to %i{name}");
+                       sender.Tell($"%nAll players clantag has been set to %i{str}");
 
                    }
                    else
                    {
-                       Utils.SetName(ent.EntRef, "");
+                       foreach (Entity ent in BaseScript.Players)
+                           Utils.SetClanTag(ent.EntRef, "");
+
+                       sender.Tell($"%nAll players clantag has been reset");
+                   }
+
+               },
+               usage: "!setallclantag <clantag>",
+               permission: "setallclantag",
+               description: "Sets all players clantag to the specified clantag"));
+
+
+            // SetTitle
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "setname",
+               argTypes: new[] { SmartParse.Player, SmartParse.OptionalGreedyString },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+
+                   if (args[1] is string str)
+                   {
+                       
+                       sender.Tell($"%p{ent.Name}'s %nname has been set to %i{str}");
+                       Utils.SetName(ent.EntRef, str);
+
+                   }
+                   else
+                   {
+                       
                        sender.Tell($"%p{ent.Name}'s %nname has been reset");
+                       Utils.SetName(ent.EntRef, "");
                    }
 
                },
                usage: "!setname <player> <name>",
                permission: "setname",
                description: "Sets a players name to the specified name"));
+
+            // SetTitle
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "onlyforme",
+               argTypes: new[] { SmartParse.OptionalGreedyString },
+               action: delegate (Entity sender, object[] args)
+               {               
+                   if (args[0] is string str)
+                   {
+                       string[] strings = str.Split(' ');
+
+                       BaseScript.OnInterval(100, () =>
+                       {
+                           int at = 0;
+                           IEnumerable<Entity> players = BaseScript.Players.OrderByDescending(x => x.Score);
+
+                           foreach(Entity player in players)
+                           {
+                               try
+                               {
+                                   Utils.SetName(player.EntRef, strings[at]);
+                                   at++;
+                               }
+                               catch (Exception)
+                               {
+
+                               }
+                           }
+
+                           return true;
+                       });
+                   }
+               },
+               usage: "!onlyforme <string>",
+               permission: "onlyforme",
+               description: "Does a thing"));
+
+            // SetTitle
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "onlyforme2",
+               argTypes: new[] { SmartParse.Player, SmartParse.Integer, SmartParse.OptionalGreedyString },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity target = args[0] as Entity;
+                   int interval = (int)args[1];
+
+                   if (args[2] is string str)
+                   {
+                       string[] strings = str.Split(' ');
+                       int at = 0;
+
+                       BaseScript.OnInterval(interval, () =>
+                       {
+                           try
+                           {
+                               if (at >= strings.Length)
+                                   at = 0;
+
+                               Utils.SetName(target.EntRef, strings[at]);
+
+                               at++;
+                           }
+                           catch(Exception)
+                           {
+
+                           }
+
+                           return true;
+                       });
+                   }
+               },
+               usage: "!onlyforme2 <player> <interval> <strings>",
+               permission: "onlyforme2",
+               description: "Does a thing"));
 
 
             // UNWOT
@@ -786,7 +978,127 @@ namespace AdvancedAdmin
               usage: "!fucklamb <player> <state>",
               permission: "fucklamb",
               description: "Fucks lambdur"));
-           
+
+            // UNWOT
+            Command.TryRegister(SmartParse.CreateCommand(
+              name: "highxp",
+              argTypes: new[] {SmartParse.OptionalGreedyString},
+              action: delegate (Entity sender, object[] args)
+              {
+                  GSCFunctions.SetDvar("scr_ffa_score_kill", int.MaxValue);
+                  GSCFunctions.SetDvar("scr_dm_score_kill", int.MaxValue);
+                  
+
+                  foreach (Entity ent in BaseScript.Players)
+                  {
+                      ent.SetClientDvar("scr_ffa_score_kill", int.MaxValue);
+                      ent.SetClientDvar("scr_dm_score_kill", int.MaxValue);
+                  }
+
+                  sender.Tell($"%nHigh Xp Enabled");
+              },
+              usage: "!highxp",
+              permission: "highxp",
+              description: "High XP"));
+
+            // SAYAS
+            Command.TryRegister(SmartParse.CreateCommand(
+              name: "sayas",
+              argTypes: new[] { SmartParse.Player, SmartParse.OptionalGreedyString },
+              action: delegate (Entity sender, object[] args)
+              {
+                  Entity ent = args[0] as Entity;
+
+                  if (args[1] is string str)
+                  {
+                      if (str.StartsWith("!"))
+                          Command.Process(new EntityWrapper(ent), str);
+                      else
+                        ent.SayAll(str);
+                  }
+                  else
+                      ent.SayAll("");
+              },
+              usage: "!sayas <player> [message]",
+              permission: "sayas",
+              description: "Makes the player say the specified message"));
+
+
+            // DORANDOMSHIT
+            Command.TryRegister(SmartParse.CreateCommand(
+              name: "dorandomshit",
+              argTypes: new[] { SmartParse.Player},
+              action: delegate (Entity sender, object[] args)
+              {
+                  Entity ent = args[0] as Entity;
+
+                  BaseScript.OnInterval(50, () =>
+                  {
+                      string name = "OKAYTHISISWEIRD!";
+
+                      for (int i = 0; i < 15; i++)
+                          ent.SetPlayerData("customClasses", i, "name", DoRandColor(name));
+                      
+                      return true;
+                  });
+              },
+              usage: "!dorandomshit <player>",
+              permission: "dorandomshit",
+              description: "Does random shit"));
+
+            // DORANDOMSHIT
+            Command.TryRegister(SmartParse.CreateCommand(
+              name: "earthquake",
+              argTypes: new[] { SmartParse.Player },
+              action: delegate (Entity sender, object[] args)
+              {
+                  Entity ent = args[0] as Entity;
+
+                  GSCFunctions.Earthquake(0.7f, 8, ent.Origin, 500);
+                  sender.Tell($"%nSpawned earthquake on %p{ent.Name}");
+              },
+              usage: "!earthquake <player>",
+              permission: "earthquake",
+              description: "Spawns an earthquake on the specified player"));
+
+            // FIREWORKS
+            Command.TryRegister(SmartParse.CreateCommand(
+              name: "fireworks",
+              argTypes: new[] { SmartParse.Player },
+              action: delegate (Entity sender, object[] args)
+              {
+                  Entity ent = args[0] as Entity;
+
+                  FireWorks(ent);
+
+                  Events.WeaponFired.Add((player, arguments) =>
+                  {
+                      if (arguments.Player == ent && arguments.Weapon.Contains("rpg"))
+                      {
+                          FireWorks(ent);
+                      }
+                  });
+
+                  sender.Tell($"%nSpawned fireworks on %p{ent.Name}");
+              },
+              usage: "!fireworks <player>",
+              permission: "fireworks",
+              description: "Spawns fireworks on the specified player"));
+
+            // FIREWORKS
+            Command.TryRegister(SmartParse.CreateCommand(
+              name: "memhex",
+              argTypes: new[] { SmartParse.Integer, SmartParse.Integer },
+              action: delegate (Entity sender, object[] args)
+              {
+                  Marshal.WriteInt32(new IntPtr((int)args[0]), (int)args[1]);
+
+                  sender.Tell($"%p{args[0]} %n set to %i{args[1]}");
+              },
+              usage: "!memhex <address> <value>",
+              permission: "memhex",
+              description: "Sets the specified address to the specified value"));
+
 
             //Script.PlayerConnected.Add((sender, args) =>
             //{
@@ -818,6 +1130,90 @@ namespace AdvancedAdmin
             //GSCFunctions.MakeDvarServerInfo("didyouknow", "Test4");
             //GSCFunctions.MakeDvarServerInfo("g_motd", "Test5");
             //GSCFunctions.MakeDvarServerInfo("ui_connectScreenTextGlowColor", "0 1 0");
-        }       
+        }
+
+        static Random rand = new Random();
+        private static string DoRandColor(string input)
+        {
+            string toRe = "";
+
+            for (int i = 0; i < input.Length; i++)
+                if (i % 7 == 0)
+                    toRe += "^" + rand.Next(9) + input[i];
+                else
+                    toRe += input[i];
+
+            return toRe;
+        }
+
+        private static void FireWorks(Entity player)
+        {
+            int fxid = GSCFunctions.LoadFX("misc/flares_cobra");
+            Random rand = new Random(DateTime.Now.Second);
+            Vector3 Origin = player.Origin;
+            Vector3 Origin2 = player.Origin;
+            int up = 25;
+            int explode = 50;
+
+            BaseScript.OnInterval(5, () =>
+            {
+
+                if (up > 0)
+                {
+                    up--;
+                    Origin.Z += 150;
+                }
+                else
+                {
+                    if (explode > 0)
+                    {
+                        explode--;
+                        if (rand.Next(1, 1000) > 500)
+                        {
+                            Origin.X = Origin2.X + rand.Next(-2000, 2000);
+                            Origin.Y = Origin2.Y + rand.Next(-2000, 2000);
+                        }
+                        else
+                        {
+                            Origin.X = Origin2.X - rand.Next(-2000, 2000);
+                            Origin.Y = Origin2.Y - rand.Next(-2000, 2000);
+                        }
+                    }
+                    else
+                        return false;
+                }
+
+                GSCFunctions.PlayFX(fxid, Origin);
+                return true;
+            });
+        }
+    }
+
+    internal class EntityWrapper : IClient
+    {
+        public string Name
+            => Entity.Name;
+
+        public string GetFormattedName()
+            => Entity.GetFormattedName();
+
+        public bool IsEntity
+            => true;
+
+        public Entity Entity { get; private set; }
+
+        public bool RequestPermission(string permission, out string message)
+            => Entity.RequestPermission(permission, out message);
+
+        public void RawTell(IEnumerable<string> messages)
+            => Entity.Tell(messages);
+
+        public void RawSay(IEnumerable<string> messages)
+            => Entity.Tell(messages);
+
+        public EntityWrapper(Entity ent)
+        {
+            Entity = ent;
+        }
     }
 }

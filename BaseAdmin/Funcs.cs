@@ -24,15 +24,28 @@ namespace BaseAdmin
             });
         }
 
+        internal static int IpToInt(System.Net.IPAddress address)
+        {
+            byte[] bytes = address.GetAddressBytes();
+
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
+
+            return BitConverter.ToInt32(bytes, 0);
+        }
+
         public static void Ban(Entity ent, string issuer, string message = "You have been banned")
         {
             IEnumerator routine()
             {
-                var cmd = new SQLiteCommand("INSERT INTO bans (hwid, guid, name, expire, issuer, reason) VALUES (@hwid, @guid, @name, @time, @issuer, @reason);", Main.Connection);
+                var cmd = new SQLiteCommand("INSERT INTO bans (hwid, guid, ip, name, expire, issuer, reason) VALUES (@hwid, @guid, @ip, @name, @time, @issuer, @reason);", Main.Connection);
 
                 cmd.Parameters.AddWithValue("@hwid", ent.HWID);
                 cmd.Parameters.AddWithValue("@name", ent.Name);
                 cmd.Parameters.AddWithValue("@guid", ent.GUID);
+                cmd.Parameters.AddWithValue("@ip", IpToInt(ent.IP.Address));
                 cmd.Parameters.AddWithValue("@issuer", issuer);
                 cmd.Parameters.AddWithValue("@reason", message);
                 cmd.Parameters.AddWithValue("@time", "permanent");
@@ -64,10 +77,11 @@ namespace BaseAdmin
         {
             IEnumerator routine()
             {
-                var cmd = new SQLiteCommand("INSERT INTO bans (hwid, guid, name, expire, issuer, reason) VALUES (@hwid, @guid, @name, @time, @issuer, @reason);", Main.Connection);
+                var cmd = new SQLiteCommand("INSERT INTO bans (hwid, guid, ip, name, expire, issuer, reason) VALUES (@hwid, @guid, @ip, @name, @time, @issuer, @reason);", Main.Connection);
 
                 cmd.Parameters.AddWithValue("@hwid", ent.HWID);
                 cmd.Parameters.AddWithValue("@guid", ent.GUID);
+                cmd.Parameters.AddWithValue("@ip", IpToInt(ent.IP.Address));
                 cmd.Parameters.AddWithValue("@name", ent.Name);
                 cmd.Parameters.AddWithValue("@issuer", issuer);
                 cmd.Parameters.AddWithValue("@reason", message);

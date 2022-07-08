@@ -522,7 +522,7 @@ namespace Andromeda
 
                 Connection.Open();
 
-                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS players (hwid VARCHAR(32) PRIMARY KEY NOT NULL, password BLOB NOT NULL, data LONGTEXT);", Connection))
+                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS players (hwid TEXT PRIMARY KEY NOT NULL, password BLOB NOT NULL, data TEXT);", Connection))
                 {
                     prepare.ExecuteNonQuery();
                 }
