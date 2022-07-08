@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,13 +19,13 @@ namespace DiscordBot
             }
         }
 
-        public  void PostData(WebhookObject data)
+        public void PostData(WebhookObject data)
         {
             using (WebClient wc = new WebClient())
             {
                 wc.Headers.Add(HttpRequestHeader.ContentType, "application/json");
 
-                wc.UploadStringAsync(_Uri, JsonConvert.SerializeObject(data));        
+                wc.UploadStringAsync(_Uri, JsonConvert.SerializeObject(data));
             }
         }
 

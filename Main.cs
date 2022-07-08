@@ -1,4 +1,4 @@
-using Andromeda;
+﻿using Andromeda;
 using Andromeda.Events;
 using InfinityScript;
 using System;
@@ -16,42 +16,20 @@ namespace DiscordBot
     [Plugin]
     public class Main
     {
-        private const string apiEndpoint = "https://discord.com/api/webhooks/";
         private const string path = @"scripts\DiscordBot";
-        private static string welcomeFile = Path.Combine(path, "dontwelcome");
-        private static string apiFile = Path.Combine(path, "apikey.txt");
+        private static string file = Path.Combine(path, "dontwelcome");
 
         static Api api;
-        public static bool Setup()
+        public static void Setup()
         {
-            string apiKey = "";
-
-            Directory.CreateDirectory(path);
-
-
-            if (!File.Exists(apiFile))
-            {
-                File.CreateText(apiFile).Close();
-
-                return false;
-            }
-            else
-                apiKey = File.ReadAllText(apiFile);
-
-            api = new Api($"{apiEndpoint}{apiKey}");
-
-            return true;
+            api = new Api("https://discord.com/api/webhooks/975197780186386433/rxYJk_5MJlhdQrKQ6OSDL2YSjz4yyLYitGLaS6TaAfbh5FhNY8eFISIR7hSHC0ZYT2Cu");
         }
 
         [EntryPoint]
         private static void Init()
         {
-
-
-            if (!Setup())
-            {
-                return;
-            }
+            Directory.CreateDirectory(path);
+            Setup();
 
             Script.PlayerSay.Add((sender, args) =>
             {
@@ -60,7 +38,7 @@ namespace DiscordBot
 
             Script.PlayerConnected.Add((sender, ent) =>
             {
-                if (!File.Exists(welcomeFile))
+                if (!File.Exists(file))
                     SendMessage($"{ent.Name}: has connected.");
             });
 
@@ -72,12 +50,12 @@ namespace DiscordBot
 
             Events.PreMatchDone.Add((sender, args) =>
             {
-                File.Delete(welcomeFile);
+                File.Delete(file);
             });
 
             Script.OnExitLevel.Add((sender, args) =>
             {
-                File.CreateText(welcomeFile).Close();
+                File.CreateText(file);
             });
 
             Events.CommandRun.Add((sender, args) =>
