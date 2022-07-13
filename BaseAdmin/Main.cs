@@ -72,10 +72,14 @@ namespace BaseAdmin
 
                 if (client.IsEntity)
                 {
+
+                    if (args.Command.Name == "login" || args.Command.Name == "register" || args.Command.Name == "pm" || args.Command.Name == "reply")
+                        return;
+
                     if (!args.Fail)
-                        Utils.WarnAdminsWithField(null, "perms.spy", $"^7(%h1S^7)%p{client.Name}^7: %i!{args.Command.Name} {args.Arguments}");
+                        Utils.WarnAdminsWithField(client.Entity, "perms.spy", $"^7(%h1S^7)%p{client.Name}^7: %i!{args.Command.Name} {args.Arguments}");
                     else
-                        Utils.WarnAdminsWithField(null, "perms.spy", $"^7(%h1F^7)%p{client.Name}^7: %i!{args.Command.Name} {args.Arguments}");
+                        Utils.WarnAdminsWithField(client.Entity, "perms.spy", $"^7(%h1F^7)%p{client.Name}^7: %i!{args.Command.Name} {args.Arguments}");
                 }
             });
 
@@ -233,39 +237,39 @@ namespace BaseAdmin
                 permission: "!unwarn",
                 description: "Unwarns a player"));
 
-            // RESETWARNINGS
-            Command.TryRegister(SmartParse.CreateCommand(
-                name: "resetwarnings",
-                argTypes: new[] { SmartParse.UnimmunePlayer, SmartParse.OptionalGreedyString },
-                action: delegate (IClient sender, object[] args)
-                {
-                    var target = args[0] as Entity;
+            //// RESETWARNINGS
+            //Command.TryRegister(SmartParse.CreateCommand(
+            //    name: "resetwarnings",
+            //    argTypes: new[] { SmartParse.UnimmunePlayer, SmartParse.OptionalGreedyString },
+            //    action: delegate (IClient sender, object[] args)
+            //    {
+            //        var target = args[0] as Entity;
 
-                    if (args[1] is string str)
-                        Funcs.ResetWarnings(target, sender.GetFormattedName(), str);
-                    else
-                        Funcs.ResetWarnings(target, sender.GetFormattedName());
-                },
-                usage: "!resetwarnings <player> [reason]",
-                permission: "resetwarnings",
-                aliases: new[] { "resetwarns" },
-                description: "Resets a player's warnings"));
+            //        if (args[1] is string str)
+            //            Funcs.ResetWarnings(target, sender.GetFormattedName(), str);
+            //        else
+            //            Funcs.ResetWarnings(target, sender.GetFormattedName());
+            //    },
+            //    usage: "!resetwarnings <player> [reason]",
+            //    permission: "resetwarnings",
+            //    aliases: new[] { "resetwarns" },
+            //    description: "Resets a player's warnings"));
 
-            // REMOVEWARNINGS
-            Command.TryRegister(SmartParse.CreateCommand(
-                name: "removewarnings",
-                argTypes: new[] { SmartParse.OptionalGreedyString },
-                action: delegate (Entity sender, object[] args)
-                {
-                    if (args[0] is string str)
-                        Funcs.ResetWarnings(sender, sender.GetFormattedName(), str);
-                    else
-                        Funcs.ResetWarnings(sender, sender.GetFormattedName());
-                },
-                usage: "!removewarnings [reason]",
-                permission: "resetmywarnings",
-                aliases: new[] { "rmwarns" },
-                description: "Reset your own warnings"));
+            //// REMOVEWARNINGS
+            //Command.TryRegister(SmartParse.CreateCommand(
+            //    name: "removewarnings",
+            //    argTypes: new[] { SmartParse.OptionalGreedyString },
+            //    action: delegate (Entity sender, object[] args)
+            //    {
+            //        if (args[0] is string str)
+            //            Funcs.ResetWarnings(sender, sender.GetFormattedName(), str);
+            //        else
+            //            Funcs.ResetWarnings(sender, sender.GetFormattedName());
+            //    },
+            //    usage: "!removewarnings [reason]",
+            //    permission: "resetmywarnings",
+            //    aliases: new[] { "rmwarns" },
+            //    description: "Reset your own warnings"));
 
             // KICK
             Command.TryRegister(SmartParse.CreateCommand(
@@ -328,22 +332,22 @@ namespace BaseAdmin
                 permission: "tmpban",
                 description: "Temporarily bans a player"));
 
-            // EXECUTECOMMAND
-            Command.TryRegister(SmartParse.CreateCommand(
-                name: "executecommand",
-                argTypes: new[] { SmartParse.GreedyString },
-                action: delegate (IClient sender, object[] args)
-                {
-                    var cmd = args[0] as string;
+            //// EXECUTECOMMAND
+            //Command.TryRegister(SmartParse.CreateCommand(
+            //    name: "executecommand",
+            //    argTypes: new[] { SmartParse.GreedyString },
+            //    action: delegate (IClient sender, object[] args)
+            //    {
+            //        var cmd = args[0] as string;
 
-                    Utilities.ExecuteCommand(cmd);
+            //        Utilities.ExecuteCommand(cmd);
 
-                    sender.Tell("%aCommand executed.");
-                },
-                usage: "!executecommand <cmd>",
-                aliases: new[] { "exec" },
-                permission: "executecommand",
-                description: "Executes a command in the server console"));
+            //        sender.Tell("%aCommand executed.");
+            //    },
+            //    usage: "!executecommand <cmd>",
+            //    aliases: new[] { "exec" },
+            //    permission: "executecommand",
+            //    description: "Executes a command in the server console"));
 
             // SEARCHBANS
             Command.TryRegister(SmartParse.CreateCommand(

@@ -56,7 +56,7 @@ namespace InfinityScript.PBase
             Script.PlayerDamage.Run(attacker, data);
             data.Update(out damage);
 
-            if (damage > player.Health + baseDamage && damage > baseDamage)
+            if (damage >= player.Health + baseDamage && damage >= baseDamage)
                 AfterDelay(1, () => player.FinishPlayerDamage(inflictor, attacker, damage, dFlags, mod, weapon, point, dir, hitLoc, 0f));
             else
                 player.Health += baseDamage - damage;

@@ -12,10 +12,17 @@ namespace AntiCheat
     {
         public static IEnumerable<Entity> OnlineAdminsWithPerms(string perm) => BaseScript.Players.Where(x => Common.Perms.RequestPermission(x, perm, out string message));
 
-        public static void WarnAdminsWithPerm(Entity sender, string perm, string message)
+        public static void WarnAdminsWithPerm(Entity sender, string perm, IEnumerable<string> message)
         {
             foreach (Entity admin in OnlineAdminsWithPerms(perm))
                 if(sender != admin)
+                    admin.Tell(message);
+        }
+
+        public static void WarnAdminsWithPerm(Entity sender, string perm, string message)
+        {
+            foreach (Entity admin in OnlineAdminsWithPerms(perm))
+                if (sender != admin)
                     admin.Tell(message);
         }
     }

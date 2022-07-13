@@ -59,6 +59,9 @@
   <ItemGroup>
     <Compile Include="Async.cs" />
     <Compile Include="DSR.cs" />
+    <Compile Include="Events\EventArguments\Administration\PlayerBanArgs.cs" />
+    <Compile Include="Events\EventArguments\Administration\PlayerKickArgs.cs" />
+    <Compile Include="Events\EventArguments\Administration\PlayerTempBanArgs.cs" />
     <Compile Include="Events\EventArguments\DSRLoadArgs.cs" />
     <Compile Include="Events\EventArguments\CommandRunArgs.cs" />
     <Compile Include="Extensions.cs" />

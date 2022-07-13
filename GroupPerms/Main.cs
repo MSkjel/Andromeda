@@ -14,39 +14,39 @@ namespace GroupPerms
     public static class Main
     {
         internal static Config Config;
-        internal static Dictionary<string, string> Keys = new Dictionary<string, string>();
+        //internal static Dictionary<string, string> Keys = new Dictionary<string, string>();
         internal static Dictionary<string, Group> GroupLookup;
         internal static ISerializer YAMLSerializer = new SerializerBuilder().DisableAliases().Build();
 
         private static string filePath;
-        private static string keysPath;
+        //private static string keysPath;
 
-        private static string ToHexString(this byte[] array)
-        {
-            StringBuilder sb = new StringBuilder(array.Length * 2);
-            foreach (byte b in array)
-                sb.AppendFormat("{0:x2}", b);
+        //private static string ToHexString(this byte[] array)
+        //{
+        //    StringBuilder sb = new StringBuilder(array.Length * 2);
+        //    foreach (byte b in array)
+        //        sb.AppendFormat("{0:x2}", b);
 
-            return sb.ToString();
-        }
+        //    return sb.ToString();
+        //}
 
-        internal static string GenerateKey()
-        {
-            string key;
-            do
-            {
-                var bytes = new byte[8];
-                new Random().NextBytes(bytes);
+        //internal static string GenerateKey()
+        //{
+        //    string key;
+        //    do
+        //    {
+        //        var bytes = new byte[8];
+        //        new Random().NextBytes(bytes);
 
-                key = bytes.ToHexString();
-            }
-            while (Keys.ContainsKey(key));
+        //        key = bytes.ToHexString();
+        //    }
+        //    while (Keys.ContainsKey(key));
 
-            return key;
-        }
+        //    return key;
+        //}
 
-        internal static void UpdateKeys()
-            => System.IO.File.WriteAllText(keysPath, YAMLSerializer.Serialize(Keys));
+        //internal static void UpdateKeys()
+        //    => System.IO.File.WriteAllText(keysPath, YAMLSerializer.Serialize(Keys));
 
         internal static Group GetGroup(this Entity ent)
         {
@@ -75,7 +75,7 @@ namespace GroupPerms
             System.IO.Directory.CreateDirectory(@"scripts\GroupPerms");
 
             filePath = GSCFunctions.GetDvar("perms_path");
-            keysPath = GSCFunctions.GetDvar("perms_keys_path");
+            //keysPath = GSCFunctions.GetDvar("perms_keys_path");
 
             if(!System.IO.File.Exists(filePath))
             {
@@ -111,20 +111,20 @@ namespace GroupPerms
                     }
                 }));
 
-                var key = GenerateKey();
+                //var key = GenerateKey();
 
-                System.IO.File.WriteAllText(keysPath, YAMLSerializer.Serialize(new Dictionary<string, string>
-                {
-                    [key] = "owner",
-                }));
+                //System.IO.File.WriteAllText(keysPath, YAMLSerializer.Serialize(new Dictionary<string, string>
+                //{
+                //    [key] = "owner",
+                //}));
             }
 
             var deserializer = new Deserializer();
 
             Config = deserializer.Deserialize<Config>(System.IO.File.ReadAllText(filePath));
 
-            if (System.IO.File.Exists(keysPath))
-                Keys = deserializer.Deserialize<Dictionary<string, string>>(System.IO.File.ReadAllText(keysPath));
+            //if (System.IO.File.Exists(keysPath))
+            //    Keys = deserializer.Deserialize<Dictionary<string, string>>(System.IO.File.ReadAllText(keysPath));
 
             GroupLookup = Config.Groups.ToDictionary(grp => grp.Name);
             GroupLookup["default"] = Config.DefaultGroup;
@@ -194,60 +194,60 @@ namespace GroupPerms
                 permission: "undercover",
                 description: "Prevents you from being shown in !admins"));
 
-            // CREATEKEY
-            Command.TryRegister(SmartParse.CreateCommand(
-                name: "createkey",
-                argTypes: new[] { Parse.Group.Obj },
-                action: delegate (IClient sender, object[] args)
-                {
-                    var group = args[0] as Group;
-                    var key = GenerateKey();
+            //// CREATEKEY
+            //Command.TryRegister(SmartParse.CreateCommand(
+            //    name: "createkey",
+            //    argTypes: new[] { Parse.Group.Obj },
+            //    action: delegate (IClient sender, object[] args)
+            //    {
+            //        var group = args[0] as Group;
+            //        var key = GenerateKey();
 
-                    Keys.Add(key, group.Name);
-                    UpdateKeys();
+            //        Keys.Add(key, group.Name);
+            //        UpdateKeys();
 
-                    sender.Tell($"%aKey for group {group.Name} created:"
-                            .Append($"%i{key}"));
-                },
-                usage: "!createkey <group>",
-                permission: "createkey",
-                description: "Creates a single-use key to be reedemed for the given group"));
+            //        sender.Tell($"%aKey for group {group.Name} created:"
+            //                .Append($"%i{key}"));
+            //    },
+            //    usage: "!createkey <group>",
+            //    permission: "createkey",
+            //    description: "Creates a single-use key to be reedemed for the given group"));
 
-            // USEKEY
-            Command.TryRegister(SmartParse.CreateCommand(
-                name: "usekey",
-                argTypes: new[] { SmartParse.String },
-                action: delegate (Entity sender, object[] args)
-                {
-                    var key = args[0] as string;
+            //// USEKEY
+            //Command.TryRegister(SmartParse.CreateCommand(
+            //    name: "usekey",
+            //    argTypes: new[] { SmartParse.String },
+            //    action: delegate (Entity sender, object[] args)
+            //    {
+            //        var key = args[0] as string;
 
-                    if (!sender.IsLogged())
-                    {
-                        sender.Tell("%eYou must log in first.");
-                        return;
-                    }
+            //        if (!sender.IsLogged())
+            //        {
+            //            sender.Tell("%eYou must log in first.");
+            //            return;
+            //        }
 
-                    if (!Keys.TryGetValue(key, out var groupName))
-                    {
-                        sender.Tell("%eKey does not exist.".Append("%eMake sure it was typed correctly."));
-                        return;
-                    }
+            //        if (!Keys.TryGetValue(key, out var groupName))
+            //        {
+            //            sender.Tell("%eKey does not exist.".Append("%eMake sure it was typed correctly."));
+            //            return;
+            //        }
 
-                    if (!GroupLookup.TryGetValue(groupName, out var group))
-                    {
-                        sender.Tell($"%eGroup {groupName} does not exist.".Append("Please contact your administrator."));
-                        return;
-                    }
+            //        if (!GroupLookup.TryGetValue(groupName, out var group))
+            //        {
+            //            sender.Tell($"%eGroup {groupName} does not exist.".Append("Please contact your administrator."));
+            //            return;
+            //        }
 
-                    Keys.Remove(key);
-                    UpdateKeys();
+            //        Keys.Remove(key);
+            //        UpdateKeys();
 
-                    sender.TrySetGroup(group);
+            //        sender.TrySetGroup(group);
 
-                    Common.SayAll($"%p{sender.GetFormattedName()}%a's group is now %i{group.Name}%n.");
-                },
-                usage: "!usekey <key>",
-                description: "Reedems a key for a group"));
+            //        Common.SayAll($"%p{sender.GetFormattedName()}%a's group is now %i{group.Name}%n.");
+            //    },
+            //    usage: "!usekey <key>",
+            //    description: "Reedems a key for a group"));
 
 #if DEBUG
             // GETPERMISSION

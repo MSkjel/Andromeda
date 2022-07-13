@@ -1,4 +1,5 @@
 ﻿#define DBWorkaround
+#define WAL
 
 using InfinityScript;
 using InfinityScript.Events;
@@ -117,12 +118,15 @@ namespace Andromeda
                     cmd.Parameters.AddWithValue("@hwid", HWID);
 
                     yield return Async.Detach();
-
+#if !WAL
                     lock (Connection)
                     {
+#endif
                         cmd.ExecuteNonQuery();
                         cmd.Dispose();
+#if !WAL
                     }
+#endif
                 }
 
                 Async.Start(routine());
@@ -134,12 +138,15 @@ namespace Andromeda
 
                 cmd.Parameters.AddWithValue("@data", JsonConvert.SerializeObject(Data));
                 cmd.Parameters.AddWithValue("@hwid", HWID);
-
+#if !WAL
                 lock(Connection)
                 {
+#endif
                     cmd.ExecuteNonQuery();
                     cmd.Dispose();
+#if !WAL
                 }
+#endif
             }
 
             public override string ToString()
@@ -201,12 +208,15 @@ namespace Andromeda
 
                     yield return Async.Detach();
 
+#if !WAL
                     lock (Connection)
                     {
+#endif
                         command.ExecuteNonQuery();
                         command.Dispose();
-                    }
-
+#if !WAL
+                }
+#endif
                     yield return Async.Attach();
 
                     Log.Info($"Registered HWID {hwid} inside database");
@@ -233,18 +243,21 @@ namespace Andromeda
 
         private static IEnumerator UpdateLogin(byte[] hash)
         {
-            var updateLogged = new SQLiteCommand("INSERT OR REPLACE INTO loggedin (hash, time) VALUES (@hash, @time);", Connection);
+            var updateLogged = new SQLiteCommand("REPLACE INTO loggedin (hash, time) VALUES (@hash, @time);", Connection);
 
             updateLogged.Parameters.AddWithValue("@time", FormatDate(DateTime.Now + TimeSpan.FromHours(24)));
             updateLogged.Parameters.AddWithValue("@hash", hash);
 
             yield return Async.Detach();
-
+#if !WAL
             lock (Connection)
             {
+#endif
                 updateLogged.ExecuteNonQuery();
                 updateLogged.Dispose();
+#if !WAL
             }
+#endif
         }
 
         [EntryPoint]
@@ -261,22 +274,25 @@ namespace Andromeda
                     yield return Async.Detach();
 
                     PlayerInfo found;
+#if !WAL
                     lock (Connection)
                     {
+#endif
                         var reader = cmd.ExecuteReader();
                         found = PlayerInfo.Get(reader);
 
                         reader.Close();
+#if !WAL
                     }
-
+#endif
                     yield return Async.Attach();
 
                     ConnectedPlayers[player.EntRef] = found;
 
-                    if (found != null)
-                        Log.Debug($"Found entry for player {player.Name}");
-                    else
-                        Log.Debug($"Did not find entry for player {player.Name}");
+                    //if (found != null)
+                    //    Log.Debug($"Found entry for player {player.Name}");
+                    //else
+                    //    Log.Debug($"Did not find entry for player {player.Name}");
 
                     if (found != null)
                     {
@@ -289,10 +305,14 @@ namespace Andromeda
                         yield return Async.Detach();
 
                         bool logged;
+#if !WAL
                         lock (Connection)
                         {
+#endif
                             logged = findLogged.ExecuteScalar() != null;
+#if !WAL
                         }
+#endif
 
                         yield return Async.Attach();
 
@@ -324,7 +344,7 @@ namespace Andromeda
                 });
             }, int.MaxValue);
 
-            #region Commands
+#region Commands
             // REGISTER
             Command.TryRegister(Parse.SmartParse.CreateCommand(
                 name: "register",
@@ -417,11 +437,14 @@ namespace Andromeda
                             cmd.Parameters.AddWithValue("@hash", GetLoginHash(sender));
 
                             yield return Async.Detach();
-
+#if !WAL
                             lock (Connection)
                             {
+#endif
                                 cmd.ExecuteNonQuery();
+#if !WAL
                             }
+#endif
                         }
 
                         Async.Start(routine());
@@ -463,11 +486,14 @@ namespace Andromeda
                             yield return Async.Detach();
 
                             int status;
+#if !WAL
                             lock (Connection)
                             {
+#endif
                                 status = cmd.ExecuteNonQuery();
+#if !WAL
                             }
-
+#endif
                             yield return Async.Attach();
 
                             if (status == -1)
@@ -488,20 +514,23 @@ namespace Andromeda
                 usage: "!changepassword <newpassword> <confirm>",
                 description: "Logs you into the server database"));
 
-            #endregion
+#endregion
         }
 
         [Cleanup]
         private static void Cleanup()
         {
+#if !WAL
             lock (Connection)
             {
+#endif
                 foreach (var info in ConnectedPlayers)
                 {
                     if (info != null)
                         info.UpdateData();
+#if !WAL
                 }
-
+#endif
                 Connection.Close();
             }
         }
@@ -514,11 +543,15 @@ namespace Andromeda
 
             System.IO.Directory.CreateDirectory(@"scripts\Andromeda");
 
+#if WAL
+            Connection = new SQLiteConnection($"Data Source={DBFile};Version=3;PRAGMA journal_mode=WAL;");
+#else
             Connection = new SQLiteConnection($"Data Source={DBFile};Version=3;");
 
             lock (Connection)
             {
-                Log.Info("Preparing DB...");
+#endif
+            Log.Info("Preparing DB...");
 
                 Connection.Open();
 
@@ -538,7 +571,9 @@ namespace Andromeda
                 }
 
                 Log.Info("Done preparing.");
+#if !WAL
             }
+#endif
         }
     }
 }

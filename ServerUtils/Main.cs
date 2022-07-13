@@ -29,10 +29,13 @@ namespace ServerUtils
 
                 while (true)
                 {
-                    index %= Config.Announcements.Length;
+                    if (BaseScript.Players.Count() > 0)
+                    {
+                        index %= Config.Announcements.Length;
 
-                    Common.SayAll(Config.Announcements[index]);
-                    index++;
+                        Common.SayAll(Config.Announcements[index]);
+                        index++;
+                    }
 
                     yield return BaseScript.Wait(Config.AnnounceInterval);
                 }

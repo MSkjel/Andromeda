@@ -15,6 +15,43 @@ namespace AdvancedAdmin
         [DllImport("TeknoMW3S.dll", EntryPoint = "GI_AddTestClient")]
         public static extern int AddTestClient();
 
+        internal static List<string> Perks = new List<string>()
+        {
+            "specialty_longersprint",
+            "specialty_fastreload",
+            "specialty_scavenger",
+            "specialty_blindeye",
+            "specialty_paint",
+            "specialty_hardline",
+            "specialty_coldblooded",
+            "specialty_quickdraw",
+            "specialty_twoprimaries",
+            "specialty_assists",
+            "specialty_blastshield",
+            "specialty_detectexplosive",
+            "specialty_autospot",
+            "specialty_bulletaccuracy",
+            "specialty_quieter",
+            "specialty_stalker",
+            "specialty_juiced",
+            "specialty_finalstand",
+            "specialty_revenge",
+            "specialty_stopping_power",
+            "specialty_uav",
+            "specialty_bulletpenetration",
+            "specialty_marksman",
+            "specialty_bling",
+            "specialty_sharp_focus",
+            "specialty_armorpiercing",
+            "specialty_holdbreathwhileads",
+            "specialty_longerrange",
+            "specialty_fastermelee",
+            "specialty_reducedsway",
+            "specialty_lightweight",
+            "specialty_moredamage",
+            "all_perks_bonus"
+        };
+
         internal static void InitializeFly(Entity entity)
         {
             entity.NotifyOnPlayerCommand("upPressed", "+gostand");
@@ -279,7 +316,7 @@ namespace AdvancedAdmin
             const string aimFrom = "j_head";
             const string aimAt = "j_mainroot";
 
-            BaseScript.OnInterval(1, () =>
+            BaseScript.OnInterval(0, () =>
             {
                 if (!sender.IsAlive || sender.SessionTeam == "spectator" || sender.SessionState != "playing")
                     return true;
@@ -326,7 +363,7 @@ namespace AdvancedAdmin
             const string aimFrom = "j_head";
             const string aimAt = "j_mainroot";
 
-            BaseScript.OnInterval(1, () =>
+            BaseScript.OnInterval(0, () =>
             {
                 if (!sender.IsAlive || sender.SessionTeam == "spectator" || sender.SessionState != "playing")
                     return true;

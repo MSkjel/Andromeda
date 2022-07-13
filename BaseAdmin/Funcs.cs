@@ -1,4 +1,6 @@
 ﻿using Andromeda;
+using Andromeda.Events;
+using Andromeda.Events.EventArguments.Administration;
 using InfinityScript;
 using System;
 using System.Collections;
@@ -18,7 +20,7 @@ namespace BaseAdmin
         {
             var cmd = $"dropclient {ent.EntRef} \"{message}\"";
 
-            BaseScript.AfterDelay(150, delegate
+            BaseScript.AfterDelay(180, delegate
             {
                 Utilities.ExecuteCommand(cmd);
             });
@@ -62,6 +64,8 @@ namespace BaseAdmin
             }
 
             Async.Start(routine());
+
+            Events.PlayerBan.Run(null, new PlayerBanArgs(ent, issuer, message));
         }
 
         internal static void BanKick(Entity ent, string issuer, string message)
@@ -70,7 +74,9 @@ namespace BaseAdmin
         public static void Kick(Entity ent, string issuer, string message = "You have been kicked")
         {
             DelayedKick(ent, Config.KickMessages.KickMessagePlayer.FormatServerMessage(ent, issuer, message).ColorFormat());
-            Common.SayAll(Config.KickMessages.KickMessagePlayer.FormatServerMessage(ent, issuer, message));
+            Common.SayAll(Config.KickMessages.KickMessageServer.FormatServerMessage(ent, issuer, message));
+
+            Events.PlayerKick.Run(null, new PlayerKickArgs(ent, issuer, message));
         }
 
         public static void TempBan(Entity ent, string issuer, TimeSpan timeSpan, string message = "You have been temporarily banned")
@@ -91,17 +97,19 @@ namespace BaseAdmin
 
                 var spanstr = $"{timeSpan.Days}d{timeSpan.Hours}h{timeSpan.Minutes}m";
 
-                Common.SayAll(Config.TempBanMessages.TempBanMessagePlayer.FormatServerMessage(ent, issuer, message, spanstr));
+                Common.SayAll(Config.TempBanMessages.TempBanMessageServer.FormatServerMessage(ent, issuer, message, spanstr));
 
                 yield return Async.Detach();
 
                 lock (Main.Connection)
                 {
                     cmd.ExecuteNonQuery();
-                }
+                }              
             }
 
             Async.Start(routine());
+
+            Events.PlayerTempBan.Run(null, new PlayerTempBanArgs(ent, issuer, message, timeSpan));
         }
 
         internal static void TempBanKick(Entity ent, string issuer, TimeSpan timeSpan, string message)

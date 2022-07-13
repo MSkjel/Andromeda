@@ -25,7 +25,8 @@ namespace AntiCheat
                 new NoRecoil(),
                 new SpinBot(),
                 new ForceClass(),
-                new Wallhack()
+                //new Wallhack(),
+                new AntiProxy()
             });
 
             foreach (IAntiCheatModule module in AntiCheatModules)

@@ -26,7 +26,7 @@ namespace AntiCheat.ACModules
             set;
         } = new Action<Entity, string>((ent, reason) =>
         {
-            Common.Admin.TempBan(ent, "AntiCheat", reason);
+            Common.Admin.TempBan(ent, "AntiCheat", new TimeSpan(2, 0, 0), reason);
         });
 
         public void RegisterEvents()

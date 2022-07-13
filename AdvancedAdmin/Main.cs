@@ -34,7 +34,7 @@ namespace AdvancedAdmin
             #region Commands
             // SETFLY
             Command.TryRegister(SmartParse.CreateCommand(
-                name: "setfly",
+                name: "fly",
                 argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
                 action: delegate (Entity sender, object[] args)
                 {
@@ -53,103 +53,102 @@ namespace AdvancedAdmin
 
                     sender.Tell($"%nFly for %p{ent.Name} %nset to %i{state}");
                 },
-                usage: "!setfly <player> <state>",
-                permission: "setfly",
+                usage: "!fly <player> <state>",
+                permission: "fly",
                 description: "Enables or disables fly for the specified player"));
 
-            // MYFLY
-            Command.TryRegister(SmartParse.CreateCommand(
-                name: "myfly",
-                argTypes: new[] { SmartParse.Boolean },
-                action: delegate (Entity sender, object[] args)
-                {
-                    bool state = (bool)args[0];
-
-                    sender.SetField("EnableFly", state);
-
-                    if (state)
-                    {
-                        if (!sender.IsFieldTrue("InitializedFly"))
-                            Utils.InitializeFly(sender);
-
-                        Utils.DoFly(sender);
-                    }
-
-                    sender.Tell($"%nFly set to %i{state}");
-                },
-                usage: "!myfly <state>",
-                permission: "myfly",
-                description: "Enables or disables fly"));
 
             // UNLIMITEDAMMO
             Command.TryRegister(SmartParse.CreateCommand(
                name: "unlimitedammo",
-               argTypes: new[] { SmartParse.Boolean },
+               argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
                action: delegate (Entity sender, object[] args)
                {
-                   bool state = (bool)args[0];
+                   Entity ent = args[0] as Entity;
+                   bool state = (bool)args[1];
 
-                   sender.SetField("UnlimitedAmmo", state);
+                   ent.SetField("UnlimitedAmmo", state);
 
                    if (state)
                    {
                        BaseScript.OnInterval(1, () =>
                        {
-                           if (!sender.IsFieldTrue("UnlimitedAmmo"))
+                           if (!ent.IsFieldTrue("UnlimitedAmmo"))
                                return false;
 
-                           sender.SetWeaponAmmoClip(sender.CurrentWeapon, int.MaxValue, "right");
-                           sender.SetWeaponAmmoClip(sender.CurrentWeapon, int.MaxValue, "left");
-                           sender.SetWeaponAmmoStock(sender.CurrentWeapon, int.MaxValue);
+                           ent.SetWeaponAmmoClip(sender.CurrentWeapon, int.MaxValue, "right");
+                           ent.SetWeaponAmmoClip(sender.CurrentWeapon, int.MaxValue, "left");
+                           ent.SetWeaponAmmoStock(sender.CurrentWeapon, int.MaxValue);
 
                            return true;
                        });
                    }
 
-                   sender.Tell($"%nUnlimited ammo set to %i{state}");
+                   sender.Tell($"%nUnlimitedAmmo for %p{ent.Name} %nset to %i{state}");
                },
-               usage: "!unlimitedammo <state>",
+               usage: "!unlimitedammo <player> <state>",
                permission: "unlimitedammo",
-               description: "Enables or disables unlimited ammo"));
+               description: "Enables or disables unlimited ammo for the specified player"));
+
+
+            // UNLIMITEDAMMOWITHRELOAD
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "giveammo",
+               argTypes: new[] { SmartParse.OptionalString },
+               action: delegate (Entity sender, object[] args)
+               {
+
+                   sender.SetWeaponAmmoStock(sender.GetCurrentPrimaryWeapon(), int.MaxValue);
+
+                   sender.Tell($"%nYou have been given ammo");
+               },
+               usage: "!giveammo",
+               permission: "giveammo",
+               description: "Replenishes ammo in the primary weapon",
+               aliases: new string[] { "ga" }));
+
 
             // UNLIMITEDAMMOWITHRELOAD
             Command.TryRegister(SmartParse.CreateCommand(
                name: "unlimitedammowithreload",
-               argTypes: new[] { SmartParse.Boolean },
+               argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
                action: delegate (Entity sender, object[] args)
                {
-                   bool state = (bool)args[0];
+                   Entity ent = args[0] as Entity;
+                   bool state = (bool)args[1];
 
-                   sender.SetField("UnlimitedAmmoReload", state);
+                   ent.SetField("UnlimitedAmmoReload", state);
 
                    if (state)
                    {
                        BaseScript.OnInterval(1, () =>
                        {
-                           if (!sender.IsFieldTrue("UnlimitedAmmoReload"))
+                           if (!ent.IsFieldTrue("UnlimitedAmmoReload"))
                                return false;
 
-                           sender.SetWeaponAmmoStock(sender.CurrentWeapon, int.MaxValue);
+                           ent.SetWeaponAmmoStock(ent.CurrentWeapon, int.MaxValue);
 
                            return true;
                        });
                    }
 
-                   sender.Tell($"%nUnlimited ammo with reload set to %i{state}");
+                   sender.Tell($"%nUnlimitedAmmoWReload for %p{ent.Name} %nset to %i{state}");
                },
-               usage: "!unlimitedammowithreload <state>",
+               usage: "!unlimitedammowithreload <player> <state>",
                permission: "unlimitedammowithreload",
-               description: "Enables or disables unlimited ammo with reload"));
+               description: "Enables or disables unlimited ammo with reload for the specified player"));
+
 
             // UNLIMITEDGRENADES
             Command.TryRegister(SmartParse.CreateCommand(
                name: "unlimitedgrenades",
-               argTypes: new[] { SmartParse.Boolean },
+               argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
                action: delegate (Entity sender, object[] args)
                {
-                   bool state = (bool)args[0];
+                   Entity ent = args[0] as Entity;
+                   bool state = (bool)args[1];
 
-                   sender.SetField("UnlimitedGrenades", state);
+                   ent.SetField("UnlimitedGrenades", state);
 
                    if (state)
                    {
@@ -160,15 +159,16 @@ namespace AdvancedAdmin
                        });
                    }
 
-                   sender.Tell($"%nUnlimited grenades set to %i{state}");
+                   sender.Tell($"%nUnlimitedGrenades for %p{ent.Name} %nset to %i{state}");
                },
-               usage: "!unlimitedgrenades <state>",
+               usage: "!unlimitedgrenades <player> <state>",
                permission: "unlimitedgrenades",
-               description: "Enables or disables unlimited grenades"));
+               description: "Enables or disables unlimited grenades for the specified player"));
+
 
             // AIMBOT
             Command.TryRegister(SmartParse.CreateCommand(
-               name: "setaimbot",
+               name: "aimbot",
                argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
                action: delegate (Entity sender, object[] args)
                {
@@ -180,82 +180,72 @@ namespace AdvancedAdmin
                    if (state)
                        Utils.DoAimbot(ent);
 
-                   sender.Tell($"%p{ent.Name}'s %naimbot set to %i{state}");
+                   sender.Tell($"%nAimbot for %p{ent.Name} %nset to %i{state}");
                },
-               usage: "!setaimbot <player> <state>",
-               permission: "setaimbot",
+               usage: "!aimbot <player> <state>",
+               permission: "aimbot",
                description: "Enables or disables aimbot for specified player"));
 
 
-            // MyAIMBOT
-            Command.TryRegister(SmartParse.CreateCommand(
-               name: "myaimbot",
-               argTypes: new[] { SmartParse.Boolean },
-               action: delegate (Entity sender, object[] args)
-               {
-                   bool state = (bool)args[0];
-
-                   sender.SetField("EnableAimbot", state);
-
-                   if (state)
-                       Utils.DoAimbot(sender);
-
-                   sender.Tell($"%nAimbot set to %i{state}");
-               },
-               usage: "!myaimbot <state>",
-               permission: "myaimbot",
-               description: "Enables or disables aimbot"));
-
             // SILENTAIM
             Command.TryRegister(SmartParse.CreateCommand(
-               name: "mysilentaim",
-               argTypes: new[] { SmartParse.Boolean },
+               name: "silentaim",
+               argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
                action: delegate (Entity sender, object[] args)
                {
-                   bool state = (bool)args[0];
+                   Entity ent = args[0] as Entity;
+                   bool state = (bool)args[1];
+                   
 
-                   sender.SetField("EnableSilentAim", state);
+                   ent.SetField("EnableSilentAim", state);
                    Utils.SetupSilentAim();
 
-                   sender.Tell($"%nSilentAim set to %i{state}");
+                   sender.Tell($"%nSilentAim for %p{ent.Name} %nset to %i{state}");
                },
-               usage: "!mysilentaim <state>",
-               permission: "mysilentaim",
-               description: "Enables or disables silentaim"));
+               usage: "!silentaim <player> <state>",
+               permission: "silentaim",
+               description: "Enables or disables silentaim for the specified player"));
+
 
             // AIMASSIST
             Command.TryRegister(SmartParse.CreateCommand(
-               name: "myaimassist",
-               argTypes: new[] { SmartParse.Boolean },
+               name: "aimassist",
+               argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
                action: delegate (Entity sender, object[] args)
                {
-                   bool state = (bool)args[0];
+                   Entity ent = args[0] as Entity;
+                   bool state = (bool)args[1];
 
-                   sender.SetField("EnableAimAssist", state);
+                   ent.SetField("EnableAimAssist", state);
 
                    if (state)
-                       Utils.DoAimAssist(sender);
+                       Utils.DoAimAssist(ent);
 
-                   sender.Tell($"%nAimAssist set to %i{state}");
+                   sender.Tell($"%nAimAssist for %p{ent.Name} %nset to %i{state}");
                },
-               usage: "!myaimassist <state>",
-               permission: "myaimassist",
-               description: "Enables or disables aimassist"));
+               usage: "!aimassist <player> <state>",
+               permission: "aimassist",
+               description: "Enables or disables aimassist for the specified player"));
+
 
             // AKIMBO
             Command.TryRegister(SmartParse.CreateCommand(
                name: "akimbo",
-               argTypes: null,
+               argTypes: new[] {SmartParse.Player},
                action: delegate (Entity sender, object[] args)
                {
-                   Utils.AkimboPrimary(sender);
-                   sender.Tell($"%nAkimbo primary enabled");
+                   Entity ent = args[0] as Entity;
+
+                   Utils.AkimboPrimary(ent);
+
+                   sender.Tell($"%nAkimbo primary enabled for %p{ent.Name}");
                },
                usage: "!akimbo",
                permission: "akimbo",
-               description: "Enables akimbo primary"));
+               description: "Enables akimbo primary for the specified player"));
 
-            // TPHERE
+
+            // AkimboMode
             Command.TryRegister(SmartParse.CreateCommand(
               name: "akimbomode",
               argTypes: null,
@@ -277,6 +267,85 @@ namespace AdvancedAdmin
               permission: "akimbomode",
               description: "Enables akimbomode"));
 
+
+            // GIVEALLPERKS
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "giveallperks",
+               argTypes: new[] { SmartParse.Player },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+
+                   Utils.Perks.ForEach(x => ent.SetPerk(x, true, false));
+                   sender.Tell($"%nAll perks given to %p{ent.Name}");
+               },
+               usage: "!giveallperks <player>",
+               permission: "giveallperks",
+               description: "Gives all perks to the specified player"));
+
+
+            // AKIMBO
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "setmodel",
+               argTypes: new[] { SmartParse.String },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity model = GSCFunctions.Spawn("script_model", sender.Origin);
+
+                   model.SetModel(args[0] as string);
+                   model.Show();
+                   sender.Hide();
+
+                   BaseScript.OnInterval(0, () =>
+                   {
+                       model.Origin = sender.Origin;
+                       model.Angles = sender.GetPlayerAngles();
+
+                       return true;
+                   });
+
+                   Events.PlayerRespawned.Add((_, ent) =>
+                   {
+                       if(ent == sender)
+                           sender.Hide();
+                   });
+               },
+               usage: "!setmodel <model>",
+               permission: "setmodel",
+               description: "Sets your view model to the specified model"));
+            
+
+            Command.TryRegister(SmartParse.CreateCommand(
+              name: "poke",
+              argTypes: new[] { SmartParse.Player },
+              action: delegate (Entity sender, object[] args)
+              {
+                  Entity ent = args[0] as Entity;
+                  int i = 0;
+
+                  BaseScript.OnInterval(150, () =>
+                  {
+                      if (i >= 20)
+                          return false;
+
+                      ent.PlaySoundToPlayer("ims_trigger", ent);
+                      BaseScript.AfterDelay(100 + i * 10, () => ent.IPrintLnBold(Common.ColorFormat($"%p{sender.Name} %nhas poked you")));
+                      BaseScript.AfterDelay(200 + i * 10, () => ent.PlaySoundToPlayer("veh_mig29_sonic_boom", ent));
+                      BaseScript.AfterDelay(300 + i * 10, () => ent.PlaySoundToPlayer("sentry_gun_beep", ent));
+
+                      i++;
+
+                      return true;
+                  });
+
+                  sender.Tell($"%p{ent.Name} %nhas been poked");
+              },
+              usage: "!poke <player>",
+              permission: "poke",
+              description: "Pokes the specified player"));
+
+
+
             Command.TryRegister(SmartParse.CreateCommand(
                name: "tphere",
                argTypes: new[] { SmartParse.Player },
@@ -292,6 +361,40 @@ namespace AdvancedAdmin
                usage: "!tphere <player>",
                permission: "tphere",
                description: "Teleports a player to you"));
+
+            
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "tpto",
+               argTypes: new[] { SmartParse.Player },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+
+                   sender.SetOrigin(ent.GetOrigin());
+
+                   sender.Tell($"%nYou have been teleported to %p{ent.Name}");
+                   ent.Tell($"%p{sender.Name} %nhas been teleported to you");
+               },
+               usage: "!tpto <player>",
+               permission: "tpto",
+               description: "Teleports a you to the specified player"));
+
+
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "whereis",
+               argTypes: new[] { SmartParse.Player },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+
+                   sender.SetPlayerAngles(GSCFunctions.VectorToAngles(ent.GetTagOrigin("j_mainroot") - sender.GetTagOrigin("j_head")));
+
+                   sender.Tell($"%nYou are looking at %p{ent.Name}");
+               },
+               usage: "!whereis <player>",
+               permission: "whereis",
+               description: "Makes you look at the specified player"));
+
 
             Command.TryRegister(SmartParse.CreateCommand(
               name: "tppoint",
@@ -313,8 +416,9 @@ namespace AdvancedAdmin
 
                       int LaserFX = GSCFunctions.LoadFX("misc/laser_glow");
                       Vector3 playerForward = ent.GetTagOrigin("tag_weapon_right") + GSCFunctions.AnglesToForward(ent.GetPlayerAngles()) * 10000;
-                      Entity refObject = GSCFunctions.Spawn("script_model", ent.GetTagOrigin("tag_weapon_tight"));
+                      Entity refObject = GSCFunctions.Spawn("script_model", ent.GetTagOrigin("tag_weapon_right"));
 
+                      refObject.Angles = ent.GetPlayerAngles();
                       refObject.SetField("angles", ent.GetPlayerAngles());
                       refObject.SetModel("com_plasticcase_beige_big");
                       refObject.MoveTo(playerForward, 5f);
@@ -362,100 +466,54 @@ namespace AdvancedAdmin
               permission: "tppoint",
               description: "Teleports you to a point"));
 
-            Command.TryRegister(SmartParse.CreateCommand(
-              name: "giveallperks",
-              argTypes: null,
-              action: delegate (Entity sender, object[] args)
-              {
-                  List<string> perks = new List<string>()
-                        {
-                            "specialty_longersprint",
-                            "specialty_fastreload",
-                            "specialty_scavenger",
-                            "specialty_blindeye",
-                            "specialty_paint",
-                            "specialty_hardline",
-                            "specialty_coldblooded",
-                            "specialty_quickdraw",
-                            "specialty_blastshield",
-                            "specialty_detectexplosive",
-                            "specialty_autospot",
-                            "specialty_bulletaccuracy",
-                            "specialty_quieter",
-                            "specialty_stalker",
-                            "specialty_copycat",
-                            "specialty_juiced",
-                            "specialty_grenadepulldeath",
-                            "specialty_finalstand",
-                            "specialty_revenge",
-                            "specialty_stopping_power",
-                            "specialty_c4death",
-                            "specialty_uav"
-                        };
 
-                  sender.ClearPerks();
+            ////WashingMachine
+            //Command.TryRegister(SmartParse.CreateCommand(
+            //  name: "washingmachine",
+            //  argTypes: new[] { SmartParse.OptionalString},
+            //  action: delegate (Entity sender, object[] args)
+            //  {
 
-                  foreach (string s in perks)
-                      sender.SetPerk(s, true, true);
+            //      BaseScript.OnInterval(1, () =>
+            //      {
+            //          int num = rand.Next(10);
 
-                  sender.Tell(perks.Where(x => !sender.HasPerk(x)).Condense());
-              },
-              usage: "!giveallperks",
-              permission: "giveallperks",
-              description: "Gives you all perks"));
+            //          switch (num)
+            //          {
+            //              case 1:
+            //                  sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z + 1));
+            //                  break;
 
-            Command.TryRegister(SmartParse.CreateCommand(
-              name: "washingmachine",
-              argTypes: new[] { SmartParse.String },
-              action: delegate (Entity sender, object[] args)
-              {
-                  switch(args[0] as string)
-                  {
-                      case "random":
-                          Random rand = new Random();
+            //              case 2:
+            //                  sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z - 1));
+            //                  break;
 
-                          BaseScript.OnInterval(1, () =>
-                          {
-                              int num = rand.Next(10);
+            //              case 3:
+            //                  sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z + 50));
+            //                  break;
 
-                              switch (num)
-                              {
-                                  case 1:
-                                      sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z + 1));
-                                      break;
+            //              case 4:
+            //                  sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z - 50));
+            //                  break;
 
-                                  case 2:
-                                      sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z - 1));
-                                      break;
+            //              case 5:
+            //                  sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z - 100));
+            //                  break;
 
-                                  case 3:
-                                      sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z + 50));
-                                      break;
+            //              case 6:
+            //                  sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z + 100));
+            //                  break;
 
-                                  case 4:
-                                      sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z - 50));
-                                      break;
-
-                                  case 5:
-                                      sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z - 100));
-                                      break;
-
-                                  case 6:
-                                      sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z + 100));
-                                      break;
-
-                                  default:
-                                      sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z + 3));
-                                      break;
-                              }
-                              return true;
-                          });
-                          break;
-                  }
-              },
-              usage: "!washingmachine <string>",
-              permission: "washingmachine",
-              description: "Enables washing machine"));
+            //              default:
+            //                  sender.SetPlayerAngles(new Vector3(sender.GetPlayerAngles().X, sender.GetPlayerAngles().Y, sender.GetPlayerAngles().Z + 3));
+            //                  break;
+            //          }
+            //          return true;
+            //      });
+            //  },
+            //  usage: "!washingmachine <string>",
+            //  permission: "washingmachine",
+            //  description: "Enables washing machine"));
 
 
             // GIVEWEP
@@ -478,22 +536,47 @@ namespace AdvancedAdmin
                permission: "givewep",
                description: "Gives you the specified weapon"));
 
+
+            // GIVEWEP
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "aug",
+               argTypes: new[] { SmartParse.Player },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+
+                   ent.GiveWeapon("iw5_m60jugg_mp_thermal_silencer_heartbeat_camo06");
+                   ent.TakeWeapon(ent.GetCurrentPrimaryWeapon());
+                   ent.SetWeaponAmmoClip("iw5_m60jugg_mp_thermal_silencer_heartbeat_camo06", int.MaxValue);
+                   ent.SetField("Allow_Weapon_Name", "iw5_m60jugg_mp_thermal_silencer_heartbeat_camo06");
+                   BaseScript.AfterDelay(100, () => ent.SwitchToWeaponImmediate("iw5_m60jugg_mp_thermal_silencer_heartbeat_camo06"));
+
+                   sender.Tell($"%p{ent.Name} %nhas been given an Aug");
+               },
+               usage: "!aug <player>",
+               permission: "aug",
+               description: "Gives the specified player an aug"));
+
+
             // AC130
             Command.TryRegister(SmartParse.CreateCommand(
                name: "ac130",
-               argTypes: null,
+               argTypes: new[] { SmartParse.Player },
                action: delegate (Entity sender, object[] args)
                {
-                   sender.GiveWeapon("ac130_105mm_mp");
-                   sender.GiveWeapon("ac130_40mm_mp");
-                   sender.GiveWeapon("ac130_25mm_mp");
-                   BaseScript.AfterDelay(100, () => sender.SwitchToWeaponImmediate("ac130_105mm_mp"));
+                   Entity ent = args[0] as Entity;
 
-                   sender.Tell($"%nYou have been given ac130");
+                   ent.GiveWeapon("ac130_105mm_mp");
+                   ent.GiveWeapon("ac130_40mm_mp");
+                   ent.GiveWeapon("ac130_25mm_mp");
+                   BaseScript.AfterDelay(100, () => ent.SwitchToWeaponImmediate("ac130_105mm_mp"));
+
+                   sender.Tell($"%p{ent.Name} has been given AC130");
                },
                usage: "!ac130",
                permission: "ac130",
                description: "Gives you AC130"));
+
 
             // AC130
             Command.TryRegister(SmartParse.CreateCommand(
@@ -522,6 +605,7 @@ namespace AdvancedAdmin
                usage: "!missilestrike <time>",
                permission: "missilestrike",
                description: "Sends a missile strike"));
+
 
             // TAKEALLWEPS
             Command.TryRegister(SmartParse.CreateCommand(
@@ -554,34 +638,90 @@ namespace AdvancedAdmin
                permission: "spawnplayer",
                description: "Spawns the client"));
 
+
+            // SPECTATE
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "spectate",
+               argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+                   bool state = (bool)args[1];
+
+                   if (state)
+                   {
+                       sender.SetField("ForceSpectate", ent.EntRef);
+                       sender.SessionTeam = "spectator";
+                       sender.Notify("menuresponse", "team_marinesopfor", "spectator");
+
+                       BaseScript.AfterDelay(100, () =>
+                       {
+                           sender.ForceSpectatorClient = ent.EntRef;
+                       });
+
+                       Events.PlayerSpawned.Add((_, player) =>
+                       {
+                           if(sender.GetField<int>("ForceSpectate") == player.EntRef)
+                               sender.ForceSpectatorClient = ent.EntRef;
+                       });
+
+                       Events.PlayerRespawned.Add((_, player) =>
+                       {
+                           if (sender.GetField<int>("ForceSpectate") == player.EntRef)
+                               sender.ForceSpectatorClient = ent.EntRef;
+                       });
+
+                       sender.Tell($"%nYou are now spectating %p{ent.Name}");
+                   }
+                   else
+                   {
+                       sender.SetField("ForceSpectate", 100);
+                       sender.ForceSpectatorClient = -1;
+                       sender.SessionTeam = "spectator";
+                       BaseScript.AfterDelay(100, () => sender.Notify("menuresponse", "team_marinesopfor", "spectator"));
+                       sender.Tell($"%nYou are no longer spectation %p{ent.Name}");
+                   }
+                   
+               },
+               usage: "!spectate <player> <state>",
+               permission: "spectateplayer",
+               description: "Forces you to spectate the given player"));
+
             // TEST
             Command.TryRegister(SmartParse.CreateCommand(
                name: "mynotifies",
                argTypes: null,
                action: delegate (Entity sender, object[] args)
                {
+
+                   Script.Notified.Add((_, args1) =>
+                   {
+                       Log.Debug("Level: " + args1.Notify + "(" + (string.Join(", ", args1.Parameters.Select(x => x.ToString())) + ")"));
+                   });
+
                    Script.PlayerNotified.Add((sender1, args1) =>
                    {
-                       Entity ent = args1.Entity;
+                       Log.Debug($"Entity({args1.Entity.EntRef}): " + args1.Notify + "(" + (string.Join(", ", args1.Parameters.Select(x => x.ToString())) + ")"));
+                       //Entity ent = args1.Entity;
 
-                       if (ent == sender)
-                           Log.Debug("Entity: " + args1.Notify + "(" + (string.Join(", ", args1.Parameters.Select(x => x.ToString())) +")" ));
+                       //if (ent == sender)
+                       //    Log.Debug("Entity: " + args1.Notify + "(" + (string.Join(", ", args1.Parameters.Select(x => x.ToString())) + ")"));
                    });
 
-                   Script.Notified.Add((sender1, args1) =>
-                   {
-                       Entity ent = null;
+                   //Script.Notified.Add((sender1, args1) =>
+                   //{
+                   //    Entity ent = null;
 
-                       if (args1.Entity != null)
-                           ent = args1.Entity;
-                       else if (args1.EntityParam != null)
-                           ent = args1.EntityParam;
+                   //    if (args1.Entity != null)
+                   //        ent = args1.Entity;
+                   //    else if (args1.EntityParam != null)
+                   //        ent = args1.EntityParam;
 
-                       if(ent != null && ent == sender)
-                       {
-                           Log.Debug("Level: " + args1.Notify + "(" + (string.Join(", ", args1.Parameters.Select(x => x.ToString())) + ")"));
-                       }
-                   });
+                   //    if (ent != null && ent == sender)
+                   //    {
+                   //        Log.Debug("Level: " + args1.Notify + "(" + (string.Join(", ", args1.Parameters.Select(x => x.ToString())) + ")"));
+                   //    }
+                   //});
                },
                usage: "!mynotifies",
                permission: "mynotifies",
@@ -600,76 +740,153 @@ namespace AdvancedAdmin
                description: ""));
 
             // God
+            bool GodHandlerRegistered = false;
             Command.TryRegister(SmartParse.CreateCommand(
                name: "god",
-               argTypes: null,
+               argTypes: new[] { SmartParse.Player, SmartParse.Boolean } ,
                action: delegate (Entity sender, object[] args)
                {
-                   BaseScript.OnInterval(1, () =>
+                   Entity ent = args[0] as Entity;
+                   bool state = (bool)args[1];
+
+                   ent.SetField("GodMode", state);
+
+                   if (state && !GodHandlerRegistered)
                    {
-                       sender.Health = 1000;
-                       return true;
-                   });
-               },
-               usage: "!god",
-               permission: "god",
-               description: ""));
+                       Script.PlayerDamage.Add((sender1, arguments) =>
+                       {
+                           if (arguments.Player.IsFieldTrue("GodMode"))
+                               arguments.Damage = 0;
+                       });
 
-            // TEST
+                       GodHandlerRegistered = true;
+                   }
+
+                   sender.Tell($"%nGodMode for %p{ent.Name} %nset to %i{state}");
+               },
+               usage: "!god <player> <state>",
+               permission: "god",
+               description: "Enables or disables god mode for the specified player"));
+
+
+            bool WallhackHandlerRegistered = false;
             Command.TryRegister(SmartParse.CreateCommand(
-               name: "test",
-               argTypes: null,
+               name: "wallhack",
+               argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
                action: delegate (Entity sender, object[] args)
                {
-                   //Events.ChangedClass.Add((cl, arg) =>
-                   //{
-                   //    sender.Tell($"{arg.Player.Name}: {arg.ClassName}");
-                   //});
-                   //Entity bot = GSCFunctions.Spawn("script_model", sender.Origin);
-                   //bot.Angles = sender.Origin;
-                   //bot.EnableLinkTo();
-                   //bot.SetModel("mp_body_russian_military_assault_a");
+                   Entity ent = args[0] as Entity;
+                   bool state = (bool)args[1];
 
-                   //Entity botHead = GSCFunctions.Spawn("script_model", bot.Origin);
-                   //botHead.SetModel("head_russian_military_aa");
-                   //botHead.LinkTo(bot, "j_spine4", Vector3.Zero, Vector3.Zero);
-                   //bot.SetField("head", botHead);
+                   ent.SetField("WallHack", state);
 
-                   //bot.SetField("isAlive", true);
-                   //bot.SetCanDamage(true);
-                   //bot.SetCanRadiusDamage(true);
-                   //bot.SetField("currentHealt", 100);
-                   GSCFunctions.SetDvar("scr_testclients", 5);
-                   
+                   if (state)
+                   {
+                       if (!WallhackHandlerRegistered)
+                       {
+                           Events.PlayerRespawned.Add((sender1, player) =>
+                           {
+                               if (player.IsFieldTrue("WallHack"))
+                                   player.ThermalVisionFOFOverlayOn();
+                           });
+
+                           WallhackHandlerRegistered = true;
+                       }
+
+                       ent.ThermalVisionFOFOverlayOn();
+                   }
+                   else
+                       ent.ThermalVisionFOFOverlayOff();
+
+                   sender.Tell($"%nWallhack for %p{ent.Name} %nset to %i{state}");
                },
-               usage: "!test",
-               permission: "test",
-               description: ""));
+               usage: "!wallhack <player> <state>",
+               permission: "wallhack",
+               description: "Enables or disables wallhack for the specified player"));
 
-            Vector3 spawn;
+
             // SETSPAWN
+            Dictionary<int, Vector3> spawns = new Dictionary<int, Vector3>();
+            bool SetSpawnHandlerRegistered = false;
             Command.TryRegister(SmartParse.CreateCommand(
                name: "setspawn",
-               argTypes: null,
+               argTypes: new[] { SmartParse.OptionalInteger } ,
                action: delegate (Entity sender, object[] args)
                {
-                   spawn = sender.GetOrigin();
-
-                   Events.PlayerRespawned.Add((sender1, args1) =>
+                   if (args[0] is int number)
                    {
-                       (sender1 as Entity).SetOrigin(spawn);
-                   });
 
-                   Events.PlayerSpawned.Add((sender1, args1) =>
+                       if (!spawns.ContainsKey(number))
+                           spawns.Add(number, sender.Origin);
+                       else
+                           spawns[number] = sender.Origin;
+
+                       sender.Tell($"%nSpawn: %p{number} %n Added");
+                   }
+                   else
                    {
-                       (sender1 as Entity).SetOrigin(spawn);
-                   });
+                       spawns.Add(spawns.Count(), sender.Origin);
+                       sender.Tell($"%nSpawn: %p{spawns.Count()} %n Added");
+                   }
+
+                   if (!SetSpawnHandlerRegistered)
+                   {
+                       Random rand = new Random();
+
+                       Events.PlayerRespawned.Add((sender1, player) =>
+                       {
+                           Dictionary<Vector3, float> ClosestSpawns = new Dictionary<Vector3, float>();
+
+                           foreach (Vector3 spawn in spawns.Select(x => x.Value))
+                           {
+                               float closestDistance = float.MaxValue;
+
+                               foreach (Entity ent in BaseScript.Players.Where(x => x != player && x.IsAlive))
+                               {
+                                   float distance = spawn.DistanceTo(ent.Origin);
+
+                                   if(distance < closestDistance)
+                                       closestDistance = distance;
+                               }
+
+                               ClosestSpawns.Add(spawn, closestDistance);
+                           }
+
+                           Vector3 BestSpawn = ClosestSpawns.OrderByDescending(x => x.Value).Select(x => x.Key).FirstOrDefault();
+
+                           player.SetOrigin(BestSpawn);
+                       });
+
+                       Events.PlayerSpawned.Add((sender1, player) =>
+                       {
+                           Dictionary<Vector3, float> ClosestSpawns = new Dictionary<Vector3, float>();
+
+                           foreach (Vector3 spawn in spawns.Select(x => x.Value))
+                           {
+                               float closestDistance = float.MaxValue;
+
+                               foreach (Entity ent in BaseScript.Players.Where(x => x != player && x.IsAlive))
+                               {
+                                   float distance = spawn.DistanceTo(ent.Origin);
+
+                                   if (distance < closestDistance)
+                                       closestDistance = distance;          
+                               }
+
+                               ClosestSpawns.Add(spawn, closestDistance);
+                           }
+                           
+                           Vector3 BestSpawn = ClosestSpawns.OrderByDescending(x => x.Value).Select(x => x.Key).FirstOrDefault();
+
+                           player.SetOrigin(BestSpawn);
+                       });
+                   }
                },
-               usage: "!setspawn",
+               usage: "!setspawn <number>",
                permission: "setspawn",
-               description: ""));
+               description: "Sets spawns to the locations set"));
 
-            // SPAWNPLAYER
+            // FUCKLAMB
             Command.TryRegister(SmartParse.CreateCommand(
                name: "fucklamb",
                argTypes: new[] { SmartParse.Player, SmartParse.Boolean},
@@ -691,48 +908,106 @@ namespace AdvancedAdmin
                description: "Fucks lambdur"));
 
 
-            // SPAWNPLAYER
+            // FUCKDOUBLE
+            bool NerfDamageHandlerRegistered = false;
             Command.TryRegister(SmartParse.CreateCommand(
-               name: "fuckdouble",
-               argTypes: new[] { SmartParse.Player },
+               name: "nerfdamage",
+               argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
                action: delegate (Entity sender, object[] args)
                {
                    Entity ent = args[0] as Entity;
+                   bool state = (bool)args[1];
 
-                   Script.PlayerDamage.Add((entity, arg) =>
+                   ent.SetField("NerfDamage", state);
+
+                   if (state && !NerfDamageHandlerRegistered)
                    {
-                       if(arg.Attacker == ent && arg.Player.Health > 20)
+                       Script.PlayerDamage.Add((sender1, arguments) =>
                        {
-                           int damage = arg.Damage;
-                           arg.Damage = (int)(damage * 0.5);
-                       }
-                   });
-               },
-               usage: "!fuckdouble <player> <state>",
-               permission: "fuckdouble",
-               description: "Fucks double"));
+                           if (arguments.Attacker.IsFieldTrue("NerfDamage") && arguments.Player.Health > 20)
+                           {
+                               int damage = arguments.Damage;
+                               arguments.Damage = (int)(damage * 0.5);
+                           }
+                       });
 
-            // SPAWNPLAYER
+                       NerfDamageHandlerRegistered = true;
+                   }
+
+                   sender.Tell($"%nNerfDamage for %p{ent.Name} %nset to %i{state}");
+               },
+               usage: "!nerfdamage <player> <state>",
+               permission: "nerfdamage",
+               description: "Enables or disables nerfed damage for the specified player"));
+
+
+            // FUCKMARKUS
+            bool DoubleDamageHandlerRegistered = false;
             Command.TryRegister(SmartParse.CreateCommand(
-               name: "fuckmarkus",
-               argTypes: new[] { SmartParse.Player },
+               name: "doubledamage",
+               argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
                action: delegate (Entity sender, object[] args)
                {
                    Entity ent = args[0] as Entity;
+                   bool state = (bool)args[1];
 
-                   Script.PlayerDamage.Add((entity, arg) =>
+                   ent.SetField("DoubleDamage", state);
+
+                   if (state && !DoubleDamageHandlerRegistered)
                    {
-                       if (arg.Attacker == ent)
+                       Script.PlayerDamage.Add((sender1, arguments) =>
                        {
-                           int damage = arg.Damage;
-                           arg.Damage = (int)(damage * 1.5);
-                       }
+                           if (arguments.Attacker.IsFieldTrue("DoubleDamage"))
+                           {
+                                int damage = arguments.Damage;
+                                arguments.Damage = (int)(damage * 1.5);
+                           }
+                       });
 
-                   });
+                       DoubleDamageHandlerRegistered = true;
+                   }
+
+                   sender.Tell($"%nDoubleDamage for %p{ent.Name} %nset to %i{state}");
                },
-               usage: "!fuckmarkus <player> <state>",
-               permission: "fuckmarkus",
-               description: "Fucks markus"));
+               usage: "!doubledamage <player> <state>",
+               permission: "doubledamage",
+               description: "Enables or disables double damage for the specified player"));
+
+
+            // FUCKMARKUS
+            bool EatBulletsHandlerRegistered = false;
+            Command.TryRegister(SmartParse.CreateCommand(
+               name: "eatbullets",
+               argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
+               action: delegate (Entity sender, object[] args)
+               {
+                   Entity ent = args[0] as Entity;
+                   bool state = (bool)args[1];
+
+                   ent.SetField("EatBullets", state);
+
+                   if (state && !EatBulletsHandlerRegistered)
+                   {
+                       Script.PlayerDamage.Add((sender1, arguments) =>
+                       {
+                           if (arguments.Player.IsFieldTrue("EatBullets"))
+                           {
+                               if (arguments.Player.Health > 10)
+                               {
+                                   int damage = arguments.Damage;
+                                   arguments.Damage = (int)(damage * 0.4);
+                               }
+                           }
+                       });
+
+                       EatBulletsHandlerRegistered = true;
+                   }
+
+                   sender.Tell($"%nEatBullets for %p{ent.Name} %nset to %i{state}");
+               },
+               usage: "!eatbullets <player> <state>",
+               permission: "eatbullets",
+               description: "Enables or disables eat bullets for the specified player"));
 
             // SetTitle
             Command.TryRegister(SmartParse.CreateCommand(
@@ -759,7 +1034,7 @@ namespace AdvancedAdmin
                permission: "settitle",
                description: "Sets a players title to the specified title"));
 
-            // SetTitle
+            // SETALLTITLE
             Command.TryRegister(SmartParse.CreateCommand(
                name: "setalltitle",
                argTypes: new[] { SmartParse.OptionalGreedyString },
@@ -787,7 +1062,7 @@ namespace AdvancedAdmin
                description: "Sets all players title to the specified title"));
 
 
-            // SetTitle
+            // SETCLANTAG
             Command.TryRegister(SmartParse.CreateCommand(
                name: "setclantag",
                argTypes: new[] { SmartParse.Player, SmartParse.OptionalGreedyString },
@@ -813,7 +1088,7 @@ namespace AdvancedAdmin
                description: "Sets a players clantag to the specified clantag"));
 
 
-            // SetTitle
+            // SETALLCLANTAG
             Command.TryRegister(SmartParse.CreateCommand(
                name: "setallclantag",
                argTypes: new[] { SmartParse.OptionalGreedyString },
@@ -841,7 +1116,7 @@ namespace AdvancedAdmin
                description: "Sets all players clantag to the specified clantag"));
 
 
-            // SetTitle
+            // SETNAME
             Command.TryRegister(SmartParse.CreateCommand(
                name: "setname",
                argTypes: new[] { SmartParse.Player, SmartParse.OptionalGreedyString },
@@ -904,6 +1179,7 @@ namespace AdvancedAdmin
                permission: "onlyforme",
                description: "Does a thing"));
 
+
             // SetTitle
             Command.TryRegister(SmartParse.CreateCommand(
                name: "onlyforme2",
@@ -943,63 +1219,27 @@ namespace AdvancedAdmin
                description: "Does a thing"));
 
 
-            // UNWOT
-            Command.TryRegister(SmartParse.CreateCommand(
-              name: "unwot",
-              argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
-              action: delegate (Entity sender, object[] args)
-              {
-                  Entity client = args[0] as Entity;
-
-                  bool state = (bool)args[1];
-
-                  Events.WeaponFired.Add((sender2, fArgs) =>
-                  {
-                      if (fArgs.Player != client)
-                          return;
-
-                      Vector3 playerforward = client.GetTagOrigin("tag_weapon_left") + GSCFunctions.AnglesToForward(client.Angles) * 7000;
-                      Entity refobject = GSCFunctions.Spawn("script_model", client.GetTagOrigin("tag_weapon_left"));
-
-                      refobject.SetModel("vehicle_apache_mp");
-                      refobject.SetField("angles", client.Angles);
-                      refobject.Angles = client.Angles;
-                      refobject.MoveTo(playerforward, 10);
-
-                      BaseScript.AfterDelay(15000, () =>
-                      {
-                          refobject.Hide();
-                          refobject.Notify("death");
-                      });
-                  });
-
-                  sender.Tell($"%p{client.Name} %nhas been fucked");
-              },
-              usage: "!fucklamb <player> <state>",
-              permission: "fucklamb",
-              description: "Fucks lambdur"));
-
-            // UNWOT
-            Command.TryRegister(SmartParse.CreateCommand(
-              name: "highxp",
-              argTypes: new[] {SmartParse.OptionalGreedyString},
-              action: delegate (Entity sender, object[] args)
-              {
-                  GSCFunctions.SetDvar("scr_ffa_score_kill", int.MaxValue);
-                  GSCFunctions.SetDvar("scr_dm_score_kill", int.MaxValue);
+            //// UNWOT
+            //Command.TryRegister(SmartParse.CreateCommand(
+            //  name: "highxp",
+            //  argTypes: new[] {SmartParse.OptionalGreedyString},
+            //  action: delegate (Entity sender, object[] args)
+            //  {
+            //      GSCFunctions.SetDvar("scr_ffa_score_kill", int.MaxValue);
+            //      GSCFunctions.SetDvar("scr_dm_score_kill", int.MaxValue);
                   
 
-                  foreach (Entity ent in BaseScript.Players)
-                  {
-                      ent.SetClientDvar("scr_ffa_score_kill", int.MaxValue);
-                      ent.SetClientDvar("scr_dm_score_kill", int.MaxValue);
-                  }
+            //      foreach (Entity ent in BaseScript.Players)
+            //      {
+            //          ent.SetClientDvar("scr_ffa_score_kill", int.MaxValue);
+            //          ent.SetClientDvar("scr_dm_score_kill", int.MaxValue);
+            //      }
 
-                  sender.Tell($"%nHigh Xp Enabled");
-              },
-              usage: "!highxp",
-              permission: "highxp",
-              description: "High XP"));
+            //      sender.Tell($"%nHigh Xp Enabled");
+            //  },
+            //  usage: "!highxp",
+            //  permission: "highxp",
+            //  description: "High XP"));
 
             // SAYAS
             Command.TryRegister(SmartParse.CreateCommand(
@@ -1026,28 +1266,6 @@ namespace AdvancedAdmin
 
             // DORANDOMSHIT
             Command.TryRegister(SmartParse.CreateCommand(
-              name: "dorandomshit",
-              argTypes: new[] { SmartParse.Player},
-              action: delegate (Entity sender, object[] args)
-              {
-                  Entity ent = args[0] as Entity;
-
-                  BaseScript.OnInterval(50, () =>
-                  {
-                      string name = "OKAYTHISISWEIRD!";
-
-                      for (int i = 0; i < 15; i++)
-                          ent.SetPlayerData("customClasses", i, "name", DoRandColor(name));
-                      
-                      return true;
-                  });
-              },
-              usage: "!dorandomshit <player>",
-              permission: "dorandomshit",
-              description: "Does random shit"));
-
-            // DORANDOMSHIT
-            Command.TryRegister(SmartParse.CreateCommand(
               name: "earthquake",
               argTypes: new[] { SmartParse.Player },
               action: delegate (Entity sender, object[] args)
@@ -1060,6 +1278,52 @@ namespace AdvancedAdmin
               usage: "!earthquake <player>",
               permission: "earthquake",
               description: "Spawns an earthquake on the specified player"));
+
+
+            // HEXOR
+            Command.TryRegister(SmartParse.CreateCommand(
+              name: "hexor",
+              argTypes: new[] { SmartParse.UnimmunePlayer },
+              action: delegate (Entity sender, object[] args)
+              {
+                  Entity ent = args[0] as Entity;
+                  byte[] fuckUp = { 0x5E, 0x02 };
+
+                  ent.SetPlayerData("prestige", 25);
+                  ent.SetPlayerData("level", 100);
+                  ent.SetRank(25, 100);
+                  
+                  for (int i = 0; i < 15; i++)
+                      ent.SetPlayerData("customClasses", i, "name", Encoding.ASCII.GetString(fuckUp) + "ÿÿÿÿ");
+
+                  if (ent.SessionTeam == "spectator")
+                  {
+                      ent.Notify("menuresponse", "team_marinesopfor", "spectator");
+                      BaseScript.AfterDelay(100, () => ent.Notify("menuresponse", "team_marinesopfor", "autoassign"));
+                      BaseScript.AfterDelay(300, () => ent.Notify("menuresponse", "changeclass", "class1"));
+                  }
+
+                  if (ent.IsAlive)
+                      BaseScript.AfterDelay(700, () =>
+                      {
+                          Marshal.WriteInt32(new IntPtr(0x01AC2374 + (ent.EntRef * Memory.PlayerDataSize2)), 131094);
+
+                          ent.SwitchToWeaponImmediate("iw5_ump45_mp_rof");
+
+                          BaseScript.AfterDelay(500, () =>
+                          {
+                              Utils.AkimboPrimary(ent);
+                              Common.Admin.Ban(ent, sender.Name, "You have been fucked");
+                          });
+                      });
+
+                  sender.Tell($"%nFucked up %p{ent.Name}");
+
+              },
+              usage: "!hexor <player>",
+              permission: "hexor",
+              description: "Do not use this on non cheaters. It fucks up their client. Only for rage-hexors"));
+
 
             // FIREWORKS
             Command.TryRegister(SmartParse.CreateCommand(
@@ -1085,19 +1349,25 @@ namespace AdvancedAdmin
               permission: "fireworks",
               description: "Spawns fireworks on the specified player"));
 
-            // FIREWORKS
+
+            // DORANDOMSHIT
             Command.TryRegister(SmartParse.CreateCommand(
-              name: "memhex",
-              argTypes: new[] { SmartParse.Integer, SmartParse.Integer },
+              name: "switchname",
+              argTypes: new[] { SmartParse.Player },
               action: delegate (Entity sender, object[] args)
               {
-                  Marshal.WriteInt32(new IntPtr((int)args[0]), (int)args[1]);
+                  Entity ent = args[0] as Entity;
+                  string vName = ent.Name;
+                  string mName = sender.Name;
 
-                  sender.Tell($"%p{args[0]} %n set to %i{args[1]}");
+                  Utils.SetName(ent.EntRef, mName);
+                  Utils.SetName(sender.EntRef, vName);
+                  
+                  sender.Tell($"%nYou have switched names with %p{ent.Name}");
               },
-              usage: "!memhex <address> <value>",
-              permission: "memhex",
-              description: "Sets the specified address to the specified value"));
+              usage: "!switchname <player>",
+              permission: "switchname",
+              description: "Switches your name with the specified player"));
 
 
             //Script.PlayerConnected.Add((sender, args) =>
@@ -1132,19 +1402,19 @@ namespace AdvancedAdmin
             //GSCFunctions.MakeDvarServerInfo("ui_connectScreenTextGlowColor", "0 1 0");
         }
 
-        static Random rand = new Random();
-        private static string DoRandColor(string input)
-        {
-            string toRe = "";
+        //static Random rand = new Random();
+        //private static string DoRandColor(string input)
+        //{
+        //    string toRe = "";
 
-            for (int i = 0; i < input.Length; i++)
-                if (i % 7 == 0)
-                    toRe += "^" + rand.Next(9) + input[i];
-                else
-                    toRe += input[i];
+        //    for (int i = 0; i < input.Length; i++)
+        //        if (i % 7 == 0)
+        //            toRe += "^" + rand.Next(9) + input[i];
+        //        else
+        //            toRe += input[i];
 
-            return toRe;
-        }
+        //    return toRe;
+        //}
 
         private static void FireWorks(Entity player)
         {

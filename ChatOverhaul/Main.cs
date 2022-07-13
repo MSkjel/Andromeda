@@ -113,38 +113,38 @@ namespace ChatOverhaul
                 permission: "setalias",
                 description: "Sets or removes a player's chat alias"));
 
-            // MYALIAS
-            Command.TryRegister(SmartParse.CreateCommand(
-                name: "myalias",
-                argTypes: new[] { SmartParse.OptionalGreedyString },
-                action: delegate (Entity sender, object[] args)
-                {
-                    if (args[0] is string alias)
-                    {
-                        if (!sender.TrySetDBField("chat.alias", alias))
-                        {
-                            sender.Tell("%eYou have to log in to set your alias.");
-                            return;
-                        }
+            //// MYALIAS
+            //Command.TryRegister(SmartParse.CreateCommand(
+            //    name: "myalias",
+            //    argTypes: new[] { SmartParse.OptionalGreedyString },
+            //    action: delegate (Entity sender, object[] args)
+            //    {
+            //        if (args[0] is string alias)
+            //        {
+            //            if (!sender.TrySetDBField("chat.alias", alias))
+            //            {
+            //                sender.Tell("%eYou have to log in to set your alias.");
+            //                return;
+            //            }
 
-                        Common.SayAll($"%p{sender.GetFormattedName()} %nhas set their own alias to %i{alias}%n.");
-                        return;
-                    }
-                    else
-                    {
-                        if (!sender.TryRemoveDBField("chat.alias"))
-                        {
-                            sender.Tell("%eYou have to log in to remove your alias.");
-                            return;
-                        }
+            //            Common.SayAll($"%p{sender.GetFormattedName()} %nhas set their own alias to %i{alias}%n.");
+            //            return;
+            //        }
+            //        else
+            //        {
+            //            if (!sender.TryRemoveDBField("chat.alias"))
+            //            {
+            //                sender.Tell("%eYou have to log in to remove your alias.");
+            //                return;
+            //            }
 
-                        Common.SayAll($"%p{sender.GetFormattedName()} %nhas removed their alias.");
-                        return;
-                    }
-                },
-                usage: "!myalias [alias]",
-                permission: "myalias",
-                description: "Sets or removes your own chat alias"));
+            //            Common.SayAll($"%p{sender.GetFormattedName()} %nhas removed their alias.");
+            //            return;
+            //        }
+            //    },
+            //    usage: "!myalias [alias]",
+            //    permission: "myalias",
+            //    description: "Sets or removes your own chat alias"));
 
             #endregion
         }

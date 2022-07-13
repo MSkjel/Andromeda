@@ -67,6 +67,12 @@ namespace AntiCheat
             public int HitResetTime;
         }
 
+        public struct AntiProxyStruct
+        {
+            public bool Enabled;
+            public float Threshold;
+        }
+
         public AntiAimbotStruct AntiAimbot = new AntiAimbotStruct()
         {
             Enabled = true,
@@ -95,7 +101,7 @@ namespace AntiCheat
 
             PingMultiplier = true,
 
-            MaxActionLimit = 30
+            MaxActionLimit = 60
         };
 
         public AntiSpinBotStruct AntiSpinBot = new AntiSpinBotStruct()
@@ -119,6 +125,13 @@ namespace AntiCheat
             MinHitTimes = 5,
 
             HitResetTime = 60
+        };
+
+        public AntiProxyStruct AntiProxy = new AntiProxyStruct()
+        {
+            Enabled = true,
+
+            Threshold = 0.5f
         };
 
         public static void Load()

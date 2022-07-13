@@ -1,6 +1,10 @@
+//#define Windows
+using InfinityScript;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -21,12 +25,52 @@ namespace DiscordBot
 
         public  void PostData(WebhookObject data)
         {
-            using (WebClient wc = new WebClient())
-            {
-                wc.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+            StartCurl(JsonConvert.SerializeObject(data));
+        }
 
-                wc.UploadStringAsync(_Uri, JsonConvert.SerializeObject(data));        
+        public void StartCurl(string content)
+        {
+#if Windows
+            var fullPath = System.IO.Path.Combine(Environment.SystemDirectory, "curl.exe");
+
+            if (File.Exists(fullPath))
+            {
+                using(Process proc = new Process())
+                {
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        FileName = fullPath,
+                        Arguments = $"-H \"Content-Type: application/json\" -v -s -d \"{content.Replace("\"", "\\\"")}\" {_Uri}",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = false,
+                        WorkingDirectory = Environment.SystemDirectory
+                    };
+
+                    proc.StartInfo = startInfo;
+                    
+                    proc.Start();
+                    Log.Debug(proc.StandardOutput.ReadToEnd());
+                }
             }
+#else
+            using (Process proc = new Process())
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = "/usr/bin/curl",
+                    Arguments = $"-s -H \"Content-Type: application/json\" -d \"{content.Replace("\"", "\\\"")}\" {_Uri}",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    
+                };
+
+                proc.StartInfo = startInfo;
+
+                proc.Start();
+            }
+#endif
         }
 
         public struct WebhookObject

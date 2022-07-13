@@ -17,7 +17,7 @@ namespace DiscordBot
     public class Main
     {
         private const string apiEndpoint = "https://discord.com/api/webhooks/";
-        private const string path = @"scripts\DiscordBot";
+        internal const string path = @"scripts\DiscordBot";
         private static string welcomeFile = Path.Combine(path, "dontwelcome");
         private static string apiFile = Path.Combine(path, "apikey.txt");
 
@@ -55,19 +55,40 @@ namespace DiscordBot
 
             Script.PlayerSay.Add((sender, args) =>
             {
-                SendMessage($"{args.Player.Name}: {args.Message}");
+                SendMessage($"{args.Player.Name}: {EscapeNonPathChars(args.Message)}");
+            });
+
+            Events.ConsoleTell.Add((sender, args) =>
+            {
+                SendMessage($"{string.Join("\n", args)}");
+            });
+
+            Events.PlayerKick.Add((sender, args) =>
+            {
+                SendMessage($"Player Kicked: {args.Player.Name}. Reason: {args.Reason}. Issuer: {args.Issuer}");
+            });
+
+            Events.PlayerBan.Add((sender, args) =>
+            {
+                SendMessage($"Player Banned: {args.Player.Name}. Reason: {args.Reason}. Issuer: {args.Issuer}");
+            });
+
+            Events.PlayerTempBan.Add((sender, args) =>
+            {
+                SendMessage($"Player TempBanned: {args.Player.Name}. Reason: {args.Reason}. Issuer: {args.Issuer}");
             });
 
             Script.PlayerConnected.Add((sender, ent) =>
             {
                 if (!File.Exists(welcomeFile))
-                    SendMessage($"{ent.Name}: has connected.");
+                {
+                    SendMessage($"{ent.Name}: has connected. Current Players: {BaseScript.Players.Count}");
+                }
             });
 
             Script.PlayerDisconnecting.Add((sender, ent) =>
             {
-                SendMessage($"{ent.Name}: has disconnected");
-                SendMessage($"Current Players: {BaseScript.Players.Count}");
+                SendMessage($"{ent.Name}: has disconnected. Current Players: {BaseScript.Players.Where(x => x != ent).Count()}");
             });
 
             Events.PreMatchDone.Add((sender, args) =>
@@ -78,21 +99,45 @@ namespace DiscordBot
             Script.OnExitLevel.Add((sender, args) =>
             {
                 File.CreateText(welcomeFile).Close();
+              
+            });
+
+            Events.GameEnded.Add((sender, args) =>
+            {
+                List<string> output = new List<string>();
+                int i = 1;
+                foreach (Entity ent in BaseScript.Players.Where(x => x.SessionTeam != "spectator").OrderByDescending(x => x.Score))
+                {
+                    output.Add($"{i}. {ent.Name}. Kills: {ent.Kills}. Deaths: {ent.Deaths}. KD: {ent.Kills / (float)ent.Deaths:0.00}. Score: {ent.Score}");
+                    i++;
+                }
+
+                SendMessage($"```Game Ended. Scores:\n{string.Join("\n", output)}```");
+            });
+
+            Events.CommandRun.Add((sender, args) =>
+            {
+                if (args.Fail)
+                    return;
+
+                if(args.Command.Name == "restart" || args.Command.Name == "map" || args.Command.Name == "mode" || args.Command.Name == "gametype")
+                    File.CreateText(welcomeFile).Close();
             });
 
             Events.CommandRun.Add((sender, args) =>
             {
                 IClient client = args.Sender;
+                string arguments = args.Arguments;
 
                 if (args.Command.Name == "login" || args.Command.Name == "register")
-                    return;
+                    arguments = "***";
 
                 if (client.IsEntity)
                 {
                     if (!args.Fail)
-                        SendMessage($"(S){client.Name}: !{args.Command.Name} {args.Arguments}");
+                        SendMessage($"(S){client.Name}: !{args.Command.Name} {arguments}");
                     else
-                        SendMessage($"(F){client.Name}: !{args.Command.Name} {args.Arguments}");
+                        SendMessage($"(F){client.Name}: !{args.Command.Name} {arguments}");
                 }
             });
 
