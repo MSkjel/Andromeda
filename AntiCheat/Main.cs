@@ -1,4 +1,5 @@
-﻿using AntiCheat.ACModules;
+﻿#define LowMemory
+using AntiCheat.ACModules;
 using InfinityScript;
 using System;
 using System.Collections.Generic;
@@ -13,22 +14,24 @@ namespace AntiCheat
     public static class Main
     {
 
-        public static List<IAntiCheatModule> AntiCheatModules = new List<IAntiCheatModule>();
+        public static List<IAntiCheatModule> AntiCheatModules = new List<IAntiCheatModule>()
+        {
+            new SilentAim(),
+            new NoRecoil(),
+            new SpinBot(),
+            //new AntiEntity(),
+            new ForceClass(),
+#if !LowMemory
+            new Aimbot(),      
+            new Wallhack(),
+            new AntiProxy()
+#endif
+        };
 
         [EntryPoint]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private static void Init()
         {
-            AntiCheatModules.AddRange(new List<IAntiCheatModule>()
-            {
-                new Aimbot(),
-                new SilentAim(),
-                new NoRecoil(),
-                new SpinBot(),
-                new ForceClass(),
-                //new Wallhack(),
-                new AntiProxy()
-            });
-
             foreach (IAntiCheatModule module in AntiCheatModules)
             {
                 if (module.Enabled)
@@ -41,9 +44,15 @@ namespace AntiCheat
 
         static Main()
         {
-            Config.Load();
-
             Common.Register(AntiCheat.Instance);
+        }
+
+        [Cleanup]
+        private static void Cleanup()
+        {
+            AntiCheatModules.Clear();
+            Config.Instance = null;
+            Config.YAMLSerializer = null;
         }
     }
 }

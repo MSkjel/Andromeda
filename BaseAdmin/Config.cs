@@ -19,7 +19,6 @@ namespace BaseAdmin
         {
             public string WarnMessagePlayer;
             public string WarnMessageServer;
-            public string WarnMessageKick;
 
             public string UnwarnMessagePlayer;
             public string UnwarnMessageServer;

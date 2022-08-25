@@ -24,10 +24,11 @@ namespace Andromeda.Events
 
         #region Andromeda
         //Administration
-        public static readonly Event<IEnumerable<string>>  ConsoleTell = new Event<IEnumerable<string>>(ErrorHandler(nameof(ConsoleTell)));
+        //public static readonly Event<IEnumerable<string>>  ConsoleTell = new Event<IEnumerable<string>>(ErrorHandler(nameof(ConsoleTell)));
         public static readonly Event<PlayerKickArgs> PlayerKick = new Event<PlayerKickArgs>(ErrorHandler(nameof(PlayerKick)));
         public static readonly Event<PlayerTempBanArgs> PlayerTempBan= new Event<PlayerTempBanArgs>(ErrorHandler(nameof(PlayerTempBan)));
         public static readonly Event<PlayerBanArgs> PlayerBan = new Event<PlayerBanArgs>(ErrorHandler(nameof(PlayerBan)));
+        public static readonly Event<Entity> PlayerDBConnected = new Event<Entity>(ErrorHandler(nameof(PlayerDBConnected)));
         //DSROptions
         public static readonly Event<DSRLoadArgs> DSRLoad = new Event<DSRLoadArgs>(ErrorHandler(nameof(DSRLoad)));
         //Command
@@ -76,6 +77,8 @@ namespace Andromeda.Events
         public static readonly Event PreMatchDone = new Event(ErrorHandler(nameof(PreMatchDone)));
         #endregion
 
+        private static bool ShowingFinalKillcamCalled = false;
+        private static bool FinalKillcamDoneCalled = false;
         private static readonly SortedList<string, Action<NotifyArgs>> specialPlayerNotifies = new SortedList<string, Action<NotifyArgs>>
         {
             ["menuresponse"] = (arg) =>
@@ -183,12 +186,20 @@ namespace Andromeda.Events
 
             ["final_killcam_done"] = (arg) =>
             {
-                FinalKillcamDone.Run(null);
+                if (!FinalKillcamDoneCalled)
+                {
+                    FinalKillcamDone.Run(null);
+                    FinalKillcamDoneCalled = true;
+                }
             },
 
             ["showing_final_killcam"] = (arg) =>
             {
-                ShowingFinalKillcam.Run(null);
+                if (!ShowingFinalKillcamCalled)
+                {
+                    ShowingFinalKillcam.Run(null);
+                    ShowingFinalKillcamCalled = true;
+                }
             },
 
             ["prematch_done"] = (arg) =>
@@ -213,6 +224,7 @@ namespace Andromeda.Events
         };
 
         [EntryPoint]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private static void Init()
         {
             Script.Notified.Add((sender, args) =>

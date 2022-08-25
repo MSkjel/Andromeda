@@ -15,7 +15,7 @@ namespace DiscordBot
     {
         private Uri _Uri;
 
-        public Api(string URL)
+        internal Api(string URL)
         {
             if (!Uri.TryCreate(URL, UriKind.Absolute, out _Uri))
             {
@@ -23,12 +23,7 @@ namespace DiscordBot
             }
         }
 
-        public  void PostData(WebhookObject data)
-        {
-            StartCurl(JsonConvert.SerializeObject(data));
-        }
-
-        public void StartCurl(string content)
+        internal void PostData(WebhookObject data)
         {
 #if Windows
             var fullPath = System.IO.Path.Combine(Environment.SystemDirectory, "curl.exe");
@@ -40,7 +35,7 @@ namespace DiscordBot
                     ProcessStartInfo startInfo = new ProcessStartInfo
                     {
                         FileName = fullPath,
-                        Arguments = $"-H \"Content-Type: application/json\" -v -s -d \"{content.Replace("\"", "\\\"")}\" {_Uri}",
+                        Arguments = $"-H \"Content-Type: application/json\" -v -s -d \"{JsonConvert.SerializeObject(data).Replace("\"", "\\\"")}\" {_Uri}",
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
@@ -60,10 +55,10 @@ namespace DiscordBot
                 ProcessStartInfo startInfo = new ProcessStartInfo
                 {
                     FileName = "/usr/bin/curl",
-                    Arguments = $"-s -H \"Content-Type: application/json\" -d \"{content.Replace("\"", "\\\"")}\" {_Uri}",
+                    Arguments = $"-s -H \"Content-Type: application/json\" -d \"{JsonConvert.SerializeObject(data).Replace("\"", "\\\"")}\" {_Uri}",
                     UseShellExecute = false,
                     CreateNoWindow = true,
-                    
+
                 };
 
                 proc.StartInfo = startInfo;
@@ -73,81 +68,10 @@ namespace DiscordBot
 #endif
         }
 
-        public struct WebhookObject
+        internal struct WebhookObject
         {
             public string content;
             public string username;
-            public string avatar_url;
-            public bool tts;
-            public Embed[] embeds;
-            public string payload_json;
-        }
-
-        public struct Embed
-        {
-            public string title;
-            public string type;
-            public string description;
-            public string url;
-            public int color;
-            public Footer footer;
-            public Image image;
-            public Thumbnail thumbnail;
-            public Video video;
-            public Provider provider;
-            public Author author;
-            public Field[] fields;
-        }
-
-        public struct Field
-        {
-            public string name;
-            public string value;
-            public bool inline;
-        }
-
-        public struct Footer
-        {
-            public string text;
-            public string icon_url;
-            public string proxy_icon_url;
-        }
-
-        public struct Image
-        {
-            public string url;
-            public string proxy_url;
-            public int height;
-            public int width;
-        }
-
-        public struct Thumbnail
-        {
-            public string url;
-            public string proxy_url;
-            public int height;
-            public int width;
-        }
-
-        public struct Video
-        {
-            public string url;
-            public int height;
-            public int width;
-        }
-
-        public struct Provider
-        {
-            public string name;
-            public string url;
-        }
-
-        public struct Author
-        {
-            public string name;
-            public string url;
-            public string icon_url;
-            public string proxy_icon_url;
         }
     }
 }

@@ -7,12 +7,13 @@ using System.Text;
 
 namespace AntiKnife
 {
-    public class AntiKnife
+    public unsafe class AntiKnife
     {
         private readonly static int ProcessID = System.Diagnostics.Process.GetCurrentProcess().Id;
 
         private readonly static string KnifeFolder;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0044:Add readonly modifier", Justification = "<Pending>")]
         private static int defaultKnifeAddress;
         private readonly static unsafe int* knifeRange;
         private readonly static unsafe int* zeroAddress;

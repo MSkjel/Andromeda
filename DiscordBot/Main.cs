@@ -1,5 +1,6 @@
 using Andromeda;
 using Andromeda.Events;
+using Andromeda.Parse;
 using InfinityScript;
 using System;
 using System.Collections;
@@ -16,29 +17,36 @@ namespace DiscordBot
     [Plugin]
     public class Main
     {
-        private const string apiEndpoint = "https://discord.com/api/webhooks/";
-        internal const string path = @"scripts\DiscordBot";
-        private static string welcomeFile = Path.Combine(path, "dontwelcome");
-        private static string apiFile = Path.Combine(path, "apikey.txt");
+        private const string APIEndpoint = "https://discord.com/api/webhooks/";
+        internal const string Path = @"scripts\DiscordBot";
+        private static readonly string WelcomeFile = System.IO.Path.Combine(Path, "dontwelcome");
+        private static readonly string APIFile = System.IO.Path.Combine(Path, "apikey.txt");
+        private static readonly string JoinWarnFile = System.IO.Path.Combine(Path, "joinwarn.txt");
+        private static List<string> JoinWarn;
 
         static Api api;
         public static bool Setup()
         {
-            string apiKey = "";
-
-            Directory.CreateDirectory(path);
+            Directory.CreateDirectory(Path);
 
 
-            if (!File.Exists(apiFile))
+            string apiKey;
+
+            if (!File.Exists(APIFile))
             {
-                File.CreateText(apiFile).Close();
+                File.CreateText(APIFile).Close();
 
                 return false;
             }
             else
-                apiKey = File.ReadAllText(apiFile);
+                apiKey = File.ReadAllText(APIFile);
 
-            api = new Api($"{apiEndpoint}{apiKey}");
+            api = new Api($"{APIEndpoint}{apiKey}");
+
+            if(!File.Exists(JoinWarnFile))
+                File.Create(JoinWarnFile).Close();
+
+            JoinWarn = File.ReadAllLines(JoinWarnFile).ToList();
 
             return true;
         }
@@ -46,8 +54,6 @@ namespace DiscordBot
         [EntryPoint]
         private static void Init()
         {
-
-
             if (!Setup())
             {
                 return;
@@ -55,12 +61,7 @@ namespace DiscordBot
 
             Script.PlayerSay.Add((sender, args) =>
             {
-                SendMessage($"{args.Player.Name}: {EscapeNonPathChars(args.Message)}");
-            });
-
-            Events.ConsoleTell.Add((sender, args) =>
-            {
-                SendMessage($"{string.Join("\n", args)}");
+                SendMessage($"`{args.Player.Name}`: {args.Message}");
             });
 
             Events.PlayerKick.Add((sender, args) =>
@@ -80,32 +81,35 @@ namespace DiscordBot
 
             Script.PlayerConnected.Add((sender, ent) =>
             {
-                if (!File.Exists(welcomeFile))
+                if (!File.Exists(WelcomeFile))
                 {
-                    SendMessage($"{ent.Name}: has connected. Current Players: {BaseScript.Players.Count}");
+                    if (JoinWarn != null && JoinWarn.Contains(ent.HWID))
+                        SendMessage($"@everyone {ent.Name}: has connected. He's worth keeping an eye on. GUID: {ent.GUID} HWID: {ent.HWID}. IP: {ent.IP}");
+                    else    
+                        SendMessage($"{ent.Name}: has connected. Current Players: {BaseScript.Players.Count}");
                 }
             });
 
-            Script.PlayerDisconnecting.Add((sender, ent) =>
+            Script.PlayerDisconnected.Add((sender, ent) =>
             {
                 SendMessage($"{ent.Name}: has disconnected. Current Players: {BaseScript.Players.Where(x => x != ent).Count()}");
             });
 
             Events.PreMatchDone.Add((sender, args) =>
             {
-                File.Delete(welcomeFile);
+                File.Delete(WelcomeFile);
             });
 
             Script.OnExitLevel.Add((sender, args) =>
             {
-                File.CreateText(welcomeFile).Close();
-              
+                File.CreateText(WelcomeFile).Close();     
             });
 
             Events.GameEnded.Add((sender, args) =>
             {
                 List<string> output = new List<string>();
                 int i = 1;
+
                 foreach (Entity ent in BaseScript.Players.Where(x => x.SessionTeam != "spectator").OrderByDescending(x => x.Score))
                 {
                     output.Add($"{i}. {ent.Name}. Kills: {ent.Kills}. Deaths: {ent.Deaths}. KD: {ent.Kills / (float)ent.Deaths:0.00}. Score: {ent.Score}");
@@ -113,15 +117,6 @@ namespace DiscordBot
                 }
 
                 SendMessage($"```Game Ended. Scores:\n{string.Join("\n", output)}```");
-            });
-
-            Events.CommandRun.Add((sender, args) =>
-            {
-                if (args.Fail)
-                    return;
-
-                if(args.Command.Name == "restart" || args.Command.Name == "map" || args.Command.Name == "mode" || args.Command.Name == "gametype")
-                    File.CreateText(welcomeFile).Close();
             });
 
             Events.CommandRun.Add((sender, args) =>
@@ -139,7 +134,25 @@ namespace DiscordBot
                     else
                         SendMessage($"(F){client.Name}: !{args.Command.Name} {arguments}");
                 }
+
+                if (!args.Fail && (args.Command.Name == "restart" || args.Command.Name == "map" || args.Command.Name == "mode" || args.Command.Name == "gametype"))
+                    File.CreateText(WelcomeFile).Close();
             });
+
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "mark",
+                argTypes: new[] { SmartParse.Player },
+                action: delegate (IClient sender, object[] args)
+                {
+                    var ent = args[0] as Entity;
+
+                    JoinWarn.Add(ent.HWID);
+
+                    File.WriteAllLines(JoinWarnFile, JoinWarn);
+                    sender.Tell($"%p{ent.Name} %nhas been marked as suuuuus");
+                },
+                usage: "!mark <player>",
+                description: "Marks a player as suuuus"));
 
         }
 
@@ -148,18 +161,10 @@ namespace DiscordBot
             WebhookObject obj = new WebhookObject()
             {
                 username = "Andromeda",
-                content = $"({EscapeNonPathChars(Common.RemoveColors(GSCFunctions.GetDvar("sv_hostname")))}){Common.RemoveColors(message)}"
+                content = Common.RemoveColors(message).Replace("\\", "/")
             };
 
             api.PostData(obj);
-        }
-
-        private static string EscapeNonPathChars(string str)
-        {
-            string invChars = Regex.Escape(new string(Path.GetInvalidFileNameChars()));
-            string invStr = string.Format(@"([{0}]*\.+$^)|([{0}]+)", invChars);
-
-            return Regex.Replace(str, invStr, "_");
         }
     }
 }

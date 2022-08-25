@@ -116,16 +116,16 @@ namespace Andromeda
 
         public static void SetFieldT(this Entity ent, string field, object args)
         {
-            if (args is int)
-                ent.SetField(field, new Parameter((int)args));
-            else if (args is bool)
-                ent.SetField(field, new Parameter((bool)args ? 1 : 0));
-            else if (args is float)
-                ent.SetField(field, new Parameter((float)args));
-            else if (args is string)
-                ent.SetField(field, new Parameter((string)args));
-            else if (args is Vector3)
-                ent.SetField(field, new Parameter((Vector3)args));
+            if (args is int @int)
+                ent.SetField(field, new Parameter(@int));
+            else if (args is bool boolean)
+                ent.SetField(field, new Parameter(boolean ? 1 : 0));
+            else if (args is float single)
+                ent.SetField(field, new Parameter(single));
+            else if (args is string @string)
+                ent.SetField(field, new Parameter(@string));
+            else if (args is Vector3 vector)
+                ent.SetField(field, new Parameter(vector));
             else if (args is Entity)
                 ent.SetField(field, new Parameter((Entity)args));
             else

@@ -48,9 +48,9 @@ namespace GroupPerms
         //internal static void UpdateKeys()
         //    => System.IO.File.WriteAllText(keysPath, YAMLSerializer.Serialize(Keys));
 
-        internal static Group GetGroup(this Entity ent)
+        internal static Group GetGroup(this Entity ent, bool ignoreLogin = false)
         {
-            var groupName = ent.GetDBFieldOr("perms.group", "default");
+            var groupName = ent.GetDBFieldOr("perms.group", "default", ignoreLogin);
 
             if (GroupLookup.TryGetValue(groupName, out var group))
                 return group;
@@ -138,6 +138,7 @@ namespace GroupPerms
         }
 
         [EntryPoint]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private static void Init()
         {
             // SETGROUP

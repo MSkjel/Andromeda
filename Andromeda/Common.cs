@@ -119,11 +119,12 @@ namespace Andromeda
             => clients.Remove(client);
 
         [EntryPoint]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private static void Init()
         {
             Log.Info("Initializing Andromeda");
 
-            AddClient(Console);
+            //AddClient(Console);
 
             if (perms == null)
             {
@@ -151,6 +152,11 @@ namespace Andromeda
                     "Mock IAdmin will be used",
                 });
             }
+
+            Script.OnServerCommand("andromeda", args =>
+            {
+                Command.Process(Console, $"!{string.Join(" ", args.Skip(1))}");
+            });
         }
 
         static Common()

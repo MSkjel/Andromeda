@@ -1,113 +1,120 @@
-﻿//using Andromeda;
-//using Andromeda.Events;
-//using InfinityScript;
-//using System;
-//using System.Collections.Generic;
-//using System.Diagnostics;
-//using System.Linq;
-//using System.Text;
+﻿#define LowMemory
 
-//namespace AntiCheat.ACModules
-//{
-//    internal class Wallhack : IAntiCheatModule
-//    {
-//        public string Name => "Anti-Wallhack";
+#if !LowMemory
+using Andromeda;
+using Andromeda.Events;
+using InfinityScript;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
 
-//        public string Description => "Checks if a player is using Wallhack";
+namespace AntiCheat.ACModules
+{
+    internal class Wallhack : IAntiCheatModule
+    {
+        public string Name => "Anti-Wallhack";
 
-//        public bool Enabled
-//        {
-//            get;
-//            set;
-//        } = Config.Instance.AntiWallhack.Enabled;
+        public string Description => "Checks if a player is using Wallhack";
 
-//        public Action<Entity, string> TakeAction
-//        {
-//            get;
-//            set;
-//        } = new Action<Entity, string>((ent, reason) =>
-//        {
-//            Common.Admin.Ban(ent, "AntiCheat", reason);
-//        });
+        public bool Enabled
+        {
+            get;
+            set;
+        } = Config.Instance.AntiWallhack.Enabled;
 
-//        public void RegisterEvents()
-//        {
-//            Events.PlayerSpawned.Add((sender, ent) =>
-//            {
-//                //if (ent.RequestPermission("anticheat.immune.wallhack", out _))
-//                //    return;
+       public Lazy<Action<Entity, string>> TakeAction
+        {
+            get;
+            set;
+        } = new Lazy<Action<Entity, string>>(delegate
+        {
+            return new Action<Entity, string>((ent, reason) =>
+            {
+                Common.Admin.Ban(ent, "AntiCheat", reason);
+            });
+        });
 
-//                Stopwatch watch = new Stopwatch();
-//                watch.Start();
+        public void RegisterEvents()
+        {
+            Events.PlayerSpawned.Add((sender, ent) =>
+            {
+                //if (ent.RequestPermission("anticheat.immune.wallhack", out _))
+                //    return;
 
-//                if (!ent.HasField("antiWallhackTimer"))
-//                    ent.SetField("antiWallhackTimer", new Parameter(watch));
-//            });
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
 
-//            Script.PlayerDamage.Add((sender, args) =>
-//            {
+                if (!ent.HasField("antiWallhackTimer"))
+                    ent.SetField("antiWallhackTimer", new Parameter(watch));
+            });
 
-//                Entity attacker = args.Inflictor;
-//                Entity victim = args.Player;
+            Script.PlayerDamage.Add((sender, args) =>
+            {
 
-//                //if (attacker.RequestPermission("anticheat.immune.forceclass", out _))
-//                //    return;
+                Entity attacker = args.Inflictor;
+                Entity victim = args.Player;
 
-//                if (!attacker.IsPlayer)
-//                    return;
+                //if (attacker.RequestPermission("anticheat.immune.forceclass", out _))
+                //    return;
 
-//                if (attacker == victim)
-//                    return;
+                if (!attacker.IsPlayer)
+                    return;
 
-//                if (args.Damage >= victim.Health)
-//                    attacker.IncrementField("antiWallhackTimes", 1);
+                if (attacker == victim)
+                    return;
 
-//                //attacker.Tell($"SightConeTrace: {GSCFunctions.SightConeTrace(attacker, victim.GetTagOrigin(args.Hitloc))}");
-//                //attacker.Tell($"HitLoc Vector: {victim.GetTagOrigin(args.Hitloc)}");
-//                //attacker.Tell($"Hit at {args.Hitloc}");
+                if (args.Damage >= victim.Health)
+                    attacker.IncrementField("antiWallhackTimes", 1);
 
-//                //if(GSCFunctions.SightTracePassed(attacker.GetTagOrigin("j_head"), victim.GetTagOrigin("j_" + args.Hitloc), false))
-//                //{
-//                //    attacker.Tell($"Passed SightTrace from j_head to j_{args.Hitloc}");
-//                //}
+                //attacker.Tell($"SightConeTrace: {GSCFunctions.SightConeTrace(attacker, victim.GetTagOrigin(args.Hitloc))}");
+                //attacker.Tell($"HitLoc Vector: {victim.GetTagOrigin(args.Hitloc)}");
+                //attacker.Tell($"Hit at {args.Hitloc}");
 
-//                if(!GSCFunctions.SightTracePassed(attacker.GetTagOrigin("j_head"), victim.GetTagOrigin("j_head"), false, attacker))
-//                {
-//                    if(args.Damage >= victim.Health)
-//                    {
-//                        attacker.IncrementField("antiWallhackTimesInvisible", 1);
+                //if(GSCFunctions.SightTracePassed(attacker.GetTagOrigin("j_head"), victim.GetTagOrigin("j_" + args.Hitloc), false))
+                //{
+                //    attacker.Tell($"Passed SightTrace from j_head to j_{args.Hitloc}");
+                //}
 
-//                        if (attacker.HasField("antiWallhackTimer"))
-//                        {
-//                            Stopwatch watch = attacker.GetField<Stopwatch>("antiWallhackTimer");
+                if (!GSCFunctions.SightTracePassed(attacker.GetTagOrigin("j_head"), victim.GetTagOrigin("j_head"), false, attacker))
+                {
+                    if (args.Damage >= victim.Health)
+                    {
+                        attacker.IncrementField("antiWallhackTimesInvisible", 1);
 
-//                            if ((watch.ElapsedMilliseconds / 1000) >= Config.Instance.AntiWallhack.HitResetTime)
-//                            {
-//                                if (attacker.GetFieldOrVal("antiWallhackTimes", 0) > Config.Instance.AntiWallhack.MinHitTimes)
-//                                {
-//                                    float percentage = attacker.GetField<float>("antiWallhackTimesInvisible") / attacker.GetField<float>("antiWallhackTimes");
+                        if (attacker.HasField("antiWallhackTimer"))
+                        {
+                            Stopwatch watch = attacker.GetField<Stopwatch>("antiWallhackTimer");
 
-//                                    if (percentage > Config.Instance.AntiWallhack.MaxHitPercentage)
-//                                    {
-//                                        Utils.WarnAdminsWithPerm(victim, "anticheat.warn.wallhack", $"%eYou might want to take a look at %p{attacker.Name}%e. Wallhack suspected: %h1{percentage}");
+                            if ((watch.ElapsedMilliseconds / 1000) >= Config.Instance.AntiWallhack.HitResetTime)
+                            {
+                                if (attacker.GetFieldOrVal("antiWallhackTimes", 0) > Config.Instance.AntiWallhack.MinHitTimes)
+                                {
+                                    float percentage = attacker.GetField<float>("antiWallhackTimesInvisible") / attacker.GetField<float>("antiWallhackTimes");
 
-//                                        //OnlyForTesting :P
-//                                        attacker.SetField("antiWallhackTimes", 0);
-//                                        attacker.SetField("antiWallhackTimesInvisible", 0);
-//                                    }
-//                                    else
-//                                    {
-//                                        attacker.SetField("antiWallhackTimes", 0);
-//                                        attacker.SetField("antiWallhackTimesInvisible", 0);
-//                                    }
-//                                }
+                                    if (percentage > Config.Instance.AntiWallhack.MaxHitPercentage)
+                                    {
+                                        Utils.WarnAdminsWithPerm(victim, "anticheat.warn.wallhack", $"%eYou might want to take a look at %p{attacker.Name}%e. Wallhack suspected: %h1{percentage}");
 
-//                                watch.Restart();
-//                            }
-//                        }
-//                    }
-//                }
-//            });         
-//        }
-//    }
-//}
+                                        //OnlyForTesting :P
+                                        attacker.SetField("antiWallhackTimes", 0);
+                                        attacker.SetField("antiWallhackTimesInvisible", 0);
+                                    }
+                                    else
+                                    {
+                                        attacker.SetField("antiWallhackTimes", 0);
+                                        attacker.SetField("antiWallhackTimesInvisible", 0);
+                                    }
+                                }
+
+                                watch.Restart();
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+}
+#endif

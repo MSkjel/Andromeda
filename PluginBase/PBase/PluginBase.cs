@@ -1,11 +1,15 @@
 ﻿using InfinityScript.Events;
 using System;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace InfinityScript.PBase
 {
     public class PluginBase : BaseScript
     {
+        private readonly byte[] OverflowBytes = new byte[] { 0x5E, 0x01 };
+
         public PluginBase()
         {
             PlayerConnected += delegate (Entity player)
@@ -18,10 +22,10 @@ namespace InfinityScript.PBase
                 Script.PlayerDisconnected.Run(player, player);
             };
 
-            Tick += delegate ()
-            {
-                Script.Tick.Run(this);
-            };
+            //Tick += delegate ()
+            //{
+            //    Script.Tick.Run(this);
+            //};
 
             Notified += delegate (int id, string str, Parameter[] param)
             {
@@ -46,6 +50,7 @@ namespace InfinityScript.PBase
         public override void OnExitLevel()
         {
             Script.OnExitLevel.Run(this);
+            Script.Cleanup();
         }
 
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
@@ -64,7 +69,7 @@ namespace InfinityScript.PBase
 
         public override void OnPlayerDisconnect(Entity player)
         {
-            Script.PlayerDisconnecting.Run(player, player);
+            //Script.PlayerDisconnecting.Run(player, player);
         }
 
         public override void OnPlayerKilled(Entity player, Entity inflictor, Entity attacker, int damage, string mod, string weapon, Vector3 dir, string hitLoc)
@@ -74,8 +79,13 @@ namespace InfinityScript.PBase
             Script.PlayerKilled.Run(attacker, data);
         }
 
+        //Regex for preventing chat buffer overflow in clients
+        Regex BufferOverflowRegx = new Regex("(\\^[^a-zA-Z\\d;:])");
         public override EventEat OnSay3(Entity player, ChatType type, string name, ref string message)
         {
+            //Escape client chat buffer overflow
+            message = BufferOverflowRegx.Replace(message, "");
+
             var data = new PlayerSayArgs(player, type, name, message);
 
             Script.PlayerSay.Run(player, data);
@@ -123,6 +133,6 @@ namespace InfinityScript.PBase
         {
             // won't bother too much for now
             base.OnVehicleDamage(vehicle, inflictor, attacker, damage, dFlags, mod, weapon, point, dir, hitLoc, timeOffset, modelIndex, partName);
-        }
+        }       
     }
 }

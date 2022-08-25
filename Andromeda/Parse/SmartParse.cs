@@ -14,6 +14,7 @@ namespace Andromeda.Parse
         public static readonly IArgParse OptionalGreedyString = new OptionalGreedyStringParse();
         public static readonly IArgParse GreedyString = new GreedyStringParse();
         public static readonly IArgParse Player = new PlayerParse();
+        public static readonly IArgParse OptionalPlayer = new OptionalPlayerParse();
         public static readonly IArgParse OptionalInteger = new OptionalIntegerParse();
         public static readonly IArgParse Integer = new IntegerParse();
         public static readonly IArgParse OptionalBoolean = new OptionalBooleanParse();
@@ -62,11 +63,11 @@ namespace Andromeda.Parse
             => CreateCommand(name, argTypes,
                 delegate (IClient sender, object[] args)
                 {
-                    if(!sender.IsEntity)
-                    {
-                        sender.Tell("%eYou must be a player to use this command.");
-                        return;
-                    }
+                    //if(!sender.IsEntity)
+                    //{
+                    //    sender.Tell("%eYou must be a player to use this command.");
+                    //    return;
+                    //}
 
                     action(sender.Entity, args);
                 }, usage, aliases, permission, description);
@@ -279,7 +280,7 @@ namespace Andromeda.Parse
                 return null;
             }
 
-            return $"{parsed.ToString()} is not an integer";
+            return $"{parsed} is not an integer";
         }
     }
 
@@ -301,10 +302,10 @@ namespace Andromeda.Parse
     {
         public override string Parse(ref string str, out object parsed, IClient sender)
         {
-            if (base.Parse(ref str, out parsed, sender) is string error)
+            if (base.Parse(ref str, out parsed, sender) is string)
                 return "Expected boolean";
 
-            if (parsed is bool boolean)
+            if (parsed is bool)
                 return null;
 
             return "Expected boolean";

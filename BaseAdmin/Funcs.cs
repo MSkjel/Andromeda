@@ -30,10 +30,7 @@ namespace BaseAdmin
         {
             byte[] bytes = address.GetAddressBytes();
 
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(bytes);
-            }
+            Array.Reverse(bytes);
 
             return BitConverter.ToInt32(bytes, 0);
         }
@@ -57,10 +54,8 @@ namespace BaseAdmin
                 Common.SayAll(Config.BanMessages.BanMessageServer.FormatServerMessage(ent, issuer, message));
 
                 yield return Async.Detach();
-                lock (Main.Connection)
-                {
-                    cmd.ExecuteNonQuery();
-                }
+
+                cmd.ExecuteNonQuery();
             }
 
             Async.Start(routine());
@@ -101,10 +96,7 @@ namespace BaseAdmin
 
                 yield return Async.Detach();
 
-                lock (Main.Connection)
-                {
-                    cmd.ExecuteNonQuery();
-                }              
+                cmd.ExecuteNonQuery();           
             }
 
             Async.Start(routine());
@@ -130,13 +122,10 @@ namespace BaseAdmin
                 yield return Async.Detach();
 
                 long amount = 0;
-                lock (Main.Connection)
-                {
-                    var value = cmd.ExecuteScalar();
+                var value = cmd.ExecuteScalar();
 
-                    if (value != null)
-                        amount = (long)value;
-                }
+                if (value != null)
+                    amount = (long)value;
 
                 yield return Async.Attach();
 
@@ -148,27 +137,23 @@ namespace BaseAdmin
                 Common.SayAll(Config.Warns.UnwarnMessageServer.FormatServerMessage(ent, issuer, reason));
                 ent.IPrintLnBold(Config.Warns.UnwarnMessagePlayer.FormatServerMessage(ent, issuer, reason).ColorFormat());
 
-                var newcmd = new SQLiteCommand(Main.Connection);
                 if (amount == 0)
                 {
-                    newcmd.CommandText = "DELETE FROM warnings WHERE hwid = @hwid;";
+                    cmd.CommandText = "DELETE FROM warnings WHERE hwid = @hwid;";
 
-                    newcmd.Parameters.AddWithValue("@hwid", ent.HWID);
+                    cmd.Parameters.AddWithValue("@hwid", ent.HWID);
                 }
                 else
                 {
-                    newcmd.CommandText = "INSERT OR REPLACE INTO warnings (hwid, amount) VALUES (@hwid, @amount);";
+                    cmd.CommandText = "INSERT OR REPLACE INTO warnings (hwid, amount) VALUES (@hwid, @amount);";
 
-                    newcmd.Parameters.AddWithValue("@hwid", ent.HWID);
-                    newcmd.Parameters.AddWithValue("@amount", amount);
+                    cmd.Parameters.AddWithValue("@hwid", ent.HWID);
+                    cmd.Parameters.AddWithValue("@amount", amount);
                 }
 
                 yield return Async.Detach();
 
-                lock (Main.Connection)
-                {
-                    newcmd.ExecuteNonQuery();
-                }
+                cmd.ExecuteNonQuery();
             }
 
             Async.Start(routine());
@@ -186,10 +171,7 @@ namespace BaseAdmin
 
                 yield return Async.Detach();
 
-                lock (Main.Connection)
-                {
-                    cmd.ExecuteNonQuery();
-                }
+                cmd.ExecuteNonQuery();
             }
 
             Async.Start(routine());
@@ -206,13 +188,10 @@ namespace BaseAdmin
                 yield return Async.Detach();
 
                 long amount = 0;
-                lock (Main.Connection)
-                {
-                    var value = cmd.ExecuteScalar();
+                var value = cmd.ExecuteScalar();
 
-                    if (value != null)
-                        amount = (long)value;
-                }
+                if (value != null)
+                    amount = (long)value;
 
                 yield return Async.Attach();
 
@@ -231,22 +210,17 @@ namespace BaseAdmin
                     ent.IPrintLnBold(Config.Warns.WarnMessagePlayer.FormatServerMessage(ent, issuer, reason, "", (int)amount, Config.Warns.MaxWarns).ColorFormat());
                 }
 
-                var newcmd = new SQLiteCommand(Main.Connection);
-
                 if (amount == 0)
-                    newcmd.CommandText = "DELETE FROM warnings WHERE hwid = @hwid;";
+                    cmd.CommandText = "DELETE FROM warnings WHERE hwid = @hwid;";
                 else
-                    newcmd.CommandText = "INSERT OR REPLACE INTO warnings (hwid, amount) VALUES (@hwid, @amount);";
+                    cmd.CommandText = "INSERT OR REPLACE INTO warnings (hwid, amount) VALUES (@hwid, @amount);";
 
-                newcmd.Parameters.AddWithValue("@hwid", ent.HWID);
-                newcmd.Parameters.AddWithValue("@amount", amount);
+                cmd.Parameters.AddWithValue("@hwid", ent.HWID);
+                cmd.Parameters.AddWithValue("@amount", amount);
 
                 yield return Async.Detach();
 
-                lock (Main.Connection)
-                {
-                    newcmd.ExecuteNonQuery();
-                }
+                cmd.ExecuteNonQuery();
             }
 
             Async.Start(routine());

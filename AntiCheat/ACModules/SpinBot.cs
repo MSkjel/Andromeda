@@ -12,7 +12,7 @@ namespace AntiCheat.ACModules
     {
         public string Name => "Anti-SpinBot";
 
-        public string Description => "Checks if a player has SpinBot";
+        //public string Description => "Checks if a player has SpinBot";
 
         public bool Enabled
         {
@@ -20,14 +20,6 @@ namespace AntiCheat.ACModules
             set;
         } = Config.Instance.AntiSpinBot.Enabled;
 
-        public Action<Entity, string> TakeAction
-        {
-            get;
-            set;
-        } = new Action<Entity, string>((ent, reason) =>
-        {
-            Common.Admin.Ban(ent, "AntiCheat", reason);
-        });
 
         public void RegisterEvents()
         {
@@ -39,7 +31,7 @@ namespace AntiCheat.ACModules
                     return;
 
                 if (ent.GetPlayerAngles().Z > Config.Instance.AntiSpinBot.MaxAngle || ent.GetPlayerAngles().Z < -Config.Instance.AntiSpinBot.MaxAngle)
-                    TakeAction(ent, "Spinbot detected");
+                    Common.Admin.Ban(ent, "AntiCheat", "Spinbot detected");
                 else if (ent.GetPlayerAngles().Z > (Config.Instance.AntiSpinBot.MaxAngle / 2) + 5 || ent.GetPlayerAngles().Z < -(Config.Instance.AntiSpinBot.MaxAngle / 2) + 5)
                     Utils.WarnAdminsWithPerm(ent, "anticheat.warn.spinbot", $"%eYou might want to take a look at %p{ent.Name}%e. Spinbot suspected");
             });

@@ -18,7 +18,7 @@ namespace BaseAdmin.Parse
                 return "Expected map name";
 
             var mapname = parsed as string;
-            var query = Utils.Maps.Where(m => m.Matches(mapname));
+            var query = Utils.Maps.Value.Where(m => m.Matches(mapname));
 
             if (!query.Any())
                 return "No maps found. Do !maps";

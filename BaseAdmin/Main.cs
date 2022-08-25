@@ -11,6 +11,7 @@ using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 
 namespace BaseAdmin
@@ -18,7 +19,7 @@ namespace BaseAdmin
     [Plugin]
     public static class Main
     {
-        internal static SQLiteConnection Connection;
+        internal static SQLiteConnection Connection => PlayerDB.Connection;
 
         private const string dateFormat = "yyyy-MM-dd HH:mm:ss";
         internal static string FormatDate(DateTime dateTime)
@@ -29,32 +30,18 @@ namespace BaseAdmin
 
         static Main()
         {
-            var file = GSCFunctions.GetDvar("database_path");
+            //var file = GSCFunctions.GetDvar("database_path");
 
-            GSCFunctions.SetDvarIfUninitialized("admindb_path", file);
+            //GSCFunctions.SetDvarIfUninitialized("admindb_path", file);
 
-            file = GSCFunctions.GetDvar("admindb_path");
-
-            Connection = new SQLiteConnection($"Data Source={file};Version=3;");
-
-            lock (Connection)
+            //file = GSCFunctions.GetDvar("admindb_path");
+            using (var prepare = new SQLiteCommand(
+                "CREATE TABLE IF NOT EXISTS warnings (hwid TEXT PRIMARY KEY NOT NULL, amount INTEGER NOT NULL);" +
+                "CREATE TABLE IF NOT EXISTS bans (banid INTEGER PRIMARY KEY NOT NULL, hwid TEXT NOT NULL, guid INTEGER NOT NULL, ip INTEGER, name TEXT NOT NULL, issuer TEXT NOT NULL, reason TEXT NOT NULL, expire TEXT NOT NULL);" +
+                "DELETE FROM bans WHERE datetime('now', 'localtime') > datetime(expire);",
+                Connection))
             {
-                Connection.Open();
-
-                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS warnings (hwid TEXT PRIMARY KEY NOT NULL, amount INTEGER NOT NULL);", Connection))
-                {
-                    prepare.ExecuteNonQuery();
-                }
-
-                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS bans (banid INTEGER PRIMARY KEY NOT NULL, hwid TEXT NOT NULL, guid INTEGER NOT NULL, ip INTEGER, name TEXT NOT NULL, issuer TEXT NOT NULL, reason TEXT NOT NULL, expire TEXT NOT NULL);", Connection))
-                {
-                    prepare.ExecuteNonQuery();
-                }
-
-                using (var prepare = new SQLiteCommand("DELETE FROM bans WHERE datetime('now', 'localtime') > datetime(expire);", Connection))
-                {
-                    prepare.ExecuteNonQuery();
-                }
+                prepare.ExecuteNonQuery();
             }
 
             Common.Register(Admin.Instance);
@@ -113,7 +100,7 @@ namespace BaseAdmin
                 {
                     var msgs = "%iAvailable maps:".Yield()
                         .Concat(
-                            Utils.Maps.Where(x => Utils.MapFilesExist(x.RawName))
+                            Utils.Maps.Value.Where(x => Utils.MapFilesExist(x.RawName))
                             .Select(x => $"%a{x.NiceName}%n")
                             .Condense());
 
@@ -161,6 +148,20 @@ namespace BaseAdmin
                 usage: "!mode <mode>",
                 permission: "mode",
                 description: "Changes the mode to the mode specified"));
+
+            // SETNEXTMODE
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "setnextmode",
+                argTypes: new[] { Parse.GameMode.Obj },
+                action: delegate (IClient sender, object[] args)
+                {
+                    string dsr = DSR.GetFullDSRName(args[0] as string);
+                    DSR.SetNextMode(dsr);
+                    Common.SayAll($"%p{sender.GetFormattedName()} %nhas set next mode to %i{dsr}%n.");
+                },
+                usage: "!setnextmode <mode>",
+                permission: "setnextmode",
+                description: "Sets the next mode to the mode specified"));
 
             // MODES
             Command.TryRegister(SmartParse.CreateCommand(
@@ -366,15 +367,12 @@ namespace BaseAdmin
                         yield return Async.Detach();
 
                         List<string> messages = new List<string>();
-                        lock (Connection)
-                        {
-                            var reader = cmd.ExecuteReader();
+                        var reader = cmd.ExecuteReader();
 
-                            while (reader.Read())
-                                messages.Add($"%h1{reader["banid"]}%n - %p{reader["name"]}%n, {reader["hwid"]}");
+                        while (reader.Read())
+                            messages.Add($"%h1{reader["banid"]}%n - %p{reader["name"]}%n, {reader["hwid"]}");
 
-                            reader.Close();
-                        }
+                        reader.Close();
 
                         yield return Async.Attach();
 
@@ -401,15 +399,12 @@ namespace BaseAdmin
                         yield return Async.Detach();
 
                         List<string> messages = new List<string>();
-                        lock (Connection)
-                        {
-                            var reader = cmd.ExecuteReader();
+                        var reader = cmd.ExecuteReader();
 
-                            while (reader.Read())
-                                messages.Add($"%h1{reader["banid"]}%n - %p{reader["name"]}%n, {reader["hwid"]}");
+                        while (reader.Read())
+                            messages.Add($"%h1{reader["banid"]}%n - %p{reader["name"]}%n. %Issuer: %h1{reader["issuer"]}%n. Reason: %h1{reader["reason"]}");
 
-                            reader.Close();
-                        }
+                        reader.Close();
 
                         yield return Async.Attach();
 
@@ -422,61 +417,61 @@ namespace BaseAdmin
                 permission: "lastbans",
                 description: "Shows the last given amount of bans"));
 
-            // BANINFO
-            Command.TryRegister(SmartParse.CreateCommand(
-                name: "baninfo",
-                argTypes: new[] { SmartParse.Integer },
-                action: delegate (IClient sender, object[] args)
-                {
-                    var banid = (int)args[0];
+            //// BANINFO
+            //Command.TryRegister(SmartParse.CreateCommand(
+            //    name: "baninfo",
+            //    argTypes: new[] { SmartParse.Integer },
+            //    action: delegate (IClient sender, object[] args)
+            //    {
+            //        var banid = (int)args[0];
 
-                    IEnumerator routine()
-                    {
-                        var cmd = new SQLiteCommand("SELECT * FROM bans WHERE banid = @banid;", Connection);
+            //        IEnumerator routine()
+            //        {
+            //            var cmd = new SQLiteCommand("SELECT * FROM bans WHERE banid = @banid;", Connection);
 
-                        cmd.Parameters.AddWithValue("@banid", banid);
+            //            cmd.Parameters.AddWithValue("@banid", banid);
 
-                        yield return Async.Detach();
+            //            yield return Async.Detach();
 
-                        string[] messages = null;
-                        lock(Connection)
-                        {
-                            var reader = cmd.ExecuteReader();
+            //            string[] messages = null;
+            //            lock(Connection)
+            //            {
+            //                var reader = cmd.ExecuteReader();
 
-                            if(reader.Read())
-                            {
-                                messages = new[]
-                                {
-                                    $"Ban ID: %h1{reader["banid"]}",
-                                    $"Name: %p{reader["name"]}",
-                                    $"HWID: %i{reader["hwid"]}",
-                                    $"GUID: %i{reader["guid"]}",
-                                    $"Issuer: %p{reader["issuer"]}",
-                                    $"Expiry: %a{reader["expire"]}",
-                                    $"Reason: %i{reader["reason"]}",
-                                };
-                            }
+            //                if(reader.Read())
+            //                {
+            //                    messages = new[]
+            //                    {
+            //                        $"Ban ID: %h1{reader["banid"]}",
+            //                        $"Name: %p{reader["name"]}",
+            //                        $"HWID: %i{reader["hwid"]}",
+            //                        $"GUID: %i{reader["guid"]}",
+            //                        $"Issuer: %p{reader["issuer"]}",
+            //                        $"Expiry: %a{reader["expire"]}",
+            //                        $"Reason: %i{reader["reason"]}",
+            //                    };
+            //                }
 
-                            reader.Close();
-                        }
+            //                reader.Close();
+            //            }
 
-                        yield return Async.Attach();
+            //            yield return Async.Attach();
 
-                        if(messages == null)
-                        {
-                            sender.Tell($"%eEntry {banid} was not found.");
-                            yield break;
-                        }
+            //            if(messages == null)
+            //            {
+            //                sender.Tell($"%eEntry {banid} was not found.");
+            //                yield break;
+            //            }
 
-                        sender.Tell(messages);
-                        yield break;
-                    }
+            //            sender.Tell(messages);
+            //            yield break;
+            //        }
 
-                    Async.Start(routine());
-                },
-                usage: "!baninfo <banid>",
-                permission: "baninfo",
-                description: "Shows details of a ban"));
+            //        Async.Start(routine());
+            //    },
+            //    usage: "!baninfo <banid>",
+            //    permission: "baninfo",
+            //    description: "Shows details of a ban"));
 
             // UNBAN
             Command.TryRegister(SmartParse.CreateCommand(
@@ -486,26 +481,23 @@ namespace BaseAdmin
                 {
                     var banid = (int)args[0];
 
-                    IEnumerator routine()
-                    {
+                    //IEnumerator routine()
+                    //{
                         var cmd = new SQLiteCommand("DELETE FROM bans WHERE banid = @banid;", Connection);
 
                         cmd.Parameters.AddWithValue("@banid", banid);
 
-                        yield return Async.Detach();
+                        //yield return Async.Detach();
 
                         int ret;
-                        lock (Connection)
-                        {
-                            ret = cmd.ExecuteNonQuery();
-                        }
+                        ret = cmd.ExecuteNonQuery();
 
-                        yield return Async.Attach();
+                        //yield return Async.Attach();
 
                         sender.Tell($"Return value: %i{ret}");
-                    }
+                    //}
 
-                    Async.Start(routine());
+                    //Async.Start(routine());
                 },
                 usage: "!unban <banid>",
                 permission: "unban",
@@ -513,7 +505,7 @@ namespace BaseAdmin
 
             // SPY
             Command.TryRegister(SmartParse.CreateCommand(
-                name: "spy",
+                name: "spy",    
                 argTypes: new[] { SmartParse.Boolean },
                 action: delegate (Entity sender, object[] args)
                 {
@@ -636,6 +628,30 @@ namespace BaseAdmin
                 permission: "end",
                 description: "Ends the game"));
 
+            //FILMTWEAK
+            Command.TryRegister(SmartParse.CreateCommand(
+                name: "filmtweak",
+                argTypes: new[] { SmartParse.OptionalInteger },
+                action: delegate (Entity sender, object[] args)
+                {
+                    if (args[0] is int level)
+                    {
+                        Utils.Filmtweak(sender, level);
+                        sender.Tell($"%nFgtLevel set to: %h1{level}");
+                    }
+                    else
+                    {
+                        Utils.Filmtweak(sender, 0);
+
+                        sender.Tell($"%nFgtLevel set to: %h1{0}");
+                    }
+
+                },
+                usage: "!ft [level]",
+                new[] { "ft" },
+                permission: "filmtweak",
+                description: "Sets ur fgtlevel to the specified level"));
+
             #endregion
             #endregion
 
@@ -653,24 +669,21 @@ namespace BaseAdmin
                     bool found = false;
                     TimeSpan? timeSpan = null;
                     string message = null, issuer = null;
-                    lock (Connection)
+                    var reader = cmd.ExecuteReader();
+                    if (reader.Read())
                     {
-                        var reader = cmd.ExecuteReader();
-                        if (reader.Read())
-                        {
-                            found = true;
+                        found = true;
 
-                            if (reader["expire"] as string == "permanent")
-                                timeSpan = null;
-                            else
-                                timeSpan = ParseDate(reader["expire"] as string) - DateTime.Now;
+                        if (reader["expire"] as string == "permanent")
+                            timeSpan = null;
+                        else
+                            timeSpan = ParseDate(reader["expire"] as string) - DateTime.Now;
 
-                            message = reader["reason"] as string;
-                            issuer = reader["issuer"] as string;
-                        }
-
-                        reader.Close();
+                        message = reader["reason"] as string;
+                        issuer = reader["issuer"] as string;
                     }
+
+                    reader.Close();
 
                     yield return Async.Attach();
 

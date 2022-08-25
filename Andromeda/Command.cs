@@ -14,15 +14,10 @@ namespace Andromeda
     {
         #region Static
         internal static readonly SortedList<string, Command> RegisteredCommands = new SortedList<string, Command>();
-        private static readonly SortedList<string, Command> aliasLookup = new SortedList<string, Command>();
 
-        public static Command Lookup(string str)
-        {
-            if (aliasLookup.TryGetValue(str, out var cmd))
-                return cmd;
+        public static Command Lookup(string str) => RegisteredCommands
+                .Where(x => x.Value.Name == str.ToLowerInvariant() || x.Value.Aliases.Contains(str.ToLowerInvariant())).FirstOrDefault().Value;
 
-            return null;
-        }
 
         public static bool CanDo(IClient client, Command cmd, out string response)
         {
@@ -46,16 +41,6 @@ namespace Andromeda
                 return false;
 
             RegisteredCommands[name] = cmd;
-            aliasLookup[name] = cmd;
-
-            if (cmd.Aliases != null)
-                foreach (var alias in cmd.Aliases)
-                {
-                    var lowerAlias = alias.ToLowerInvariant();
-
-                    if (!aliasLookup.ContainsKey(lowerAlias))
-                        aliasLookup[lowerAlias] = cmd;
-                }
 
             return true;
         }
@@ -230,8 +215,9 @@ namespace Andromeda
                 action: delegate (IClient sender, object[] args)
                 {
                     var alias = args[0] as string;
+                    var cmd = Lookup(alias);
 
-                    if (aliasLookup.TryGetValue(alias, out var cmd))
+                    if (cmd != null)
                         sender.Tell($"Usage: %i{cmd.Usage}");
                     else
                         sender.Tell($"%eNo such command: !{alias}");

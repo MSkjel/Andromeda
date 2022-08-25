@@ -1,6 +1,4 @@
 ﻿#define DBWorkaround
-#define WAL
-
 using InfinityScript;
 using InfinityScript.Events;
 using Newtonsoft.Json;
@@ -21,18 +19,18 @@ namespace Andromeda
         public static readonly Event<Entity> PlayerLoggedIn = new Event<Entity>(Events.Events.ErrorHandler(nameof(PlayerLoggedIn)));
         public static readonly Event<Entity> PlayerLoggedOut = new Event<Entity>(Events.Events.ErrorHandler(nameof(PlayerLoggedOut)));
 
-        public static string GetDBFieldOr(this Entity ent, string field, string def = default)
+        public static string GetDBFieldOr(this Entity ent, string field, string def = default, bool ignoreLogin = false)
         {
             if (TryGetInfo(ent, out var info))
-                if (info.LoggedIn && info.Data.TryGetValue(field, out var ret))
+                if ((ignoreLogin || info.LoggedIn) && info.Data.TryGetValue(field, out var ret))
                     return ret;
 
             return def;
         }
 
-        public static bool TrySetDBField(this Entity ent, string field, string value)
+        public static bool TrySetDBField(this Entity ent, string field, string value, bool ignoreLogin = false)
         {
-            if (TryGetInfo(ent, out var info) && info.LoggedIn)
+            if (TryGetInfo(ent, out var info) && (ignoreLogin || info.LoggedIn))
             {
                 info.Data[field] = value;
 #if DBWorkaround
@@ -44,9 +42,9 @@ namespace Andromeda
             return false;
         }
 
-        public static bool TryRemoveDBField(this Entity ent, string field)
+        public static bool TryRemoveDBField(this Entity ent, string field, bool ignoreLogin = false)
         {
-            if (TryGetInfo(ent, out var info) && info.LoggedIn)
+            if (TryGetInfo(ent, out var info) && (ignoreLogin || info.LoggedIn))
             {
                 info.Data.Remove(field);
 #if DBWorkaround
@@ -118,15 +116,9 @@ namespace Andromeda
                     cmd.Parameters.AddWithValue("@hwid", HWID);
 
                     yield return Async.Detach();
-#if !WAL
-                    lock (Connection)
-                    {
-#endif
-                        cmd.ExecuteNonQuery();
-                        cmd.Dispose();
-#if !WAL
-                    }
-#endif
+
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
                 }
 
                 Async.Start(routine());
@@ -138,15 +130,8 @@ namespace Andromeda
 
                 cmd.Parameters.AddWithValue("@data", JsonConvert.SerializeObject(Data));
                 cmd.Parameters.AddWithValue("@hwid", HWID);
-#if !WAL
-                lock(Connection)
-                {
-#endif
-                    cmd.ExecuteNonQuery();
-                    cmd.Dispose();
-#if !WAL
-                }
-#endif
+                cmd.ExecuteNonQuery();
+                cmd.Dispose();
             }
 
             public override string ToString()
@@ -186,7 +171,7 @@ namespace Andromeda
             return true;
         }
 
-        internal static SQLiteConnection Connection;
+        public static SQLiteConnection Connection;
         internal static PlayerInfo[] ConnectedPlayers = new PlayerInfo[18];
 
         internal static bool TryRegister(Entity ent, string password, Action onFinish)
@@ -208,15 +193,9 @@ namespace Andromeda
 
                     yield return Async.Detach();
 
-#if !WAL
-                    lock (Connection)
-                    {
-#endif
-                        command.ExecuteNonQuery();
-                        command.Dispose();
-#if !WAL
-                }
-#endif
+                    command.ExecuteNonQuery();
+                    command.Dispose();
+
                     yield return Async.Attach();
 
                     Log.Info($"Registered HWID {hwid} inside database");
@@ -249,18 +228,13 @@ namespace Andromeda
             updateLogged.Parameters.AddWithValue("@hash", hash);
 
             yield return Async.Detach();
-#if !WAL
-            lock (Connection)
-            {
-#endif
-                updateLogged.ExecuteNonQuery();
-                updateLogged.Dispose();
-#if !WAL
-            }
-#endif
+
+            updateLogged.ExecuteNonQuery();
+            updateLogged.Dispose();
         }
 
         [EntryPoint]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private static void Init()
         {
             Script.PlayerConnected.Add((sender, player) =>
@@ -274,17 +248,11 @@ namespace Andromeda
                     yield return Async.Detach();
 
                     PlayerInfo found;
-#if !WAL
-                    lock (Connection)
-                    {
-#endif
-                        var reader = cmd.ExecuteReader();
-                        found = PlayerInfo.Get(reader);
+                    var reader = cmd.ExecuteReader();
+                    found = PlayerInfo.Get(reader);
 
-                        reader.Close();
-#if !WAL
-                    }
-#endif
+                    reader.Close();
+
                     yield return Async.Attach();
 
                     ConnectedPlayers[player.EntRef] = found;
@@ -305,14 +273,7 @@ namespace Andromeda
                         yield return Async.Detach();
 
                         bool logged;
-#if !WAL
-                        lock (Connection)
-                        {
-#endif
-                            logged = findLogged.ExecuteScalar() != null;
-#if !WAL
-                        }
-#endif
+                        logged = findLogged.ExecuteScalar() != null;
 
                         yield return Async.Attach();
 
@@ -327,6 +288,8 @@ namespace Andromeda
 
                             yield return UpdateLogin(hash);
                         }
+
+                        Events.Events.PlayerDBConnected.Run(null, player);
                     }
                 }
 
@@ -344,7 +307,7 @@ namespace Andromeda
                 });
             }, int.MaxValue);
 
-#region Commands
+            #region Commands
             // REGISTER
             Command.TryRegister(Parse.SmartParse.CreateCommand(
                 name: "register",
@@ -437,14 +400,8 @@ namespace Andromeda
                             cmd.Parameters.AddWithValue("@hash", GetLoginHash(sender));
 
                             yield return Async.Detach();
-#if !WAL
-                            lock (Connection)
-                            {
-#endif
-                                cmd.ExecuteNonQuery();
-#if !WAL
-                            }
-#endif
+
+                            cmd.ExecuteNonQuery();
                         }
 
                         Async.Start(routine());
@@ -458,81 +415,16 @@ namespace Andromeda
                 usage: "!logout",
                 description: "Logs you out of the server database"));
 
-            // CHANGEPASSWORD
-            Command.TryRegister(Parse.SmartParse.CreateCommand(
-                name: "changepassword",
-                argTypes: new[] { Parse.SmartParse.String, Parse.SmartParse.String },
-                action: delegate (Entity sender, object[] args)
-                {
-                    var pw = args[0] as string;
-                    var confirmation = args[1] as string;
+            Script.OnExitLevel.Add((_, args) => Cleanup());
 
-                    if (sender.TryGetInfo(out var row) && row.LoggedIn)
-                    {
-                        if (pw != confirmation)
-                        {
-                            sender.Tell("%ePasswords do not match.");
-                            return;
-                        }
-
-                        IEnumerator routine()
-                        {
-                            var hash = Sha256(pw);
-                            var cmd = new SQLiteCommand("UPDATE players SET password = @hash WHERE hwid = @value;", Connection);
-
-                            cmd.Parameters.AddWithValue("@value", sender.HWID);
-                            cmd.Parameters.AddWithValue("@hash", hash);
-
-                            yield return Async.Detach();
-
-                            int status;
-#if !WAL
-                            lock (Connection)
-                            {
-#endif
-                                status = cmd.ExecuteNonQuery();
-#if !WAL
-                            }
-#endif
-                            yield return Async.Attach();
-
-                            if (status == -1)
-                            {
-                                sender.Tell($"%eError changing password: {status}");
-                                yield break;
-                            }
-
-                            row.PasswordHash = hash;
-                            sender.Tell("%iPassword changed successfully.");
-                        }
-
-                        Async.Start(routine());
-                    }
-                    else
-                        sender.Tell("%ePlease log in to change password.");
-                },
-                usage: "!changepassword <newpassword> <confirm>",
-                description: "Logs you into the server database"));
-
-#endregion
+            #endregion
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         [Cleanup]
         private static void Cleanup()
         {
-#if !WAL
-            lock (Connection)
-            {
-#endif
-                foreach (var info in ConnectedPlayers)
-                {
-                    if (info != null)
-                        info.UpdateData();
-#if !WAL
-                }
-#endif
-                Connection.Close();
-            }
+            Connection.Close();
         }
 
         static PlayerDB()
@@ -543,37 +435,22 @@ namespace Andromeda
 
             System.IO.Directory.CreateDirectory(@"scripts\Andromeda");
 
-#if WAL
-            Connection = new SQLiteConnection($"Data Source={DBFile};Version=3;PRAGMA journal_mode=WAL;");
-#else
-            Connection = new SQLiteConnection($"Data Source={DBFile};Version=3;");
+            Connection = new SQLiteConnection($"Data Source={DBFile};Version=3;journal mode=WAL;");
 
-            lock (Connection)
-            {
-#endif
             Log.Info("Preparing DB...");
 
-                Connection.Open();
+            Connection.Open();
 
-                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS players (hwid TEXT PRIMARY KEY NOT NULL, password BLOB NOT NULL, data TEXT);", Connection))
-                {
-                    prepare.ExecuteNonQuery();
-                }
-
-                using (var prepare = new SQLiteCommand("CREATE TABLE IF NOT EXISTS loggedin (hash BLOB PRIMARY KEY NOT NULL, time TEXT);", Connection))
-                {
-                    prepare.ExecuteNonQuery();
-                }
-
-                using (var prepare = new SQLiteCommand("DELETE FROM loggedin WHERE datetime(time) < datetime('now', 'localtime');", Connection))
-                {
-                    prepare.ExecuteNonQuery();
-                }
-
-                Log.Info("Done preparing.");
-#if !WAL
+            using (var prepare = new SQLiteCommand(
+                "CREATE TABLE IF NOT EXISTS players (hwid TEXT PRIMARY KEY NOT NULL, password BLOB NOT NULL, data TEXT);" +
+                "CREATE TABLE IF NOT EXISTS loggedin (hash BLOB PRIMARY KEY NOT NULL, time TEXT);" +
+                "DELETE FROM loggedin WHERE datetime(time) < datetime('now', 'localtime');",
+                Connection))
+            {
+                prepare.ExecuteNonQuery();
             }
-#endif
+
+            Log.Info("Done preparing.");
         }
     }
 }

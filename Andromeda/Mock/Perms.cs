@@ -20,10 +20,17 @@ namespace Andromeda.Mock
             return true;
         }
 
+        public IEnumerable<Entity> PlayersWithDBField(string field) => BaseScript.Players.Where(x => x.GetDBFieldOr(field, "False") == "True");
+
+        public IEnumerable<Entity> PlayersWithPerm(string perm) => BaseScript.Players.Where(x => RequestPermission(x, perm, out string message));
+
         public string GetFormattedName(Entity ent)
             => ent.Name;
 
         public bool IsImmuneTo(Entity target, Entity issuer)
+            => false;
+
+        public bool IsDefaultLevelOrGroup(Entity ent) 
             => false;
     }
 }

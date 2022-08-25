@@ -1,4 +1,8 @@
-﻿using System;
+﻿//#define LowMemory
+
+#if !LowMemory
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +12,7 @@ using Andromeda.Events;
 using InfinityScript;
 
 namespace AntiCheat.ACModules
-{   
+{
     internal class ForceClass : IAntiCheatModule
     {
         public string Name => "Anti-Forceclass";
@@ -21,13 +25,16 @@ namespace AntiCheat.ACModules
             set;
         } = Config.Instance.AntiForceClass.Enabled;
 
-        public Action<Entity, string> TakeAction
+        public Lazy<Action<Entity, string>> TakeAction
         {
             get;
             set;
-        } = new Action<Entity, string>((ent, reason) =>
+        } = new Lazy<Action<Entity, string>>(delegate
         {
-            Common.Admin.Ban(ent, "AntiCheat", reason);
+            return new Action<Entity, string>((ent, reason) =>
+            {
+                Common.Admin.Ban(ent, "AntiCheat", reason);
+            });
         });
 
 
@@ -76,6 +83,12 @@ namespace AntiCheat.ACModules
                 }
             });
 
+            Events.ChangedClass.Add((sender, args) =>
+            {
+                if(!args.Player.HasField("Allow_Jugg") && !args.Player.RequestPermission("anticheat.immune.forceclass", out _) && (args.ClassName == "axis" || args.ClassName == "allies"))
+                    Common.Admin.Ban(args.Player, "AntiCheat", $"^1Force-Class detected. Juggernaut");
+            });
+
             Events.WeaponFired.Add((sender, args) =>
             {
                 if (args.Player.RequestPermission("anticheat.immune.forceclass", out _))
@@ -84,9 +97,9 @@ namespace AntiCheat.ACModules
                 if (!args.Player.HasField("Allow_Weapon_Name") || args.Player.CurrentWeapon != args.Player.GetField<string>("Allow_Weapon_Name"))
                 {
                     if (CheckIfBadWeapon(args.Weapon))
-                        TakeAction(args.Player, $"^1Force-Class detected. Weapon: ^7{args.Weapon}");
+                        Common.Admin.Ban(args.Player, "AntiCheat", $"^1Force-Class detected. Weapon: ^7{args.Weapon}");
                     else if (CheckIfBadAttachment(args.Weapon, out string attachment))
-                        TakeAction(args.Player, $"^1Force-Class detected. Attachment: ^7{attachment}");
+                        Common.Admin.Ban(args.Player, "AntiCheat", $"^1Force-Class detected. Attachment: ^7{attachment}");
                 }
             });
 
@@ -98,7 +111,7 @@ namespace AntiCheat.ACModules
                 if (!args.Player.HasField("Allow_Grenade_Name") || args.Player.CurrentWeapon != args.Player.GetField<string>("Allow_Grenade_Name"))
                 {
                     if (CheckIfBadGrenade(args.Grenade))
-                        TakeAction(args.Player, $"^1Force-Class detected. Grenade: ^7{args.Grenade}");
+                        Common.Admin.Ban(args.Player, "AntiCheat", $"^1Force-Class detected. Grenade: ^7{args.Grenade}");
                 }
             });
 
@@ -111,8 +124,8 @@ namespace AntiCheat.ACModules
                 {
                     args.Player.IncrementField("Bad_Killstreak", 1);
 
-                    if(args.Player.IsFieldHigherOrEqual("Bad_Killstreak", 2))
-                        TakeAction(args.Player, $"^1Force-Class detected. Killstreak: ^7{args.Killstreak}");
+                    if (args.Player.IsFieldHigherOrEqual("Bad_Killstreak", 2))
+                        Common.Admin.Ban(args.Player, "AntiCheat", $"^1Force-Class detected. Killstreak: ^7{args.Killstreak}");
                     else
                         Utils.WarnAdminsWithPerm(args.Player, "anticheat.warn.forceclass.killstreak", $"%eYou might want to take a look at %p{args.Player.Name}%e. Bad killstreak detected: %h1{args.Killstreak}");
                 }
@@ -145,3 +158,4 @@ namespace AntiCheat.ACModules
         private bool CheckIfBadKillStreak(string killstreak) => !string.IsNullOrEmpty(killstreak) && BlockedKillstreaks.Contains(killstreak);
     }
 }
+#endif

@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ACModules\Aimbot.cs" />
+    <Compile Include="ACModules\AntiEntity.cs" />
     <Compile Include="ACModules\AntiProxy.cs" />
     <Compile Include="ACModules\ForceClass.cs" />
     <Compile Include="ACModules\IAntiCheatModule.cs" />

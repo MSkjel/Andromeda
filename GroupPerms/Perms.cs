@@ -19,6 +19,10 @@ namespace GroupPerms
             "dem bois"
         };
 
+        public IEnumerable<Entity> PlayersWithDBField(string field) => BaseScript.Players.Where(x => x.GetDBFieldOr(field, "False") == "True");
+
+        public IEnumerable<Entity> PlayersWithPerm(string perm) => BaseScript.Players.Where(x => RequestPermission(x, perm, out string message));
+
         public string GetFormattedName(Entity entity)
             => entity.GetGroup().FormatName(entity.Name);
 
@@ -35,5 +39,9 @@ namespace GroupPerms
 
             return false;
         }
+
+        public bool IsDefaultLevelOrGroup(Entity ent) =>
+            ent.GetGroup(true) == Main.Config.DefaultGroup;
+
     }
 }

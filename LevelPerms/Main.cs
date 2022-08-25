@@ -60,31 +60,32 @@ namespace LevelPerms
         }
 
         [EntryPoint]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private static void Init()
         {
-            // doesn't work. :mad: fuck InfintyAbortion
-            // "who needs arguments" -conno
-            Script.OnServerCommand("makemegod", (args) =>
-            {
-                if(BaseScript.Players.Count == 1)
-                {
-                    var player = BaseScript.Players.First();
+            //// doesn't work. :mad: fuck InfintyAbortion
+            //// "who needs arguments" -conno
+            //Script.OnServerCommand("makemegod", (args) =>
+            //{
+            //    if(BaseScript.Players.Count == 1)
+            //    {
+            //        var player = BaseScript.Players.First();
 
-                    if (TrySetLevel(player, 100))
-                    {
-                        Log.Info($"Player {player.Name} has been given level 100.");
-                        return;
-                    }
-                    else
-                    {
-                        Log.Info($"Player has to login first");
-                        return;
-                    }
-                }
+            //        if (TrySetLevel(player, 100))
+            //        {
+            //            Log.Info($"Player {player.Name} has been given level 100.");
+            //            return;
+            //        }
+            //        else
+            //        {
+            //            Log.Info($"Player has to login first");
+            //            return;
+            //        }
+            //    }
 
-                Log.Info("ERROR: More than one player is in the server.");
-                return;
-            });
+            //    Log.Info("ERROR: More than one player is in the server.");
+            //    return;
+            //});
 
             #region Commands
             // SETLEVEL

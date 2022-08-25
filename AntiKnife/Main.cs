@@ -14,6 +14,7 @@ namespace AntiKnife
     {
 
         [EntryPoint]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private static void Init()
         {
             Events.DSRLoad.Add((sender, args) =>

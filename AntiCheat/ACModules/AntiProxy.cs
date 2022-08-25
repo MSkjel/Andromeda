@@ -1,4 +1,7 @@
-﻿using Andromeda;
+﻿#define LowMemory
+
+#if !LowMemory
+using Andromeda;
 using Andromeda.Events;
 using InfinityScript;
 using Newtonsoft.Json;
@@ -26,63 +29,63 @@ namespace AntiCheat.ACModules
             set;
         } = Config.Instance.AntiProxy.Enabled;
 
-        public Action<Entity, string> TakeAction
+        public Lazy<Action<Entity, string>> TakeAction
         {
             get;
             set;
-        } = new Action<Entity, string>((ent, reason) =>
+        } = new Lazy<Action<Entity, string>>(delegate
         {
-
+            return null;
         });
 
         static readonly CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
 
         public void RegisterEvents()
         {
-            if(Enabled)
-                Events.PreMatchDone.Add((_, args) =>
+            Events.PreMatchDone.Add((_, args) =>
+            {
+                Script.PlayerConnected.Add((__, ent) =>
                 {
-                    Script.PlayerConnected.Add((__, ent) =>
+                    if (Common.Perms.PlayersWithPerm(AdminPermission).Count() > 0)
                     {
-                        if (Utils.OnlineAdminsWithPerms(AdminPermission).Count() > 0)
+                        Uri uri;
+
+                        if (!Uri.TryCreate($"http://ipqualityscore.com/api/json/ip/KUO1M4XABodNQfJmDOIWRIIf2U6nBUyO/{ent.IP.Address}?strictness=1&allow_public_access_points=true", UriKind.Absolute, out uri))
+                            return;
+
+                        using (WebClient client = new WebClient())
                         {
-                            Uri uri;
+                            client.DownloadStringAsync(uri);
 
-                            if(!Uri.TryCreate($"http://ipqualityscore.com/api/json/ip/KUO1M4XABodNQfJmDOIWRIIf2U6nBUyO/{ent.IP.Address}?strictness=1&allow_public_access_points=true", UriKind.Absolute, out uri))
-                                return;
-
-                            using (WebClient client = new WebClient())
+                            client.DownloadStringCompleted += (sender, resp) =>
                             {
-                                client.DownloadStringAsync(uri);
+                                var responseJson = JsonConvert.DeserializeObject<Dictionary<string, string>>(resp.Result);
 
-                                client.DownloadStringCompleted += (sender, resp) =>
+                                if (responseJson["success"] == "true")
                                 {
-                                    var responseJson = JsonConvert.DeserializeObject<Dictionary<string, string>>(resp.Result);
+                                    float score = float.Parse(responseJson["fraud_score"]) / 100f;
 
-                                    if (responseJson["success"] == "true")
+                                    if (score > Config.Instance.AntiProxy.Threshold)
                                     {
-                                        float score = float.Parse(responseJson["fraud_score"]) / 100f;
+                                        //string country = new RegionInfo(cultures.Where(x => x.TwoLetterISOLanguageName.ToLower() == responseJson["country_code"].ToLower()).FirstOrDefault().LCID).DisplayName;
 
-                                        if (score > Config.Instance.AntiProxy.Threshold)
+                                        string[] messages =
                                         {
-                                            //string country = new RegionInfo(cultures.Where(x => x.TwoLetterISOLanguageName.ToLower() == responseJson["country_code"].ToLower()).FirstOrDefault().LCID).DisplayName;
+                                            $"%p{ent.Name}'s %e IP has a very low trust score",
+                                            $"%eScore: %h1{score:0.00}/{Config.Instance.AntiProxy.Threshold:0.00}",
+                                            $"%eCountry: %h1{/*country ?? "Unknown"*/ responseJson["country_code"]}",
+                                            $"%eCity: %h1{responseJson["city"]}"
+                                        };
 
-                                            string[] messages =
-                                            {
-                                                $"%p{ent.Name}'s %e IP has a very low trust score",
-                                                $"%eScore: %h1{score:0.00}/{Config.Instance.AntiProxy.Threshold:0.00}",
-                                                $"%eCountry: %h1{/*country ?? "Unknown"*/ responseJson["country_code"]}",
-                                                $"%eCity: %h1{responseJson["city"]}"
-                                            };
-
-                                            Utils.WarnAdminsWithPerm(ent, AdminPermission, messages);
-                                        }
+                                        Utils.WarnAdminsWithPerm(ent, AdminPermission, messages);
                                     }
-                                };
-                            }
+                                }
+                            };
                         }
-                    });
+                    }
                 });
+            });
         }
     }
 }
+#endif

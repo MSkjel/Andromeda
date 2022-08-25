@@ -14,7 +14,7 @@ namespace ChatOverhaul
     {
         public static string GetDisplayName(this Entity ent)
         {
-            var field = ent.GetDBFieldOr("chat.alias", "$name");
+            var field = ent.GetDBFieldOr("chat.alias", "$name", true);
 
             string formatted(Match match)
                 => ent.GetFormattedName().Replace(ent.Name, match.Groups[1].Value);
@@ -98,13 +98,13 @@ namespace ChatOverhaul
                     var target = args[0] as Entity;
                     if (args[1] is string alias)
                     {
-                        target.TrySetDBField("chat.alias", alias);
+                        target.TrySetDBField("chat.alias", alias, true);
 
                         Common.SayAll($"%p{sender.GetFormattedName()} %nhas set %p{target.GetFormattedName()}%n's alias to %i{alias}%n.");
                     }
                     else
                     {
-                        target.TryRemoveDBField("chat.alias");
+                        target.TryRemoveDBField("chat.alias", true);
 
                         Common.SayAll($"%p{sender.GetFormattedName()} %nhas removed %p{target.GetFormattedName()}%n's alias.");
                     }

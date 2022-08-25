@@ -32,6 +32,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Andromeda.plugin">
@@ -39,7 +42,7 @@
     </Reference>
     <Reference Include="InfinityScript, Version=1.5.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Andromeda\bin\Release\InfinityScript.dll</HintPath>
+      <HintPath>..\..\AbortScript\InfinityScript-Fixed\bin\Release\InfinityScript.dll</HintPath>
     </Reference>
     <Reference Include="PluginBase.auto">
       <HintPath>..\Andromeda\bin\Release\PluginBase.auto.dll</HintPath>

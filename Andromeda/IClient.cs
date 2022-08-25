@@ -70,7 +70,7 @@ namespace Andromeda
             foreach (var msg in messages)
                 Log.Info(msg);
 
-            Events.Events.ConsoleTell.Run(null, messages);
+            //Events.Events.ConsoleTell.Run(null, messages);
         }
 
         public bool RequestPermission(string permission, out string message)

@@ -1,4 +1,5 @@
-﻿using InfinityScript;
+﻿#define LowMemory
+using InfinityScript;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +16,7 @@ namespace AntiCheat
         internal static ISerializer YAMLSerializer = new SerializerBuilder().DisableAliases().Build();
 
         private const string path = @"scripts\AntiCheat";
-
+#if !LowMemory
         public struct AntiAimbotStruct
         {
             public bool Enabled;
@@ -28,7 +29,7 @@ namespace AntiCheat
             public int TagHitMax;
             public int TagHitMaxActionLimit;
         }
-
+#endif
         public struct AntiSilentAimStruct
         {
             public bool Enabled;
@@ -54,23 +55,28 @@ namespace AntiCheat
             public int MaxAngle;
         }
 
+        //public struct AntiEntityStruct
+        //{
+        //    public bool Enabled;
+        //}
+
         public struct AntiForceClassStruct
         {
             public bool Enabled;
         }
 
+#if !LowMemory
+        public struct AntiProxyStruct
+        {
+            public bool Enabled;
+            public float Threshold;
+        }
         public struct AntiWallhackStruct
         {
             public bool Enabled;
             public float MaxHitPercentage;
             public int MinHitTimes;
             public int HitResetTime;
-        }
-
-        public struct AntiProxyStruct
-        {
-            public bool Enabled;
-            public float Threshold;
         }
 
         public AntiAimbotStruct AntiAimbot = new AntiAimbotStruct()
@@ -85,12 +91,12 @@ namespace AntiCheat
             TagHitMax = 15,
             TagHitMaxActionLimit = 15
         };
-
+#endif
         public AntiSilentAimStruct AntiSilentAim = new AntiSilentAimStruct()
         {
             Enabled = true,
 
-            MaxOffsetAngle = 50,
+            MaxOffsetAngle = 40,
 
             MaxActionLimit = 5
         };
@@ -101,7 +107,7 @@ namespace AntiCheat
 
             PingMultiplier = true,
 
-            MaxActionLimit = 60
+            MaxActionLimit = 75
         };
 
         public AntiSpinBotStruct AntiSpinBot = new AntiSpinBotStruct()
@@ -111,11 +117,16 @@ namespace AntiCheat
             MaxAngle = 20
         };
 
+        //public AntiEntityStruct AntiEntity = new AntiEntityStruct()
+        //{
+        //    Enabled = true
+        //};
+
         public AntiForceClassStruct AntiForceClass = new AntiForceClassStruct()
         {
             Enabled = true
         };
-
+#if !LowMemory
         public AntiWallhackStruct AntiWallhack = new AntiWallhackStruct()
         {
             Enabled = true,
@@ -133,8 +144,8 @@ namespace AntiCheat
 
             Threshold = 0.5f
         };
-
-        public static void Load()
+#endif
+        static Config()
         {
             Directory.CreateDirectory(path);
 

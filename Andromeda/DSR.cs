@@ -13,9 +13,10 @@ namespace Andromeda
     public static class DSR
     {
         public static readonly string DSRFolder = Path.Combine(Directory.GetCurrentDirectory(), "admin");
-        private static string ServerName = GSCFunctions.GetDvar("sv_hostname");
+        private static readonly string ServerName = GSCFunctions.GetDvar("sv_hostname");
         private static readonly string DSPL = $"{ EscapeNonPathChars(ServerName) }-Temp";
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0044:Add readonly modifier", Justification = "<Pending>")]
         private static Dictionary<string, string> DSROptions = new Dictionary<string, string>();
 
         public static string LoadedMap
@@ -32,6 +33,7 @@ namespace Andromeda
         } = "";
 
         [EntryPoint]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private static void Init()
         {
             if (GSCFunctions.GetDvar("sv_maprotation") == DSPL)

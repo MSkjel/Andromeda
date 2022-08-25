@@ -1,4 +1,7 @@
-﻿using Andromeda;
+﻿#define LowMemory
+
+#if !LowMemory
+using Andromeda;
 using Andromeda.Events;
 using Andromeda.Events.EventArguments;
 using InfinityScript;
@@ -24,13 +27,16 @@ namespace AntiCheat.ACModules
             set;
         } = Config.Instance.AntiAimbot.Enabled;
 
-        public Action<Entity, string> TakeAction
+        public Lazy<Action<Entity, string>> TakeAction
         {
             get;
             set;
-        } = new Action<Entity, string>((ent, reason) =>
+        } = new Lazy<Action<Entity, string>>(delegate
         {
-            Common.Admin.TempBan(ent, "AntiCheat", reason);
+            return new Action<Entity, string>((ent, reason) =>
+            {
+                Common.Admin.TempBan(ent, "AntiCheat", new TimeSpan(2, 0, 0), reason);
+            });
         });
 
         public void RegisterEvents()
@@ -57,7 +63,7 @@ namespace AntiCheat.ACModules
                     entity.IncrementField("AntiAimbotChange", 1);
 
                     if (entity.IsFieldEqual("AntiAimbotChange", Config.Instance.AntiAimbot.AngleChangeMaxActionLimit))
-                        TakeAction(entity, "Aimbot detected");
+                        TakeAction.Value(entity, "Aimbot detected");
                     else if (entity.IsFieldEqual("AntiAimbotChange", (Config.Instance.AntiAimbot.AngleChangeMaxActionLimit / 2) + 1))
                         Utils.WarnAdminsWithPerm(entity, "anticheat.warn.aimbot", $"%eYou might want to take a look at %p{entity.Name}%e. Aimbot suspected. Angle-Change");
                 }
@@ -68,7 +74,7 @@ namespace AntiCheat.ACModules
                         entity.IncrementField("AntiAimbotTag", 1);
 
                         if (entity.IsFieldEqual("AntiAimbotTag", Config.Instance.AntiAimbot.TagHitMaxActionLimit))
-                            TakeAction(entity, "Aimbot detected");
+                            TakeAction.Value(entity, "Aimbot detected");
                         else if (entity.IsFieldEqual("AntiAimbotTag", (Config.Instance.AntiAimbot.TagHitMaxActionLimit / 2) + 1))
                             Utils.WarnAdminsWithPerm(entity, "anticheat.warn.aimbot", $"%eYou might want to take a look at %p{entity.Name}%e. Aimbot suspected. Tag-Hit");
                     }
@@ -77,7 +83,7 @@ namespace AntiCheat.ACModules
                         ResetTagHitTime(entity);
                     }
                 }
-            });           
+            });
         }
 
         #region Tags
@@ -147,11 +153,11 @@ namespace AntiCheat.ACModules
         private int GetLongestVectorChange(Entity entity)
         {
             if (entity.HasField("LastKillAngle"))
-            {          
+            {
                 Vector3 lastKillAngle = entity.GetField<Vector3>("LastKillAngle");
 
                 return (int)lastKillAngle.DistanceToAngle(entity.GetPlayerAngles());
-                
+
             }
 
             return 0;
@@ -190,3 +196,4 @@ namespace AntiCheat.ACModules
         #endregion
     }
 }
+#endif

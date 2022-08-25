@@ -25,13 +25,13 @@ namespace GroupPerms
                 yield break;
 
             var sb = new StringBuilder(split[0]);
-            yield return $"{sb.ToString()}.*";
+            yield return $"{sb}.*";
 
             for (int i = 1; i < split.Length - 1; i++)
             {
                 sb.Append(".");
                 sb.Append(split[i]);
-                yield return $"{sb.ToString()}.*";
+                yield return $"{sb}.*";
             }
         }
 

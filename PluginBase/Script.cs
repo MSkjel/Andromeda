@@ -52,7 +52,16 @@ namespace InfinityScript
         {
             Log.Info("Cleaning up plugins...");
             foreach (var plugin in LoadedPlugins)
-                plugin.RunCleanups();
+                if(plugin != null)
+                    plugin.RunCleanups();
+       
+            long mem1 = GC.GetTotalMemory(false);
+            LoadedPlugins = null;
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+           
+            long mem2 = GC.GetTotalMemory(false);
+            Log.Info(mem1.ToString());
+            Log.Info(mem2.ToString());
 
             Log.Info("Done cleaning plugins.");
         }

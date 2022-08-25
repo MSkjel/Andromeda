@@ -1,6 +1,8 @@
-﻿using System;
+﻿using InfinityScript;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Andromeda
@@ -72,5 +74,7 @@ namespace Andromeda
 
             sb.Clear();
         }
+
+        public static int RealPing(this Entity ent) => Marshal.ReadInt32(new IntPtr(0x04A0CB08) + ent.EntRef * 0x78688);
     }
 }

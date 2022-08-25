@@ -15,21 +15,21 @@ namespace InfinityScript
 
         internal static void LoadPlugins()
         {
-            var assemblies = Directory.GetFiles(PluginPath, "*.dll", SearchOption.TopDirectoryOnly)
-                .ToDictionary(ass => AssemblyName.GetAssemblyName(ass), ass => ass);
+            //var assemblies = Directory.GetFiles(PluginPath, "*.dll", SearchOption.TopDirectoryOnly)
+            //    .ToDictionary(ass => AssemblyName.GetAssemblyName(ass), ass => ass);
 
-            Assembly resolve(object sender, ResolveEventArgs args)
-            {
-                var name = new AssemblyName(args.Name);
+            //Assembly resolve(object sender, ResolveEventArgs args)
+            //{
+            //    var name = new AssemblyName(args.Name);
 
-                foreach (var entry in assemblies)
-                    if (name.Name == entry.Key.Name && name.Version <= entry.Key.Version)
-                        return LoadAssembly(entry.Value);
+            //    foreach (var entry in assemblies)
+            //        if (name.Name == entry.Key.Name && name.Version <= entry.Key.Version)
+            //            return LoadAssembly(entry.Value);
 
-                return null;
-            }
+            //    return null;
+            //}
 
-            AppDomain.CurrentDomain.AssemblyResolve += resolve;
+            //AppDomain.CurrentDomain.AssemblyResolve += resolve;
 
             foreach (var file in Directory.GetFiles(PluginPath, @"*.plugin.dll", SearchOption.TopDirectoryOnly))
             {
@@ -51,10 +51,10 @@ namespace InfinityScript
         {
             var plugin = new Plugin(path);
 
-            if (plugin.IsLibrary)
-                Log.Info($"Found library {plugin.Name}");
-            else
-                Log.Info($"Found plugin {plugin.Name} with {plugin.EntryPointCount} entry points.");
+            //if (plugin.IsLibrary)
+            //    Log.Info($"Found library {plugin.Name}");
+            //else
+            Log.Info($"Found plugin {plugin.Name} with {plugin.EntryPointCount} entry points.");
 
             LoadedPlugins.Add(plugin);
 
@@ -114,7 +114,7 @@ namespace InfinityScript
                 }
                 catch(Exception ex)
                 {
-                    //Log.Info(ex.ToString());
+                    Log.Info(ex.ToString());
                     break;
                 }
             }
@@ -135,16 +135,19 @@ namespace InfinityScript
 
         public void RunCleanups()
         {
-            foreach (Action action in Cleanups.GetInvocationList())
+            if (Cleanups != null)
             {
-                try
+                foreach (Action action in Cleanups.GetInvocationList())
                 {
-                    action();
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Error running one of plugin {Assembly.GetName().Name}'s cleanups:");
-                    Log.Error(ex);
+                    try
+                    {
+                        action();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"Error running one of plugin {Assembly.GetName().Name}'s cleanups:");
+                        Log.Error(ex);
+                    }
                 }
             }
         }

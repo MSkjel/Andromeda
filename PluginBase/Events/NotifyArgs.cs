@@ -11,6 +11,11 @@ namespace InfinityScript.Events
 
         private Entity ent;
 
+        public int ID
+        {
+            get { return id; }
+        }
+
         public Entity Entity
         {
             get

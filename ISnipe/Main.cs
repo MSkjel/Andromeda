@@ -21,41 +21,6 @@ namespace ISnipe
 
         private static void Enable()
         {
-            void preparePlayer(Entity player)
-            {
-                if (AntiHS)
-                {
-                    player.SetField("adscycles", 0);
-                    player.SetField("letmehardscope", 0);
-
-                    BaseScript.OnInterval(50, delegate
-                    {
-                        float ads = player.PlayerAds();
-                        int adscycles = player.GetField<int>("adscycles");
-
-                        if (ads == 1f && player.IsAlive)
-                            adscycles++;
-                        else
-                            adscycles = 0;
-
-                        if (adscycles > 8)
-                        {
-                            player.AllowAds(false);
-                            player.IPrintLnBold("^1Hardscoping is not allowed!");
-                        }
-
-                        if (!player.AdsButtonPressed() && ads == 0)
-                            player.AllowAds(true);
-
-                        player.SetField("adscycles", adscycles);
-
-                        return true;
-                    });
-                }
-
-                player.GiveMaxAmmo(player.CurrentWeapon);
-            }
-
             if (NoMagnumAmmo)
             {
                 Events.ScavengerPickup.Add((sender, args) =>
@@ -83,6 +48,7 @@ namespace ISnipe
                 });
             }
 
+
             if (AntiFallDamage)
             {
                 Script.PlayerDamage.Add((sender, args) =>
@@ -92,6 +58,7 @@ namespace ISnipe
                 });
             }
 
+
             if(InstantDeath)
             {
                 Script.PlayerDamage.Add((sender, args) =>
@@ -100,6 +67,7 @@ namespace ISnipe
                         args.Damage = 200;
                 }, 10);
             }
+
 
             if (AntiPlant)
                 Events.WeaponChanged.Add((sender, args) =>
@@ -113,10 +81,39 @@ namespace ISnipe
                     }
                 });
 
-            Events.PlayerSpawned.Add((sender, player) =>
-            {
-                preparePlayer(player);
-            });
+
+            if (AntiHS)
+                BaseScript.Players.ForEach((player) =>
+                {
+                    player.SetField("adscycles", 0);
+                    player.SetField("letmehardscope", 0);
+
+                    BaseScript.OnInterval(50, delegate
+                    {
+                        float ads = player.PlayerAds();
+                        int adscycles = player.GetField<int>("adscycles");
+
+                        if (ads == 1f && player.IsAlive)
+                            adscycles++;
+                        else
+                            adscycles = 0;
+
+                        if (adscycles > 8)
+                        {
+                            player.AllowAds(false);
+                            player.IPrintLnBold("^1Hardscoping is not allowed!");
+                        }
+
+                        if (!player.AdsButtonPressed() && ads == 0)
+                            player.AllowAds(true);
+
+                        player.SetField("adscycles", adscycles);
+
+                        return true;
+                    });
+
+                    player.GiveMaxAmmo(player.CurrentWeapon);
+                });
 
             Events.GiveLoadout.Add((sender, player) =>
             {
@@ -149,6 +146,7 @@ namespace ISnipe
         }
 
         [EntryPoint]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private static void Init()
         {
             Events.DSRLoad.Add((sender, args) =>

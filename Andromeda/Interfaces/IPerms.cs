@@ -10,8 +10,14 @@ namespace Andromeda.Interfaces
     {
         bool RequestPermission(Entity entity, string permission, out string message);
 
+        IEnumerable<Entity> PlayersWithDBField(string field);
+
+        IEnumerable<Entity> PlayersWithPerm(string perm);
+
         string GetFormattedName(Entity entity);
 
         bool IsImmuneTo(Entity target, Entity issuer);
+
+        bool IsDefaultLevelOrGroup(Entity entity);
     }
 }

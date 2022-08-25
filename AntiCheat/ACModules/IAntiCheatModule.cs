@@ -9,12 +9,10 @@ namespace AntiCheat.ACModules
     public interface IAntiCheatModule
     {
         string Name { get; }
-        string Description { get; }
+        //string Description { get; }
 
         bool Enabled { get; set; }
 
         void RegisterEvents();
-
-        Action<Entity, string> TakeAction { get; set; }
     }
 }
