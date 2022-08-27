@@ -297,9 +297,10 @@ namespace BaseAdmin
         public static bool CaseInsensitiveStartsWith(string str1, string str2)
             => str1.StartsWith(str2, StringComparison.InvariantCultureIgnoreCase);
 
-        public static string FormatServerMessage(this string message, Entity player, string issuer = "", string reason = "", string duration = "", int warns = 0, int maxwarns = 0)
+        public static string FormatServerMessage(this string message, Entity player, string issuer = "", string reason = "", string duration = "", int banid = -1, int warns = 0, int maxwarns = 0)
         {
             return message
+                .Replace("$banid", banid.ToString())
                 .Replace("$player", player.Name)
                 .Replace("$guid", player.GUID.ToString())
                 .Replace("$hwid", player.HWID.ToString())

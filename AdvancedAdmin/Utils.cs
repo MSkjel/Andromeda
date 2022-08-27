@@ -4,6 +4,7 @@ using InfinityScript;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -345,7 +346,6 @@ namespace AdvancedAdmin
             });
         }
 
-
         internal static void SetClanTag(int clientnum, string clantag)
         {
             if (!string.IsNullOrWhiteSpace(clantag) && !string.IsNullOrEmpty(clantag))
@@ -375,7 +375,6 @@ namespace AdvancedAdmin
                 Marshal.WriteByte(Memory.CalculateUseCustomTitleAddress(clientnum), 0);
         }
 
-
         internal static void SetName(Entity ent, string name)
         {
             ent.SetField("Force_Name", name);
@@ -397,79 +396,91 @@ namespace AdvancedAdmin
             }
         }
 
-        //#region Chopper
-        //private static Entity LB = null;
-        //private static Entity turret = null;
+        internal static HudElem[] GetHudElems()
+        {
+            HudElem[] elems = new HudElem[1024];
 
-        //public static void helicopter_turret(Entity player)
-        //{
-        //    player.SetField("HasHeli", 1);
-        //    player.PlayLocalSound("mp_bonus_start");
-        //    player.SetField("OldWep1", player.CurrentWeapon);
-        //    player.SetField("OldWep2", player.GetCurrentOffhand());
-        //    player.TakeAllWeapons();
-        //    player.Notify("using_remote");
-        //    BaseScript.AfterDelay(1500, () => helicopter(player));
-        //}
+            for (int i = 65536; i < 66560; i++)
+                elems[i - 65536] = HudElem.GetHudElem(i);
 
-        //private static void lbExplode(Entity LB, Entity player)
-        //{
-        //    player.GiveWeapon(player.GetField<string>("OldWep1"));
-        //    player.GiveWeapon(player.GetField<string>("OldWep2"));
-        //    BaseScript.AfterDelay(100, () => player.SwitchToWeaponImmediate(player.GetField<string>("OldWep1")));
-        //    LB.StopLoopSound();
-        //    LB.Vibrate(GSCFunctions.AnglesToRight(LB.Origin), 100, 4, 2);
+            return elems;
+        }
 
-        //    BaseScript.AfterDelay(1000, () =>
-        //    {
-        //        GSCFunctions.PlayFX(96, LB.Origin);
-        //        LB.PlaySound("cobra_helicopter_");
-        //        LB.Delete();
-        //    });
-        //}
+        internal static IEnumerable<HudElem> GetHudElemsWhere(float fontScale = -1, float glowColorX = -1, float glowColorZ = -1)
+        {
+            return GetHudElems().Where(
+                x => x.FontScale == fontScale
+                && x.GlowColor.X > glowColorX - 0.01f
+                && x.GlowColor.X < glowColorX + 0.01f
+                && x.GlowColor.Z > glowColorZ - 0.01f
+                && x.GlowColor.Z < glowColorZ + 0.01f);
+        }
 
-        //private static void helicopter(Entity player)
-        //{
-        //    LB = GSCFunctions.SpawnHelicopter(player, player.Origin + new Vector3(0, 0, 3000), player.GetPlayerAngles(), "littlebird_mp", "vehicle_little_bird_armed");
-        //    turret = GSCFunctions.SpawnTurret("misc_turret", player.Origin, "littlebird_guard_minigun_mp");
+        internal static Entity[] GetAllEntitiesWithName(string targetname)
+        {
+            int entCount = GSCFunctions.GetEntArray(targetname, "targetname").GetHashCode();
+            Entity[] ret = new Entity[entCount];
+            int count = 0;
 
-        //    turret.LinkTo(LB, "tag_minigun_attach_left", new Vector3(30, 30, 0), new Vector3(0, 0, 0));
-        //    turret.SetModel("weapon_minigun");
-        //    turret.MakeUnUsable();
-        //    turret.MakeTurretSolid();
-        //    turret.SetCanDamage(true);
-        //    player.RemoteControlVehicle(LB);
-        //    player.RemoteControlTurret(turret);
-            
-        //    BaseScript.AfterDelay(60000, () =>
-        //    {
-        //        if (player.GetField<int>("HasHeli") == 1)
-        //            DestroyChopper(player);
-        //    });
+            for (int i = 0; i < 2000; i++)
+            {
+                Entity e = Entity.GetEntity(i);
+                string t = e.TargetName;
 
-        //    BaseScript.OnInterval(100, () =>
-        //    {
-        //        if (player.GetField<int>("HasHeli") == 0)
-        //        {
-        //            DestroyChopper(player);
+                if (t == targetname) 
+                    ret[count] = e;
+                else 
+                    continue;
 
-        //            return false;
-        //        }
+                count++;
 
-        //        return true;
-        //    });
-        //}
+                if (count == entCount) 
+                    break;
+            }
+            return ret;
+        }
+        internal static Entity[] GetAllEntitiesWithClassname(string classname)
+        {
+            int entCount = GSCFunctions.GetEntArray(classname, "classname").GetHashCode();
+            Entity[] ret = new Entity[entCount];
+            int count = 0;
 
-        //public static void DestroyChopper(Entity player)
-        //{
-        //    player.SetField("HasHeli", 0);
-        //    player.IPrintLnBold("^1Helicopter  - Gone");
-        //    player.SetField("restoreWeapon", player.CurrentWeapon);
-        //    player.SetField("pos", player.Origin);
-        //    player.RemoteControlTurretOff(turret);
-        //    turret.Delete();
-        //    lbExplode(LB, player);
-        //}
-        //#endregion
+            for (int i = 0; i < 2000; i++)
+            {
+                Entity e = Entity.GetEntity(i);
+                string c = e.Classname;
+
+                if (c == classname)
+                    ret[count] = e;
+                else 
+                    continue;
+
+                count++;
+
+                if (count == entCount) 
+                    break;
+            }
+            return ret;
+        }
+
+        internal static void SetSlowMotion(bool state, int level = 3)
+        {
+            float speedMult = level * 0.1625f;
+
+            if(state)
+            {
+                Marshal.WriteByte(new IntPtr(0x49DF30), 131);
+                GSCFunctions.SetDvar("fixedtime", level);
+                GSCFunctions.SetSlowMotion(speedMult, speedMult, 0f);
+                Marshal.WriteByte(new IntPtr(0x49DF30), 0xC3);
+            }
+            else
+            {
+                Marshal.WriteByte(new IntPtr(0x49DF30), 131);
+                GSCFunctions.SetSlowMotion(1f, 1f, 0f);
+                GSCFunctions.SetDvar("fixedtime", 0);
+                Marshal.WriteByte(new IntPtr(0x49DF30), 0xC3);
+            }
+        }
     }
 }

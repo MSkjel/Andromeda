@@ -3,39 +3,28 @@ using Andromeda.Events;
 using Andromeda.Events.EventArguments;
 using Andromeda.Parse;
 using InfinityScript;
-using InfinityScript.Events;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
+using System.Reflection.Emit;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AdvancedAdmin
 {
     [Plugin]
     public class Main
     {
-        static bool RegisteredCommands = false;
-
         [EntryPoint]
         private static void Init()
         {
+            GSCFunctions.PreCacheItem("iw5_mk12spr_mp");
+            GSCFunctions.PreCacheItem("at4_mp");
+            GSCFunctions.PreCacheItem("iw5_xm25_mp");
+
             Events.DSRLoad.Add((sender, args) =>
             {
                 if (args.TryGetOpt("custom_gametype", out var value))
-                {
                     ServerStr.ReportedGameType = value;
-
-                    Log.Info("Gametype set to: " + value);
-                }
             });
 
             //Config.Load();
@@ -43,31 +32,9 @@ namespace AdvancedAdmin
 
             #region Commands
 
-            //List<Vector3> HoneyPotLocations = new List<Vector3>()
-            //{
-            //    //new Vector3(830.7365f, -111.1118f, -395.175f),
-            //    new Vector3(952.9604f, -636.5637f, -378.8782f),
-            //    new Vector3(1404.098f, 39.18121f, -375.7216f),
-            //    new Vector3(1061.736f, 1567.919f, -254.875f),
-            //    new Vector3(1137.649f, 2456.941f, -254.875f),
-            //    new Vector3(-185.5094f, 2102.716f, -290.875f),
-            //    new Vector3(-847.6745f, 1467.465f, -240.6464f),
-            //    new Vector3(-1543.529f, 1297.813f, -427.875f),
-            //    new Vector3(-963.7859f, 273.5291f, -408.3624f),
-            //    //new Vector3(-829.6369f, -109.6293f, -406.3705f),
-            //    new Vector3(55.74748f, 239.297f, -390.375f),
-            //    //new Vector3(120.1115f, -332.8579f, -390.375f)
-
-            //};
-
-            //List<Vector3> Locations = new List<Vector3>();
-            List<int> HUDElems = new List<int>();
             Dictionary<int, Vector3> spawns = new Dictionary<int, Vector3>();
             bool UnlimitedGrenadesHandlerRegistered = false;
             bool SetSpawnHandlerRegistered = false;
-
-            //bool CanSee(Entity player, Entity victim) => GSCFunctions.SightTracePassed(player.GetTagOrigin("j_head"), victim.GetTagOrigin("j_head"), false, player);
-            //bool CanSeeLoc(Entity player, Vector3 loc) => GSCFunctions.SightTracePassed(player.GetTagOrigin("j_head"), loc, false, player);
 
 
             Command.TryRegister(SmartParse.CreateCommand(
@@ -93,7 +60,6 @@ namespace AdvancedAdmin
             usage: "!fly <player> <state>",
             permission: "fly",
             description: "Enables or disables fly for the specified player"));
-
 
 
             Command.TryRegister(SmartParse.CreateCommand(
@@ -142,36 +108,6 @@ namespace AdvancedAdmin
             permission: "giveammo",
             description: "Replenishes ammo in the primary weapon",
             aliases: new string[] { "ga" }));
-
-
-            //Command.TryRegister(SmartParse.CreateCommand(
-            //name: "unlimitedammowithreload",
-            //argTypes: new[] { SmartParse.Player, SmartParse.Boolean },
-            //action: delegate (Entity sender, object[] args)
-            //{
-            //    Entity ent = args[0] as Entity;
-            //    bool state = (bool)args[1];
-
-            //    ent.SetField("UnlimitedAmmoReload", state);
-
-            //    if (state)
-            //    {
-            //        BaseScript.OnInterval(1, () =>
-            //        {
-            //            if (!ent.IsFieldTrue("UnlimitedAmmoReload"))
-            //                return false;
-
-            //            ent.SetWeaponAmmoStock(ent.CurrentWeapon, int.MaxValue);
-
-            //            return true;
-            //        });
-            //    }
-
-            //    sender.Tell($"%nUnlimitedAmmoWReload for %p{ent.Name} %nset to %i{state}");
-            //},
-            //usage: "!unlimitedammowithreload <player> <state>",
-            //permission: "unlimitedammowithreload",
-            //description: "Enables or disables unlimited ammo with reload for the specified player"));
 
 
             Command.TryRegister(SmartParse.CreateCommand(
@@ -275,28 +211,6 @@ namespace AdvancedAdmin
             usage: "!akimbo",
             permission: "akimbo",
             description: "Enables akimbo primary for the specified player"));
-
-
-            //Command.TryRegister(SmartParse.CreateCommand(
-            //name: "akimbomode",
-            //argTypes: null,
-            //action: delegate (Entity sender, object[] args)
-            //{
-            //    Events.PlayerSpawned.Add((sender1, args1) =>
-            //    {
-            //        Utils.AkimboPrimary(sender1 as Entity);
-            //    });
-
-            //    Events.PlayerRespawned.Add((sender1, args1) =>
-            //    {
-            //        Utils.AkimboPrimary(sender1 as Entity);
-            //    });
-
-            //    sender.Tell($"%nAkimbomode enabled");
-            //},
-            //usage: "!akimbomode",
-            //permission: "akimbomode",
-            //description: "Enables akimbomode"));
 
 
             Command.TryRegister(SmartParse.CreateCommand(
@@ -433,20 +347,6 @@ namespace AdvancedAdmin
             description: "Makes you look at the specified player"));
 
 
-            //Command.TryRegister(SmartParse.CreateCommand(
-            //name: "distanceto",
-            //argTypes: new[] { SmartParse.Player },
-            //action: delegate (Entity sender, object[] args)
-            //{
-            //    Entity ent = args[0] as Entity;
-
-            //    sender.Tell($"%nDistance to %p{ent.Name} %nis %h1{sender.Origin.DistanceTo(ent.Origin)}");
-            //},
-            //usage: "!distanceto <player>",
-            //permission: "distanceto",
-            //description: "Tells you the distance to the specified player"));
-
-
             Command.TryRegister(SmartParse.CreateCommand(
             name: "tppoint",
             argTypes: new[] { SmartParse.OptionalPlayer },
@@ -528,6 +428,7 @@ namespace AdvancedAdmin
             {
                 string wep = args[0] as string;
 
+                
                 sender.GiveWeapon(wep);
                 sender.SetWeaponAmmoClip(wep, int.MaxValue);
                 BaseScript.AfterDelay(100, () => sender.SwitchToWeaponImmediate(wep));
@@ -556,6 +457,25 @@ namespace AdvancedAdmin
             usage: "!aug <player>",
             permission: "aug",
             description: "Gives the specified player an aug"));
+
+
+            Command.TryRegister(SmartParse.CreateCommand(
+            name: "spr",
+            argTypes: new[] { SmartParse.Player },
+            action: delegate (Entity sender, object[] args)
+            {
+                Entity ent = args[0] as Entity;
+
+                ent.GiveWeapon("iw5_mk12spr_mp_thermal_xmags_grip_fmj");
+                ent.TakeWeapon(ent.GetCurrentPrimaryWeapon());
+                ent.SetWeaponAmmoClip("iw5_mk12spr_mp_thermal_xmags_grip_fmj", int.MaxValue);
+                BaseScript.AfterDelay(100, () => ent.SwitchToWeaponImmediate("iw5_mk12spr_mp_thermal_xmags_grip_fmj"));
+
+                sender.Tell($"%p{ent.Name} %nhas been given an SPR");
+            },
+            usage: "!spr <player>",
+            permission: "spr",
+            description: "Gives the specified player an spr"));
 
 
             Command.TryRegister(SmartParse.CreateCommand(
@@ -676,86 +596,6 @@ namespace AdvancedAdmin
             description: "Spawns the client"));
 
 
-            //Command.TryRegister(SmartParse.CreateCommand(
-            //name: "whc",
-            //argTypes: new[] { SmartParse.Player/*, SmartParse.OptionalInteger */},
-            //action: delegate (Entity sender, object[] args)
-            //{
-            //    Entity ent = args[0] as Entity;
-            //    Entity honeyPot = BaseScript.Players.Where(x => x.Name == "SurplusGoods").FirstOrDefault();
-
-            //    if (honeyPot == null)
-            //    {
-            //        sender.Tell("%eHoneypot isnt online");
-            //        return;
-            //    }
-
-            //    Random rand = new Random(DateTime.Now.Hour + DateTime.Now.Second);
-            //    //HudElem elem = HudElem.CreateFontString(ent, HudElem.Fonts.Big, 1);
-            //    //int threshold = 5;
-
-
-            //    //elem.SetPoint("TOPLEFT");
-            //    //elem.HideWhenInDemo = false;
-            //    //elem.HideWhenInMenu = false;
-
-            //    //if (args[1] is int thresh)
-            //    //    threshold = thresh;
-
-
-            //    honeyPot.SetRank(rand.Next(17, 80), rand.Next(0, 20));
-
-            //    if (honeyPot.SessionTeam == "spectator")
-            //    {
-
-            //        honeyPot.Notify("menuresponse", "team_marinesopfor", "spectator");
-            //        BaseScript.AfterDelay(100, () => honeyPot.Notify("menuresponse", "team_marinesopfor", "autoassign"));
-            //        BaseScript.AfterDelay(300, () => honeyPot.Notify("menuresponse", "changeclass", "class0"));
-            //    }
-
-            //    BaseScript.AfterDelay(400, () => honeyPot.PlayerHide());
-
-            //    BaseScript.OnInterval(20, () =>
-            //    {
-            //        if (BaseScript.Players.Where(x => x == ent).Count() == 0)
-            //            return false;
-
-            //        honeyPot.SetOrigin(ent.Origin);
-
-            //        //Utils.SetName(honeyPot.EntRef, "PurelyLogical");
-
-            //        //Vector3 toHit = GSCFunctions.VectorToAngles(honeyPot.GetTagOrigin("j_mainroot") - ent.GetTagOrigin("j_head"));
-            //        //double dist = ent.GetPlayerAngles().DistanceToAngle(toHit);
-
-            //        //if (dist < threshold)
-            //        //{
-            //        //    if (ent.AttackButtonPressed())
-            //        //        elem.SetText("2");
-            //        //    else
-            //        //        elem.SetText("1");
-            //        //}
-            //        //else
-            //        //    elem.SetText("0");
-
-
-            //        //if (CanSee(ent, honeyPot) || ent.Origin.DistanceTo(honeyPot.Origin) > 2300)
-            //        //{
-            //        //    IEnumerable<Vector3> locs = HoneyPotLocations.Where(x => !CanSeeLoc(ent, x)).OrderBy/*Descending*/(x => x.DistanceTo(ent.Origin));
-
-            //        //    if (locs.Count() > 3)
-            //        //        honeyPot.SetOrigin(locs.ElementAt(rand.Next(0, 2)));
-
-            //        //}
-
-            //        return true;
-            //    });
-
-            //},
-            //usage: "!whc <player> [threshold]",
-            //permission: "wallhackcheck",
-            //description: "Spawns a honeypot and does magic"));
-
-
             Command.TryRegister(SmartParse.CreateCommand(
             name: "juggernaut",
             argTypes: new[] { SmartParse.Player },
@@ -782,14 +622,14 @@ namespace AdvancedAdmin
                 {
                     ent.SetField("Allow_Jugg", 1);
                     ent.Notify("menuresponse", "changeclass", "axis");
-                    GSCFunctions.MagicBullet("ims_projectile_mp", ent.Origin, ent.Origin, ent);
+                    BaseScript.AfterDelay(100, () => ent.Suicide());
                 }
 
                 Events.PlayerSpawned.Add((_, ent) =>
                 {
                     ent.SetField("Allow_Jugg", 1);
                     ent.Notify("menuresponse", "changeclass", "axis");
-                    GSCFunctions.MagicBullet("ims_projectile_mp", ent.Origin, ent.Origin, ent);
+                    BaseScript.AfterDelay(100, () => ent.Suicide());
                 });
 
                 Events.PlayerRespawned.Add((_, ent) =>
@@ -815,14 +655,14 @@ namespace AdvancedAdmin
                 {
                     ent.SetField("Allow_Jugg", 1);
                     ent.Notify("menuresponse", "changeclass", "axis");
-                    GSCFunctions.MagicBullet("ims_projectile_mp", ent.Origin, ent.Origin, ent);
+                    BaseScript.AfterDelay(100, () => ent.Suicide());
                 }
 
                 Events.PlayerSpawned.Add((_, ent) =>
                 {
                     ent.SetField("Allow_Jugg", 1);
                     ent.Notify("menuresponse", "changeclass", "axis");
-                    GSCFunctions.MagicBullet("ims_projectile_mp", ent.Origin, ent.Origin, ent);
+                    BaseScript.AfterDelay(100 , () => ent.Suicide());
                 });
 
                 Events.PlayerRespawned.Add((_, ent) =>
@@ -832,12 +672,12 @@ namespace AdvancedAdmin
                     ent.TakeAllWeapons();
                     ent.GiveWeapon("iw5_l96a1_mp_l96a1scope_xmags");
                     ent.GiveWeapon("throwingknife_mp");
-                    ent.GiveWeapon("trophy_mp");
+                    ent.SetOffhandPrimaryClass("throwingknife");
                     ent.GiveWeapon("stinger_mp");
                     ent.GiveMaxAmmo(ent.GetCurrentPrimaryWeapon());
                     ent.EnableWeaponPickup();
 
-                    BaseScript.AfterDelay(150, () => ent.SwitchToWeaponImmediate("iw5_l96a1_mp_l96a1scope_xmags"));
+                    BaseScript.AfterDelay(100, () => ent.SwitchToWeaponImmediate("iw5_l96a1_mp_l96a1scope_xmags"));
 
                     Utils.Perks.Value.ForEach(x => { if (!x.Contains("stopping") && !x.Contains("bulletpenetration") && !x.Contains("holdbreathwhileads")) ent.SetPerk(x, true, false); });
                 });
@@ -1219,9 +1059,29 @@ namespace AdvancedAdmin
                 int nuke_aftermath = GSCFunctions.LoadFX("dust/nuke_aftermath_mp");
 
                 GSCFunctions.SetDvar("ui_bomb_timer", 4);
+                ent.PlayLocalSound("US_1mc_use_moab");
+                ent.IPrintLnBold("Friendly Nuke inbound!");
+                BaseScript.Players.ForEach(x => { if (x != ent) x.PlayLocalSound("US_1mc_enemy_moab"); });
                 BaseScript.AfterDelay(nukeTime - 3300, () => BaseScript.Players.ForEach(x => x.PlaySound("nuke_incoming")));
                 BaseScript.AfterDelay(nukeTime, () => BaseScript.Players.ForEach(x => x.PlaySound("nuke_explosion")));
                 BaseScript.AfterDelay(nukeTime, () => BaseScript.Players.ForEach(x => x.PlaySound("nuke_wave")));
+                BaseScript.AfterDelay(nukeTime - 1000, () =>
+                {
+                    int level = 5;
+
+                    BaseScript.OnInterval(250, () =>
+                    {
+                        if (level < 3)
+                            return false;
+
+                        Utils.SetSlowMotion(true, level);
+
+                        level--;
+
+                        return true;
+                    });
+                });
+                BaseScript.AfterDelay(nukeTime + 250, () => Utils.SetSlowMotion(false));
                 BaseScript.AfterDelay(nukeTime - 350, () =>
                 {
                     BaseScript.Players.ForEach(x =>
@@ -1234,8 +1094,6 @@ namespace AdvancedAdmin
                         }
                     });
                 });
-
-                BaseScript.AfterDelay(nukeTime + 250, () => GSCFunctions.VisionSetNaked("mpnuke", 3));
 
                 Script.Notified.Add((_, arg) =>
                 {
@@ -1250,10 +1108,9 @@ namespace AdvancedAdmin
 
                 Events.GameEnded.Add((_, arg) =>
                 {
-                    BaseScript.OnInterval(100, () =>
+                    BaseScript.OnInterval(10, () =>
                     {
-                        foreach (HudElem elem in HUDElems.Select(x => HudElem.GetHudElem(x))
-                            .Where(y => y.FontScale == 2f && y.GlowColor.X > 0.18f && y.GlowColor.X < 0.21f && y.GlowColor.Z > 0.65f && y.GlowColor.Z < 0.75f))
+                        foreach (HudElem elem in Utils.GetHudElemsWhere(2f, 0.2f, 0.7f))
                             elem.SetText("Tactical Nuke");
 
                         return true;
@@ -1282,7 +1139,6 @@ namespace AdvancedAdmin
 
                         BaseScript.Players.ForEach(x => GSCFunctions.PlayFXOnTagForClients(nuke_flash, x, "tag_origin", ent));
                         GSCFunctions.VisionSetNaked("mpnuke", 3);
-                        //BaseScript.Players.ForEach(x => x.VisionSetNakedForPlayer("mpnuke", 3));
 
                         Events.FinalKillcamDone.Add((_, arg) =>
                         {
@@ -1296,7 +1152,6 @@ namespace AdvancedAdmin
 
                     return true;
                 });
-                //"ui_text_endreason";
 
             },
             usage: "!switchname <player>",
@@ -1334,85 +1189,30 @@ namespace AdvancedAdmin
 
 
             Command.TryRegister(SmartParse.CreateCommand(
-            name: "test",
-            argTypes: new[] { SmartParse.Player },
+            name: "slowmo",
+            argTypes: new[] { SmartParse.Boolean },
             action: delegate (Entity sender, object[] args)
             {
-                Entity ent = args[0] as Entity;
-
-                ent.SetPlayerData("customClasses", 0, "name", "\u005e\u0001ðÀ\u000fshellshock");
-                ent.SetPlayerData("customClasses", 1, "name", "\u005e\u0001ðÀ\u000fshellshock");
-
+                Utils.SetSlowMotion((bool)args[0]);
             },
-            usage: "!switchname <player>",
-            permission: "switchname",
-            description: "Switches your name with the specified player"));
+            usage: "!slowmo <state>",
+            permission: "slowmo",
+            description: "Brings the game speed down to 50 percent"));
 
-            // Command.TryRegister(SmartParse.CreateCommand(
-            //name: "test2",
-            //argTypes: new[] { SmartParse.Player, SmartParse.GreedyString },
-            //action: delegate (Entity sender, object[] args)
-            //{
-            //    Entity ent = args[0] as Entity;
-            //    byte[] OverflowBytes = new byte[] { 0x5E, 0x01 };
-            //    Utils.SetTitle(ent.EntRef,Encoding.ASCII.GetString(OverflowBytes) + args[1]);
-
-            //},
-            //usage: "!switchname <player>",
-            //permission: "switchname",
-            //description: "Switches your name with the specified player"));
 
             Command.TryRegister(SmartParse.CreateCommand(
-           name: "test3",
-           argTypes: new[] { SmartParse.Player, SmartParse.GreedyString },
-           action: delegate (Entity sender, object[] args)
-           {
-               Entity ent = args[0] as Entity;
-               Utils.SetName(ent, "^\u0001ðÀ\u000f" + args[1]);
+            name: "setdvar",
+            argTypes: new[] { SmartParse.String, SmartParse.String },
+            action: delegate (Entity sender, object[] args)
+            {
+                GSCFunctions.SetDvar(args[0] as string, args[1] as string);
 
-           },
-           usage: "!switchname <player>",
-           permission: "switchname",
-           description: "Switches your name with the specified player"));
+                sender.Tell($"%p{args[0]} %nset to %i{args[1]}");
+            },
+            usage: "!setdvar <string> <string>",
+            permission: "setdvar",
+            description: "Sets the dvar to the specieifed value"));
 
-            //Command.TryRegister(SmartParse.CreateCommand(
-            //name: "test2",
-            //argTypes: new[] { SmartParse.GreedyString},
-            //action: delegate (Entity sender, object[] args)
-            //{
-            //    byte[] OverflowBytes = new byte[] { 0x5E, 0x01 };
-            //    CurrentGuess[0] = (char)MinAscii;
-
-            //    List<string> LastGuesses = new List<string>();
-            //    Regex regx = new Regex("[\\^\\D]");
-
-            //    Task.Factory.StartNew(() =>
-            //    {
-            //        while (NextGuess())
-            //        {
-            //            string str = new string(CurrentGuess);
-            //            if (regx.Match(str).Success)
-            //                str = regx.Replace(str, "");
-            //            Common.Utils.SayAllPlayers(new[] { Encoding.ASCII.GetString(OverflowBytes) + str });
-
-            //            if(LastGuesses.Count > 100)
-            //                LastGuesses.Remove(LastGuesses[0]);
-
-            //            LastGuesses.Add(str);
-
-            //            if (BaseScript.Players.Count < 2)
-            //            {
-            //                File.WriteAllLines("IFound.txt", LastGuesses);
-            //                break;
-            //            }
-
-            //            Thread.Sleep(1000);
-            //        }
-            //    });
-            //},
-            //usage: "!switchname <player>",
-            //permission: "switchname",
-            //description: "Switches your name with the specified player"));
 
             Command.TryRegister(SmartParse.CreateCommand(
             name: "clutch",
@@ -1444,314 +1244,164 @@ namespace AdvancedAdmin
             description: "Makes u able to clutch, u 1337 hexorman"));
 
 
-            //// SetTitle
+            //// TEST
             //Command.TryRegister(SmartParse.CreateCommand(
-            //   name: "onlyforme",
-            //   argTypes: new[] { SmartParse.OptionalGreedyString },
-            //   action: delegate (Entity sender, object[] args)
-            //   {               
-            //       if (args[0] is string str)
-            //       {
-            //           string[] strings = str.Split(' ');
-
-            //           BaseScript.OnInterval(100, () =>
-            //           {
-            //               int at = 0;
-            //               IEnumerable<Entity> players = BaseScript.Players.OrderByDescending(x => x.Score);
-
-            //               foreach(Entity player in players)
-            //               {
-            //                   try
-            //                   {
-            //                       Utils.SetName(player.EntRef, strings[at]);
-            //                       at++;
-            //                   }
-            //                   catch (Exception)
-            //                   {
-
-            //                   }
-            //               }
-
-            //               return true;
-            //           });
-            //       }
-            //   },
-            //   usage: "!onlyforme <string>",
-            //   permission: "onlyforme",
-            //   description: "Does a thing"));
-
-
-            //// SetTitle
-            //Command.TryRegister(SmartParse.CreateCommand(
-            //   name: "onlyforme2",
-            //   argTypes: new[] { SmartParse.Player, SmartParse.Integer, SmartParse.OptionalGreedyString },
+            //   name: "notifies",
+            //   argTypes: null,
             //   action: delegate (Entity sender, object[] args)
             //   {
-            //       Entity target = args[0] as Entity;
-            //       int interval = (int)args[1];
 
-            //       if (args[2] is string str)
+            //       Script.Notified.Add((_, args1) =>
             //       {
-            //           string[] strings = str.Split(' ');
-            //           int at = 0;
+            //           Log.Debug("Level: " + args1.Notify + "(" + (string.Join(", ", args1.Parameters.Select(x => x.ToString())) + ")"));
+            //       });
 
-            //           BaseScript.OnInterval(interval, () =>
-            //           {
-            //               try
-            //               {
-            //                   if (at >= strings.Length)
-            //                       at = 0;
-
-            //                   Utils.SetName(target.EntRef, strings[at]);
-
-            //                   at++;
-            //               }
-            //               catch(Exception)
-            //               {
-
-            //               }
-
-            //               return true;
-            //           });
-            //       }
+            //       Script.PlayerNotified.Add((sender1, args1) =>
+            //       {
+            //           Log.Debug($"Entity({args1.Entity.EntRef}): " + args1.Notify + "(" + (string.Join(", ", args1.Parameters.Select(x => x.ToString())) + ")"));
+            //       });
             //   },
-            //   usage: "!onlyforme2 <player> <interval> <strings>",
-            //   permission: "onlyforme2",
-            //   description: "Does a thing"));
+            //   usage: "!notifies",
+            //   permission: "notifies",
+            //   description: ""));
 
-
-            // TEST
             Command.TryRegister(SmartParse.CreateCommand(
-               name: "notifies",
-               argTypes: null,
-               action: delegate (Entity sender, object[] args)
-               {
+            name: "test",
+            argTypes: new[] { SmartParse.Integer/*, SmartParse.Integer*/},
+            action: delegate (Entity sender, object[] args)
+            {
+                int level = (int)args[0];
+                Utils.SetSlowMotion(true, level);
+                //float levelfloat = (int)args[0] / 100f;
 
-                   Script.Notified.Add((_, args1) =>
-                   {
-                       Log.Debug("Level: " + args1.Notify + "(" + (string.Join(", ", args1.Parameters.Select(x => x.ToString())) + ")"));
-                   });
+                //Marshal.WriteByte(new IntPtr(0x49DF30), 131);
+                //GSCFunctions.SetDvar("fixedtime", 3);
+                //GSCFunctions.SetSlowMotion(levelfloat, levelfloat, 0f);
+                //Marshal.WriteByte(new IntPtr(0x49DF30), 0xC3);
 
-                   Script.PlayerNotified.Add((sender1, args1) =>
-                   {
-                       Log.Debug($"Entity({args1.Entity.EntRef}): " + args1.Notify + "(" + (string.Join(", ", args1.Parameters.Select(x => x.ToString())) + ")"));
-                   });
-               },
-               usage: "!notifies",
-               permission: "notifies",
-               description: ""));
+                //int level = (int)args[1];
 
+                //sender.Tell(levelfloat.ToString("0.00") + " " + level.ToString());
+                //Utils.SetSlowMotion(true, levelfloat, level);
+                //Entity ent = args[0] as Entity;
+
+                //GSCFunctions.SetDvar("com_maxfps", 0);
+                //GSCFunctions.SetDevDvar("sv_network_fps", 200);
+                //GSCFunctions.SetDvar("sv_hugeSnapshotSize", 4000);
+                //GSCFunctions.SetDvar("sv_hugeSnapshotDelay", 200);
+                //GSCFunctions.SetDvar("sv_pingDegradationLimit", 9999);
+                //GSCFunctions.SetDvar("sv_acceptableRateThrottle", 9999);
+                //GSCFunctions.SetDvar("sv_newRateThrottling", 0);
+                //GSCFunctions.SetDvar("sv_newRateInc", 200);
+                //GSCFunctions.SetDvar("sv_newRateCap", 500);
+                //GSCFunctions.SetDvar("sv_minPingClamp", 50);
+                //GSCFunctions.SetDvar("sv_cumulThinkTime", 1000);
+                //GSCFunctions.SetDvar("playListUpdateCheckMinutes", 999999999);
+                //GSCFunctions.SetDvar("sys_lockThreads", "none");
+                //GSCFunctions.SetDvar("com_maxFrameTime", 100);
+
+                //Entity[] vehicles = Utils.GetAllEntitiesWithName("destructible_vehicle");
+                //Entity[] barrels = Utils.GetAllEntitiesWithName("explodable_barrel");
+                //Entity[] toys = Utils.GetAllEntitiesWithName("destructible_toyl");
+
+                //foreach (Entity vehicle in vehicles)
+                //    vehicle.Notify("damage", 9999, 0);
+
+                //foreach (Entity toy in toys)
+                //    toy.Notify("damage", 9999, 0);
+
+                //foreach (Entity barrel in barrels)
+                //    barrel.Notify("damage", 9999, 0);
+
+                //float level = 0.7f;
+
+                //BaseScript.OnInterval(2500, () =>
+                //{
+                //    BaseScript.AfterDelay(1250, () =>
+                //    {
+                //        Common.Utils.SayAllPlayers(new[] { "1" });
+                //        Utils.SetSlowMotion(false);
+                //    });
+
+                //    Common.Utils.SayAllPlayers(new[] { level.ToString("0.00") });
+                //    Utils.SetSlowMotion(true, level);
+
+                //    level -= 0.05f;
+
+                //    return true;
+                //});
+
+            },
+            usage: "!switchname <player>",
+            permission: "switchname",
+            description: "Switches your name with the specified player"));
             #endregion
 
-            //Events.PlayerDBConnected.Add((sender, ent) =>
-            //{
-            //    if (ent.GetDBFieldOr("UnInspiring", "False", true) != "False")
-            //    {
-            //        bool Uninspired = false;
-            //        Random rand = new Random(DateTime.Now.Second);
-
-            //        //BaseScript.OnInterval(2500, () =>
-            //        //{
-            //        //    args.SetClientDvar("cg_objectiveText", "^1Umpa");
-            //        //    BaseScript.AfterDelay(500, () => args.SetClientDvar("cg_objectiveText", "^2Sucks"));
-            //        //    BaseScript.AfterDelay(1000, () => args.SetClientDvar("cg_objectiveText", "^3Big"));
-            //        //    BaseScript.AfterDelay(1500, () => args.SetClientDvar("cg_objectiveText", "^5Dicks"));
-            //        //    BaseScript.AfterDelay(2000, () => args.SetClientDvar("cg_objectiveText", "^1He really does :P"));
-            //        //    return true;
-            //        //});
-
-            //        Lazy<List<string>> NonInspiringQuotes = new Lazy<List<string>>(delegate
-            //        {
-            //            return new List<string>()
-            //            {
-            //                "Rome did not create a great empire by having meetings, they did it by killing all people who opposed them.",
-            //                "If you can stay calm, while all around you is chaos…then you probably haven’t completely understood the seriousness of the situation.",
-            //                "Artificial Intelligence is no match for Natural Stupidity.",
-            //                "Plagiarism saves time.",
-            //                "Never put off until tomorrow what you can avoid altogether.",
-            //                "Aim Low, Reach Your Goals, Avoid Disappointment.",
-            //                "Your life can’t fall apart if you never had it together.",
-            //                "Life is hard, but it’s even harder if you’re stupid.",
-            //                "The meaning of life is to find your gift. So good luck with that.",
-            //                "Life is what happens when you’re busy reading inspirational quotes.",
-            //                "You only die once.",
-            //                "Today is the first day of the rest of your life. But so was yesterday, and look how that turned out.",
-            //                "It’s all downhill from here.",
-            //                "Life’s a bitch, and then you die.",
-            //                "It’s never too late to fail.",
-            //                "Some people are born losers, others have to learn the hard way.",
-            //                "Try hard and don’t worry if you fail because everyone expected that.",
-            //                "Will it be easy? Nope. Worth it? Absolutely not!",
-            //                "The first step toward failure is trying.",
-            //                "You miss 100 percent of the shots you do take also.",
-            //                "Every day is Friday when you’re unemployed.",
-            //                "It’s true hard work never killed anybody, but I figure, why take the chance? – Ronald Reagan",
-            //                "When work feels overwhelming, remember that you’re going to die.",
-            //                "Work hard, complain harder.",
-            //                "It’s never too late to go back to bed.",
-            //                "Drop it like it’s your hopes and dreams.",
-            //                "Every morning wake up and scream your dreams into a garbage can where they belong.",
-            //                "Failure is always an option.",
-            //                "Dream big. Then settle.",
-            //                "I love hating things.",
-            //                "Don’t let the bastards cheer you up.",
-            //                "Always believe that something wonderful will probably never happen.",
-            //                "Get ready for more of the same.",
-            //                "The only way to save the planet is to stop making new people.",
-            //                "The two most common elements in the universe are hydrogen and stupidity. - Harlan Ellison",
-            //                "Listen to your heart. When you hear it stop beating, seek medical attention",
-            //                "My life is like a romantic comedy, except there’s no romance and it’s just me laughing at my own jokes.",
-            //                "Every dead body on Mt. Everest was once a highly motivated person, so… maybe calm down.",
-            //                "Light travels faster than sound. This is why some people appear bright until you hear them speak. - Alan Dundes",
-            //                "Just because we accept you as you are doesn’t mean we’ve abandoned hope you’ll improve.",
-            //                "Idiocy – never underestimate the power of stupid people in large groups.",
-            //                "If life doesn’t break you today, don’t worry. It will try again tomorrow.",
-            //                "People who say they’ll give 110 percent don’t understand how percentages work.",
-            //                "A thousand-mile journey starts with one step. Then again, so does falling in a ditch and breaking your neck.",
-            //                "If you never try anything new, you’ll miss out on many of life’s great disappointments",
-            //                "If at first, you don't succeed, try, try again. Then quit. No use being a damn fool about it. - W.C. Fields",
-            //                "It could be that your purpose in life is to serve as a warning to others. - Ashleigh Brilliant",
-            //                "Just because you are unique doesn't mean you are useful.",
-            //                "Multitasking – the art of doing twice as much as you should half as well as you could.",
-            //                "Life is pain. Anyone who says otherwise is selling something. – William Goldman",
-            //                "When life knocks you down, stay there and take a nap.",
-            //                "Nothing says ‘you’re a loser’ more than owning a motivational poster about being a winner."
-            //            };
-            //        });
-
-            //        if (!Uninspired)
-            //        {
-            //            Script.PlayerKilled.Add((_, arg) =>
-            //            {
-            //                if (arg.Player.GetDBFieldOr("UnInspiring", "False", true) != "False")
-            //                {
-            //                    if (rand.Next(0, 7) > 5)
-            //                    {
-            //                        arg.Player.SayAll(NonInspiringQuotes.Value[rand.Next(0, NonInspiringQuotes.Value.Count - 1)]);
-            //                    }
-            //                }
-            //            });
-
-            //            Uninspired = true;
-            //        }
-            //    }
-            //});
-
-
             //Make MOAB end game and set endreason to Tactical Nuke
-            Script.Notified.Add((m, args) =>
+            if (GSCFunctions.GetDvarInt("scr_nukeEndsGame") == 1)
             {
-                if (args.ID > 65000)
+                Script.Notified.Add((m, args) =>
                 {
-                    HudElem elem = HudElem.GetHudElem(args.ID);
+                    if (args.Notify == "nuke_EMPJam")
+                    {
+                        BaseScript.Players.ForEach(x => x.Notify("menuresponse", "menu", "endround"));
 
-                    if (!HUDElems.Contains(args.ID))
-                        HUDElems.Add(args.ID);
-                }
-                else if (args.Notify == "nuke_EMPJam")
-                {
-                    BaseScript.Players.ForEach(x => x.Notify("menuresponse", "menu", "endround"));
+                        Events.GameEnded.Add((_, arg) =>
+                        {
+                            BaseScript.OnInterval(10, () =>
+                            {
+                                foreach (HudElem elem in Utils.GetHudElemsWhere(2f, 0.2f, 0.7f))
+                                    elem.SetText("Tactical Nuke");
 
-                    Events.GameEnded.Add((_, arg) =>
+                                return true;
+                            });
+                        });
+                    }
+                    else if(args.Notify == "used_nuke")
                     {
                         BaseScript.OnInterval(100, () =>
                         {
-                            foreach (HudElem elem in HUDElems.Select(x => HudElem.GetHudElem(x))
-                                .Where(y => y.FontScale == 2f && y.GlowColor.X > 0.18f && y.GlowColor.X < 0.21f && y.GlowColor.Z > 0.65f && y.GlowColor.Z < 0.75f))
-                                elem.SetText("Tactical Nuke");
+                            if(GSCFunctions.GetDvarInt("ui_nuke_end_milliseconds") - GSCFunctions.GetTime() < 800)
+                            {
+                                Utils.SetSlowMotion(true);
+
+                                BaseScript.AfterDelay(2700, () => Utils.SetSlowMotion(false));
+
+                                return false;
+                            }
 
                             return true;
                         });
-                    });
-                }
-            });
-
-            //Anti-Unbanner
-            //Events.PlayerDBConnected.Add((_, ent) =>
-            //{
-            //    if ((int)ent.GetPlayerData("awards", "laststandkills") == 1337
-            //    && (int)ent.GetPlayerData("awards", "shieldkills") == 7331
-            //    && (int)ent.GetPlayerData("awards", "bombsdefused") == 8008)
-            //        Common.Admin.Kick(ent, "", "");
-            //});
+                    }
+                });
+            }
 
             //Slowdown in final killcam
             Events.ShowingFinalKillcam.Add((_, arg) =>
             {
-                BaseScript.AfterDelay(3460, () =>
+                BaseScript.AfterDelay(2000, () =>
                 {
-                    Marshal.WriteByte(new IntPtr(0x49DF30), 131);
-                    GSCFunctions.SetSlowMotion(0.7f, 0.7f, 0f);
+                    int level = 5;
 
-                    BaseScript.AfterDelay(700, () =>
+                    BaseScript.OnInterval(250, () =>
                     {
-                        GSCFunctions.SetSlowMotion(1f, 1f, 0f);
-                        Marshal.WriteByte(new IntPtr(0x49DF30), 0xC3);
+                        if (level < 3)
+                            return false;
+
+                        Utils.SetSlowMotion(true, level);
+
+                        level--;
+
+                        return true;
+                    });
+
+
+                    BaseScript.AfterDelay(3200, () =>
+                    {
+                        Utils.SetSlowMotion(false);
                     });
                 });
             });
-        }
-
-        private const int MaxAscii = 0xFF;
-        private const int MaxSize = 15;
-        private const int MinAscii = 0;
-
-        private static int _currentLength = 0;
-        public static char[] CurrentGuess = new char[MaxSize];
-
-        public static bool NextGuess()
-        {
-            if (_currentLength >= MaxSize)
-            {
-                return false;
-            }
-
-            //Increment the previous digit (Uses recursion!)
-            IncrementDigit(_currentLength);
-
-            return true;
-        }
-
-        /// <summary>
-        /// Increment the character at the index by one. If the character is at the maximum 
-        /// ASCII value, set it back to the minimum, and increment the previous character.
-        /// Use recursion to do this, so that the proggy will step all the way back as needed.
-        /// If the very bottom of the string is reached, add another character to the guess.
-        /// </summary>
-        /// <param name="digitIndex"></param>
-        private static void IncrementDigit(int digitIndex)
-        {
-            //Don't fall out the bottom of the array.
-            //If we're at the bottom of the array, add another character
-            if (digitIndex < 0)
-            {
-                AddCharacter();
-            }
-            else
-            {
-                //If the current character is max ASCII, set to min ASCII, and increment the previous char.
-                if (CurrentGuess[digitIndex] == (char)MaxAscii)
-                {
-                    CurrentGuess[digitIndex] = (char)MinAscii;
-                    IncrementDigit(digitIndex - 1);
-                }
-                else
-                {
-                    CurrentGuess[digitIndex]++;
-                }
-            }
-        }
-
-        private static void AddCharacter()
-        {
-            _currentLength++;
-            //If we've reached our maximum guess size, leave now and don't come back.
-            if (_currentLength >= MaxSize)
-            {
-                return;
-            }
-            //Initialis as min ASCII.
-            CurrentGuess[_currentLength] = (char)(MinAscii);
         }
     }
 

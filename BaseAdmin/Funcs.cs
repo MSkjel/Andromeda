@@ -49,7 +49,7 @@ namespace BaseAdmin
                 cmd.Parameters.AddWithValue("@reason", message);
                 cmd.Parameters.AddWithValue("@time", "permanent");
 
-                BanKick(ent, issuer, message);
+                BanKick(ent, issuer, message, -1);
 
                 Common.SayAll(Config.BanMessages.BanMessageServer.FormatServerMessage(ent, issuer, message));
 
@@ -63,8 +63,8 @@ namespace BaseAdmin
             Events.PlayerBan.Run(null, new PlayerBanArgs(ent, issuer, message));
         }
 
-        internal static void BanKick(Entity ent, string issuer, string message)
-            => DelayedKick(ent, Config.BanMessages.BanMessagePlayer.FormatServerMessage(ent, issuer, message).ColorFormat());
+        internal static void BanKick(Entity ent, string issuer, string message, int banid)
+            => DelayedKick(ent, Config.BanMessages.BanMessagePlayer.FormatServerMessage(ent, issuer, message, "", banid).ColorFormat());
 
         public static void Kick(Entity ent, string issuer, string message = "You have been kicked")
         {
@@ -88,7 +88,7 @@ namespace BaseAdmin
                 cmd.Parameters.AddWithValue("@reason", message);
                 cmd.Parameters.AddWithValue("@time", Main.FormatDate(DateTime.Now + timeSpan));
 
-                TempBanKick(ent, issuer, timeSpan, message);
+                TempBanKick(ent, issuer, timeSpan, message, -1);
 
                 var spanstr = $"{timeSpan.Days}d{timeSpan.Hours}h{timeSpan.Minutes}m";
 
@@ -104,11 +104,11 @@ namespace BaseAdmin
             Events.PlayerTempBan.Run(null, new PlayerTempBanArgs(ent, issuer, message, timeSpan));
         }
 
-        internal static void TempBanKick(Entity ent, string issuer, TimeSpan timeSpan, string message)
+        internal static void TempBanKick(Entity ent, string issuer, TimeSpan timeSpan, string message, int banid)
         {
             var spanstr = $"{timeSpan.Days}d{timeSpan.Hours}h{timeSpan.Minutes}m";
 
-            DelayedKick(ent, Config.TempBanMessages.TempBanMessagePlayer.FormatServerMessage(ent, issuer, message, spanstr).ColorFormat());
+            DelayedKick(ent, Config.TempBanMessages.TempBanMessagePlayer.FormatServerMessage(ent, issuer, message, spanstr, banid).ColorFormat());
         }
 
         public static void Unwarn(Entity ent, string issuer, string reason = "You have been unwarned")

@@ -669,6 +669,7 @@ namespace BaseAdmin
                     bool found = false;
                     TimeSpan? timeSpan = null;
                     string message = null, issuer = null;
+                    int banid = -1;
                     var reader = cmd.ExecuteReader();
                     if (reader.Read())
                     {
@@ -681,6 +682,7 @@ namespace BaseAdmin
 
                         message = reader["reason"] as string;
                         issuer = reader["issuer"] as string;
+                        banid = reader.GetInt32(0);
                     }
 
                     reader.Close();
@@ -691,11 +693,11 @@ namespace BaseAdmin
                     {
                         if (timeSpan.HasValue)
                         {
-                            Funcs.TempBanKick(player, issuer, timeSpan.Value, message);
+                            Funcs.TempBanKick(player, issuer, timeSpan.Value, message, banid);
                             yield break;
                         }
 
-                        Funcs.BanKick(player, issuer, message);
+                        Funcs.BanKick(player, issuer, message, banid);
                         yield break;
                     }
                 }

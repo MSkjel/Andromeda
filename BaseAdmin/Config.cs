@@ -58,7 +58,7 @@ namespace BaseAdmin
 
         public TempBanStruct TempBanMessages = new TempBanStruct()
         {
-            TempBanMessagePlayer = "%nYou have been tempbanned by %p$issuer%n. Duration: %h1$duration%n. Reason: %i$reason",
+            TempBanMessagePlayer = "%nYou have been tempbanned by %p$issuer%n. Duration: %h1$duration%n. Reason: %i$reason. %nID %i$banid",
             TempBanMessageServer = "%p$player %nhas been tempbanned by %p$issuer%n. Duration: %h1$duration%n. Reason: %i$reason"
         };
 
@@ -70,7 +70,7 @@ namespace BaseAdmin
 
         public BanStruct BanMessages = new BanStruct()
         {
-            BanMessagePlayer = "%nYou have been banned by %p$issuer%n. Reason: %i$reason",
+            BanMessagePlayer = "%nYou have been banned by %p$issuer%n. Reason: %i$reason. %nID %i$banid",
             BanMessageServer = "%p$player %nhas been banned by %p$issuer%n. Reason: %i$reason"
         };
 
